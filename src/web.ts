@@ -1,5 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
 
+/*
 import type { BackgroundGeolocationPlugin } from './definitions';
 
 export class BackgroundGeolocationWeb
@@ -10,3 +11,4 @@ export class BackgroundGeolocationWeb
     return options;
   }
 }
+*/

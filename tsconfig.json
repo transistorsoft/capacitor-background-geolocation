@@ -1,19 +1,19 @@
 {
   "compilerOptions": {
     "allowUnreachableCode": false,
-    "declaration": true,
+    "declaration": false,
     "esModuleInterop": true,
-    "lib": ["dom", "es2017"],
-    "module": "esnext",
+    "lib": ["dom", "es2015"],
+    "module": "es2015",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outDir": "dist/esm",
+    "outDir": "dist",
     "pretty": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2017"
+    "target": "es5",
   },
   "files": ["src/index.ts"]
 }
