@@ -1,0 +1,22 @@
+
+ion-label.devicename {
+	font-style: italic;
+	font-weight: bold;
+	font-size: 2rem;
+	text-align: center;
+}
+ion-card.card-md {
+	margin-top: 20px;
+	border-radius: 10px;
+	padding-top: 1.2rem;
+	ion-item.item-md {
+		margin-bottom: 1.2rem;
+		min-height: inherit;
+		ion-label.label-md {
+			margin: 0;
+		}
+		ion-label.url {
+			font-style: italic;
+		}
+	}
+}

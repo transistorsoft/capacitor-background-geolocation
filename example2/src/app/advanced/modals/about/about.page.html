@@ -1,0 +1,33 @@
+<!--
+  Generated template for the About page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+	<ion-toolbar mode="ios" color="dark">
+		<img class="logo" src="assets/imgs/transistor-logo.svg" />
+		<ion-buttons slot="end">
+			<a href="https://www.transistorsoft.com/shop/products/capacitor-background-geolocation"><ion-button fill="outline" color="dark">Buy Now</ion-button></a>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+<ion-content>
+	<div style="padding:20px">
+		<h5>Capacitor Background Geolocation</h5>
+		<p>The most sophisticated, battery-efficient background-geolocation and geofencing plugin for Cordova</p>
+		<ul>
+			<li>The plugin <em>knows</em> when the device is <strong>moving</strong> &amp; <strong>stationary</strong>.  When the device is detected to be moving, the plugin will automatically start tracking.  It doesn't matter whether the app is in foreground or background.</li>
+			<li><strong>iOS</strong> typically requires movement of 200 meters beyond the last known location before tracking will engage.  <strong>Android</strong> is much more sensitive to triggering:  it will typically trigger tracking simply by walking a few meters.</li>
+			<li>Enter an url in the settings screen to upload data to your server.</li>
+			<li>Add geofences with long-press on map.</li>
+			<li>Test geofences in iOS simulator with City Drive then click "Load Geofences" in the Settings Screen.</li>
+		</ul>
+	</div>
+</ion-content>
+
+<ion-footer>
+	<ion-toolbar color="tertiary">
+		<ion-button (click)="onClickClose()" color="dark">Close</ion-button>
+	</ion-toolbar>
+</ion-footer>

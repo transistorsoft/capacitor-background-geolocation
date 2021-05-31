@@ -1,0 +1,88 @@
+<ion-header>
+  <ion-toolbar color="tertiary">
+    <ion-title mode="ios" color="dark">BG Geolocation Demo</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="onClickHome()"><ion-icon name="home"></ion-icon></ion-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+      <ion-toggle [(ngModel)]="state.enabled" (ionChange)="onToggleEnabled()" style="display:block;"></ion-toggle>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [ngStyle]="{'border-left':state.containerBorder, 'border-right':state.containerBorder}">
+	<ion-fab slot="fixed" vertical="bottom" horizontal="end" #fab>
+   		<ion-fab-button color="tertiary" (click)="onClickMainMenu()">
+        <ion-icon color="dark" name="add"></ion-icon>
+      </ion-fab-button>
+   		<ion-fab-list side="top">
+     		<ion-fab-button (click)="onClickSettings()" color="tertiary">
+     			<ion-icon name="cog"></ion-icon>
+     		</ion-fab-button>
+        <ion-fab-button (click)="onClickRequestPermission()" color="tertiary">
+          <ion-icon name="lock-open-outline"></ion-icon>
+        </ion-fab-button>
+     		<ion-fab-button (click)="onClickResetOdometer()" color="tertiary">
+     			<ion-spinner [hidden]="!isResettingOdometer" name="circles" color="dark"></ion-spinner>
+     			<ion-icon [hidden]="isResettingOdometer" name="speedometer"></ion-icon>
+     		</ion-fab-button>
+     		<ion-fab-button (click)="onClickEmailLogs()" color="tertiary">
+          <ion-spinner [hidden]="!isEmailingLog" name="circles" color="dark"></ion-spinner>
+     			<ion-icon [hidden]="isEmailingLog" name="mail"></ion-icon>
+     		</ion-fab-button>
+        <ion-fab-button (click)="onClickSync()" color="tertiary">
+          <ion-spinner [hidden]="!isSyncing" name="circles" color="dark"></ion-spinner>
+          <ion-icon [hidden]="isSyncing" name="cloud-upload"></ion-icon>
+        </ion-fab-button>
+        <ion-fab-button (click)="onClickDestroyLocations()" color="tertiary">
+          <ion-spinner [hidden]="!isDestroyingLocations" name="circles" color="dark"></ion-spinner>
+          <ion-icon [hidden]="isDestroyingLocations" name="trash"></ion-icon>
+        </ion-fab-button>
+   		</ion-fab-list>
+ 	</ion-fab>
+
+  <ion-fab top right>
+  <button ion-fab mini (click)="onClickMapMenu()" color="light"><ion-icon name="map"></ion-icon></button>
+  <ion-fab-list side="left">
+    <ion-fab (click)="onSelectMapOption('mapHideMarkers')" color="{{settingsService.applicationState.mapHideMarkers ? 'light' : 'gold'}}">
+      <ion-icon name="pin" color="{{settingsService.applicationState.mapHideMarkers ? 'dark-grey' : 'black'}}"></ion-icon>
+    </ion-fab>
+    <ion-fab (click)="onSelectMapOption('mapHidePolyline')" color="{{settingsService.applicationState.mapHidePolyline ? 'light' : 'gold'}}">
+      <ion-icon name="pulse" color="{{settingsService.applicationState.mapHidePolyline ? 'dark-grey' : 'black'}}"></ion-icon>
+    </ion-fab>
+    <ion-fab (click)="onSelectMapOption('mapHideGeofenceHits')" color="{{settingsService.applicationState.mapHideGeofenceHits ? 'light' : 'gold'}}">
+      <ion-icon name="radio-button-off" color="{{settingsService.applicationState.mapHideGeofenceHits ? 'dark-grey' : 'black'}}"></ion-icon>
+    </ion-fab>
+  </ion-fab-list>
+</ion-fab>
+	<div #map id="map" style="height:100%;width:100%"></div>
+</ion-content>
+
+<ion-footer>
+	<ion-toolbar mode="ios" color="tertiary">
+		<ion-buttons slot="start">
+			<ion-button fill="solid" (click)="onClickGetCurrentPosition()" color="primary" style="width:50px">
+				<ion-icon name="navigate-outline"></ion-icon>
+			</ion-button>
+      <ion-button (click)="onClickTestMode()" style="background-color: transparent">
+        <ion-icon [hidden]="!state.provider.gps" name="{{iconMap.provider_gps}}" color="dark"></ion-icon>
+        <ion-icon [hidden]="!state.provider.network"name="{{iconMap.provider_network}}" color="dark"></ion-icon>
+        <ion-icon [hidden]="state.provider.enabled" name="{{iconMap.provider_disabled}}" color="danger"></ion-icon>
+      </ion-button>
+		</ion-buttons>
+		<ion-title>
+			 <span ion-text class="label" color="">Activity</span>&nbsp;
+			 <ion-icon color="" name="{{state.activityIcon}}"></ion-icon>&nbsp;
+			 <span ion-text class="odometer" color="">{{this.state.odometer}}km</span>
+
+		</ion-title>
+		<ion-buttons slot="end">
+			<ion-button fill="solid" [disabled]="!state.enabled" (click)="onClickChangePace()" style="width:50px" color="{{state.isMoving ? 'danger' : 'success'}}">
+				<ion-spinner [hidden]="!state.isChangingPace" name="dots" color="light"></ion-spinner>
+        <ion-icon [hidden]="state.isChangingPace" name="{{state.isMoving ? 'pause' : 'play'}}"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-footer>
+
