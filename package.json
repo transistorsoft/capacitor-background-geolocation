@@ -1,7 +1,7 @@
 {
   "name": "@transistorsoft/capacitor-background-geolocation",
   "version": "0.0.1",
-  "description": "TODO",
+  "description": "The most sophisticated cross platform Capacitor background location tracking & geofencing module with battery-conscious motion-detection intelligence",
   "main": "dist/plugin.cjs.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,7 +13,7 @@
     "ios/Plugin/",
     "CapacitorBackgroundGeolocationLt.podspec"
   ],
-  "author": "Transistor Software",
+  "author": "Transistor Software <chris@transistorsoft.com>",
   "license": "CUSTOM",
   "repository": {
     "type": "git",
@@ -25,7 +25,14 @@
   "keywords": [
     "capacitor",
     "plugin",
-    "native"
+    "native",
+    "ios",
+    "android",
+    "background",
+    "geolocation",
+    "tracking",
+    "geofence",
+    "geofencing"
   ],
   "scripts": {
     "verify": "npm run verify:ios && npm run verify:android && npm run verify:web",
