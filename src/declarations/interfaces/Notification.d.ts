@@ -1,6 +1,6 @@
 /// <reference path="../types.d.ts" />
 ///
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
 
   /**
   * __[Android only]__ The Android operating system requires a persistent notification when running a foreground service.

@@ -1,0 +1,49 @@
+<ion-header>
+  <ion-toolbar color="tertiary">
+    <ion-title mode="ios" color="dark">Device Registration</ion-title>
+    <ion-buttons slot="start">
+    	<ion-button (click)="onClickCancel()"><ion-icon name="close"></ion-icon></ion-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+    	<ion-button (click)="onClickRegister()" fill="solid" color="primary">Register</ion-button>
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content scrollY>
+	<div style="padding:10px">
+		<ion-label class="devicename">
+			<span [innerHTML]="devicename"></span>
+		</ion-label>
+		<ion-item>
+			<ion-label color="primary" position="stacked">Organization name</ion-label>
+			<ion-input [(ngModel)]="orgname" type="url" placeholder="eg: Company name"></ion-input>
+		</ion-item>
+
+		<ion-item>
+			<ion-label color="primary" position="stacked">Username</ion-label>
+			<ion-input [(ngModel)]="username"type="url" placeholder="eg: Github username or initials"></ion-input>
+		</ion-item>
+		<ion-card>
+			<ion-item text-wrap>
+				<ion-label class="ion-text-wrap">
+					Please provide an Organization identifier and Username to register your device with the Demo Server.
+				</ion-label>
+			</ion-item>
+
+			<ion-item text-wrap>
+				<ion-label>
+					You will access your results at the url:
+				</ion-label>
+			</ion-item>
+
+			<ion-item text-wrap>
+				<ion-label class="url">
+					<span [innerHTML]="url"></span>/<span [innerHTML]="orgname"></span>
+				</ion-label>
+			</ion-item>
+		</ion-card>
+	</div>
+</ion-content>

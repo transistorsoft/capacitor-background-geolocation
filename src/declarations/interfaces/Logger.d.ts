@@ -1,7 +1,7 @@
 /// <reference path="../types.d.ts" />
 /// <reference path="./SQLQuery.d.ts" />
 
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
   /**
   * # Logger API
   *

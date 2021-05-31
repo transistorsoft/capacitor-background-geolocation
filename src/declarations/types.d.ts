@@ -1,4 +1,4 @@
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
 	/**
 	* Controls the volume of [[Config.logLevel]] log-entries recorded to database.
 	*

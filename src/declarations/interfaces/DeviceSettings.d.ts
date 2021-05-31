@@ -1,4 +1,4 @@
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
 	/**
 	* An object for redirecting a User to an Android device's settings screen from a [DeviceSettings] request.
 	*

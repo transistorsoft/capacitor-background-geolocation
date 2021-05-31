@@ -1,6 +1,6 @@
 /// <reference path="./Config.d.ts" />
 
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
 	/**
 	* This `State` object contains all the provided [[Config]] options in addition to:
 	* - [[enabled]].

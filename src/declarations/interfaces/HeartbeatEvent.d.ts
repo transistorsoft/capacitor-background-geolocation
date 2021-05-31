@@ -1,4 +1,4 @@
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
   /**
   * The event-object provided to [[BackgroundGeolocation.onHeartbeat]]
   *

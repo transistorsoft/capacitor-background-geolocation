@@ -1,0 +1,46 @@
+<ion-header>
+  <ion-toolbar color="tertiary">
+    <ion-title mode="ios" color="dark">BG Geolocation Demo</ion-title>
+    <ion-buttons slot="start">
+    	<ion-button (click)="onClickHome()"><ion-icon name="close"></ion-icon></ion-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+    	<ion-toggle [(ngModel)]="enabled" (ionChange)="onToggleEnabled()" style="display:block;"></ion-toggle>
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+	<ion-list>
+  		<ion-item *ngFor="let event of events">
+  			<ion-row>
+  				<ion-col align-self-stretch><p class="title"><strong>[event]&nbsp;{{ event.name }}</strong></p></ion-col>
+    			<ion-col align-self-end><p class="timestamp">{{event.timestamp}}</p></ion-col>
+			</ion-row>
+    		<pre><code>{{ event.content}}</code></pre>
+  		</ion-item>
+	</ion-list>
+</ion-content>
+
+<ion-footer>
+	<ion-toolbar mode="ios" color="tertiary">
+		<ion-buttons slot="start">
+			<ion-button fill="solid" (click)="onClickGetCurrentPosition()" color="primary" style="width:50px">
+				<ion-icon name="navigate-circle-outline" color=""></ion-icon>
+			</ion-button>
+		</ion-buttons>
+		<ion-title mode="ios">
+			<ion-buttons>
+				<ion-button fill="outline" (click)="onClickClear()" color="danger" style="width:75px">Clear</ion-button>
+			</ion-buttons>
+		</ion-title>
+		<ion-buttons slot="end">
+			<ion-button fill="solid" (click)="onClickChangePace()" style="width:50px" color="{{isMoving ? 'danger' : 'secondary'}}">
+				<ion-icon name="{{isMoving ? 'pause' : 'play'}}"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+
+	</ion-toolbar>
+</ion-footer>

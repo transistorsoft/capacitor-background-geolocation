@@ -24,7 +24,7 @@
 /// <reference path="interfaces/AuthorizationEvent.d.ts" />
 /// <reference path="interfaces/TransistorAuthorizationToken.d.ts" />
 ///
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
   /**
   * Primary API of the SDK.
   * @break
