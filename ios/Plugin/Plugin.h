@@ -8,7 +8,7 @@
 
 @class CAPPluginCall;
 
-@interface MyPlugin : CAPPlugin
+@interface Plugin : CAPPlugin
 
 @end
 

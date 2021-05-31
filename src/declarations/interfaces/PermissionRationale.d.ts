@@ -1,6 +1,6 @@
 /// <reference path="../types.d.ts" />
 ///
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
 
   /**
   * __[Android only]__ Configuration for showing an android dialog prior to forwarding the user to a permission settings-screen.

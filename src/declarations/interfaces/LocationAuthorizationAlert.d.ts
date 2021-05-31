@@ -1,4 +1,4 @@
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
 	/**
 	* __`[iOS only]`__ Controls the text-elements of the plugin's location-authorization dialog.
   *

@@ -1,4 +1,4 @@
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
 	/**
 	* Detected device sensors related to motion-detection.
 	*/

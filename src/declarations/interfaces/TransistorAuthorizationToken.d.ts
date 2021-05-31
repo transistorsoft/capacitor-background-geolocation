@@ -1,4 +1,4 @@
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
   /**
   * Response object returned by [[BackgroundGeolocation.findOrCreateTransistorAuthorizationToken]] for configuring the SDK's [[Authorization]] with Transistor Software's Demo Server at [http://tracker.transistorsoft.com](http://tracker.transistorsoft.com).
   *

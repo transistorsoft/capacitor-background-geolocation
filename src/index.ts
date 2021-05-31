@@ -1,31 +1,27 @@
-import { Plugins } from '@capacitor/core';
+
+import {
+  registerPlugin,
+  PluginListenerHandle,
+  PluginResultError
+} from '@capacitor/core';
+
+const NativeModule:any = registerPlugin('BackgroundGeolocation');
+
+import Logger from "./Logger";
+import TransistorAuthorizationToken from "./TransistorAuthorizationToken";
+import DeviceSettings from "./DeviceSettings";
+import {Events} from "./Events";
 
 const TAG               = "TSLocationManager";
 
-const Events:any = {
-  "BOOT"               : "boot",
-  "TERMINATE"          : "terminate",
-  "LOCATION"           : "location",
-  "HTTP"               : "http",
-  "MOTIONCHANGE"       : "motionchange",
-  "PROVIDERCHANGE"     : "providerchange",
-  "HEARTBEAT"          : "heartbeat",
-  "ACTIVITYCHANGE"     : "activitychange",
-  "GEOFENCE"           : "geofence",
-  "GEOFENCESCHANGE"    : "geofenceschange",
-  "SCHEDULE"           : "schedule",
-  "CONNECTIVITYCHANGE" : "connectivitychange",
-  "ENABLEDCHANGE"      : "enabledchange",
-  "POWERSAVECHANGE"    : "powersavechange",
-  "NOTIFICATIONACTION" : "notificationaction",
-  "AUTHORIZATION"      : "authorization"
-}
+/// Container for event-subscriptions.
+let EVENT_SUBSCRIPTIONS:any = [];
 
-const EVENT_SUBSCRIPTIONS:any = [];
-
+/// Event handler Subscription
+///
 class Subscription {
   event:string;
-  subscription: any;
+  subscription: PluginListenerHandle;
   callback:Function;
 
   constructor(event:string, subscription:any, callback:Function) {
@@ -35,9 +31,36 @@ class Subscription {
   }
 }
 
-const NativeModule = Plugins.BackgroundGeolocation;
+/// Validate provided config for #ready, #setConfig, #reset.
+const validateConfig = (config:any) => {
+  // Detect obsolete notification* fields and re-map to Notification instance.
+  if (
+    (config.notificationPriority) ||
+    (config.notificationText) ||
+    (config.notificationTitle) ||
+    (config.notificationChannelName) ||
+    (config.notificationColor) ||
+    (config.notificationSmallIcon) ||
+    (config.notificationLargeIcon)
+  ) {
+    console.warn('[BackgroundGeolocation] WARNING: Config.notification* fields (eg: notificationText) are all deprecated in favor of notification: {title: "My Title", text: "My Text"}  See docs for "Notification" class');
+    config.notification = {
+      text: config.notificationText,
+      title: config.notificationTitle,
+      color: config.notificationColor,
+      channelName: config.notificationChannelName,
+      smallIcon: config.notificationSmallIcon,
+      largeIcon: config.notificationLargeIcon,
+      priority: config.notificationPriority
+    };
+  }
 
+  config = TransistorAuthorizationToken.applyIf(config);
 
+  return config;
+};
+
+/// Events
 const LOG_LEVEL_OFF     =  0;
 const LOG_LEVEL_ERROR   =  1;
 const LOG_LEVEL_WARNING =  2;
@@ -81,6 +104,7 @@ const PERSIST_MODE_NONE                   = 0;
 const ACCURACY_AUTHORIZATION_FULL        = 0;
 const ACCURACY_AUTHORIZATION_REDUCED     = 1;
 
+/// BackgroundGeolocation JS API
 export default class BackgroundGeolocation {
 	static get LOG_LEVEL_OFF()                        { return LOG_LEVEL_OFF; }
   static get LOG_LEVEL_ERROR()                      { return LOG_LEVEL_ERROR; }
@@ -125,12 +149,16 @@ export default class BackgroundGeolocation {
   static get ACCURACY_AUTHORIZATION_FULL()          { return ACCURACY_AUTHORIZATION_FULL; }
   static get ACCURACY_AUTHORIZATION_REDUCED()       { return ACCURACY_AUTHORIZATION_REDUCED; }
 
+  static get logger() { return Logger; }
+
+  static get deviceSettings() { return DeviceSettings; }
+
   static ready(config:any) {
-    return NativeModule.ready({options:config});
+    return NativeModule.ready({options:validateConfig(config)});
   }
 
   static reset(config?:any) {
-    return NativeModule.reset({options:config});
+    return NativeModule.reset({options:validateConfig(config)});
   }
 
   static start() {
@@ -150,32 +178,16 @@ export default class BackgroundGeolocation {
   }
 
   static setConfig(config:any) {
-    return NativeModule.setConfig({options:config});
+    return NativeModule.setConfig({options:validateConfig(config)});
   }
 
   static getState() {
     return NativeModule.getState();
   }
 
-  static startBackgroundTask() {
-    return new Promise((resolve:Function) => {
-      NativeModule.beginBackgroundTask().then((result:any) => {
-        resolve(result.taskId);
-      });
-    });
-  }
-
-  static stopBackgroundTask(taskId:string) {
-    return new Promise((resolve:Function) => {
-      NativeModule.finish({taskId: taskId}).then(() => {
-        resolve();
-      });
-    });
-  }
-
   static changePace(isMoving:boolean) {
     return new Promise((resolve:Function, reject:Function) => {
-      NativeModule.changePace({isMoving:isMoving}).then((result:any) => {
+      NativeModule.changePace({isMoving:isMoving}).then(() => {
         resolve();
       }).catch((error:any) => {
         reject(error.errorMessage);
@@ -185,8 +197,8 @@ export default class BackgroundGeolocation {
 
   static getCurrentPosition(options:any) {
     return new Promise((resolve:Function, reject:Function) => {
-      NativeModule.getCurrentPosition(options).then((result:any) => {
-        resolve(result.location);
+      NativeModule.getCurrentPosition(options).then((result:Location) => {
+        resolve(result);
       }).catch((error:any) => {
         reject(error.code);
       });
@@ -210,7 +222,7 @@ export default class BackgroundGeolocation {
       NativeModule.requestTemporaryFullAccuracy({purpose:purpose}).then((result:any) => {
         resolve(result.accuracyAuthorization);
       }).catch((error:any) => {
-        reject(error.errorMessage);
+        reject(error.message);
       });
     });
   }
@@ -219,8 +231,217 @@ export default class BackgroundGeolocation {
     return NativeModule.getProviderState();
   }
 
-  /// Event handling
+  /// Locations database
   ///
+  static getLocations() {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.getLocations().then((result:any) => {
+        resolve(result.locations);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static insertLocation(params:any) {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.insertLocation({options:params}).then((result:any) => {
+        resolve(result.uuid);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static destroyLocations() {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.destroyLocations().then(() => {
+        resolve();
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static destroyLocation(uuid:string) {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.destroyLocation({uuid:uuid}).then(() => {
+        resolve();
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static getCount() {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.getCount().then((result:any) => {
+        resolve(result.count);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static sync() {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.sync().then((result:any) => {
+        resolve(result.locations);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  /// Geofencing
+  ///
+  static addGeofence(params:any) {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.addGeofence({options:params}).then(() => {
+        resolve();
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static addGeofences(params:any) {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.addGeofences({options:params}).then(() => {
+        resolve();
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static getGeofences() {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.getGeofences().then((result:any) => {
+        resolve(result.geofences);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static geofenceExists(identifier:string) {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.geofenceExists({identifier:identifier}).then((result:any) => {
+        resolve(result.exists);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static removeGeofence(identifier:string) {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.removeGeofence({identifier:identifier}).then(() => {
+        resolve();
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static removeGeofences(identifiers?:Array<String>) {
+    identifiers = identifiers || [];
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.removeGeofences({identifiers:identifiers}).then(() => {
+        resolve();
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  /// Odometer
+  ///
+  static getOdometer() {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.getOdometer().then((result:any) => {
+        resolve(result.odometer);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static setOdometer(value:number) {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.setOdometer({"odometer":value}).then((result:any) => {
+        resolve(result);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static resetOdometer() {
+    return BackgroundGeolocation.setOdometer(0);
+  }
+
+  /// Background Tasks
+  ///
+  static startBackgroundTask() {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.startBackgroundTask().then((result:any) => {
+        resolve(result.taskId);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static stopBackgroundTask(taskId:number) {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.stopBackgroundTask({taskId: taskId}).then(() => {
+        resolve();
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  /// @alias stopBackgroundTask
+  static finish(taskId:number) {
+    return BackgroundGeolocation.stopBackgroundTask(taskId);
+  }
+
+  static getDeviceInfo() {
+    return NativeModule.getDeviceInfo();
+  }
+
+  static playSound(soundId:any) {
+    return NativeModule.playSound({soundId:soundId});
+  }
+
+  static isPowerSaveMode() {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.isPowerSaveMode().then((result:any) => {
+        resolve(result.isPowerSaveMode);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      })
+    });
+  }
+
+  static getSensors() {
+    return NativeModule.getSensors();
+  }
+
+  /// TransistorAuthorizationToken
+  ///
+  static findOrCreateTransistorAuthorizationToken(orgname:string, username:string, url?:string) {
+    return TransistorAuthorizationToken.findOrCreate(orgname, username, url);
+  }
+
+  static destroyTransistorAuthorizationToken(url:string) {
+    return TransistorAuthorizationToken.destroy(url);
+  }
+
+  /// Event Handling
   ///
   static onLocation(success:Function, failure:Function) {
     BackgroundGeolocation.addListener(Events.LOCATION, success, failure);
@@ -278,15 +499,18 @@ export default class BackgroundGeolocation {
     BackgroundGeolocation.addListener(Events.AUTHORIZATION, success);
   }
 
-  /**
-  * Listen to a plugin event
-  */
-  static addListener(event:string, success:Function, failure?:Function) {
+  ///
+  /// Listen to a plugin event
+  ///
+  static async addListener(event:string, success:Function, failure?:Function) {
     if (!Events[event.toUpperCase()]) {
       throw (TAG + "#addListener - Unknown event '" + event + "'");
     }
 
     const handler = (response:any) => {
+      if (response.hasOwnProperty("value")) {
+        response = response.value;
+      }
       if (response.hasOwnProperty("error") && (response.error != null)) {
         if (typeof(failure) === 'function') {
           failure(response.error);
@@ -298,29 +522,40 @@ export default class BackgroundGeolocation {
       }
     }
 
-    let listener = NativeModule.addListener(event, handler);
-    const subscription = new Subscription(event, listener, success);
-    EVENT_SUBSCRIPTIONS.push(subscription);
+    const listener:PluginListenerHandle = await NativeModule.addListener(event, handler);
+    EVENT_SUBSCRIPTIONS.push(new Subscription(event, listener, success));
   }
 
   static removeListener(event:string, callback:Function) {
-    let found = null;
-    for (let n=0,len=EVENT_SUBSCRIPTIONS.length;n<len;n++) {
-      let sub = EVENT_SUBSCRIPTIONS[n];
-      if ((sub.event === event) && (sub.callback === callback)) {
-          found = sub;
-          break;
+    return new Promise((resolve:Function, reject:Function) => {
+      let found = null;
+      for (let n=0,len=EVENT_SUBSCRIPTIONS.length;n<len;n++) {
+        let sub = EVENT_SUBSCRIPTIONS[n];
+        if ((sub.event === event) && (sub.callback === callback)) {
+            found = sub;
+            break;
+        }
       }
-    }
-    if (found !== null) {
-      EVENT_SUBSCRIPTIONS.splice(EVENT_SUBSCRIPTIONS.indexOf(found), 1);
-      found.subscription.remove();
-    } else {
-      console.warn(TAG + ' Failed to find listener for event ' + event);
-    }
+      if (found !== null) {
+        EVENT_SUBSCRIPTIONS.splice(EVENT_SUBSCRIPTIONS.indexOf(found), 1);
+        found.subscription.remove();
+        resolve();
+      } else {
+        console.warn(TAG + ' Failed to find listener for event ' + event);
+        reject();
+      }
+    });
   }
 
+  static removeListeners() {
+    return new Promise(async (resolve:Function) => {
+      EVENT_SUBSCRIPTIONS = [];
+      await NativeModule.removeAllEventListeners();
+      resolve();
+    });
+  }
 }
+
 
 
 

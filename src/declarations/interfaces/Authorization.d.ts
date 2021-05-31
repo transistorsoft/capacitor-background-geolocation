@@ -1,4 +1,4 @@
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
   /**
   * Configures the SDK for authorization wtih your server's [[accessToken]] token (eg: [JSON Web Token](https://jwt.io/)) and automatically requests new tokens when server returns HTTP status `"401 Unauthorized"`.
 	*

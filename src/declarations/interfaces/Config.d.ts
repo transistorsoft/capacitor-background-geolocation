@@ -3,7 +3,7 @@
 /// <reference path="./PermissionRationale.d.ts" />
 ///
 ///
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
   /**
   * ## 🔧 Configuration API.
   *

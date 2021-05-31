@@ -1,4 +1,4 @@
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
   /**
   * The Background Geolocation SDK implements the native iOS and Android Geofencing APIs.
   *

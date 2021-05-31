@@ -3,7 +3,7 @@
 /// <reference path="./ProviderChangeEvent.d.ts" />
 /// <reference path="../types.d.ts" />
 ///
-declare module "capacitor-background-geolocation-lt" {
+declare module "@transistorsoft/capacitor-background-geolocation" {
   /**
   * This object is attached to instances of [[Location.coords]].
   */

@@ -5,20 +5,37 @@ ext {
     androidxEspressoCoreVersion = project.hasProperty('androidxEspressoCoreVersion') ? rootProject.ext.androidxEspressoCoreVersion : '3.3.0'
 }
 
+
 buildscript {
     repositories {
         google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
+        classpath 'com.android.tools.build:gradle:4.1.3'
     }
 }
 
 apply plugin: 'com.android.library'
 
+// Android dependencies
+def DEFAULT_COMPILE_SDK_VERSION                     = 30
+def DEFAULT_TARGET_SDK_VERSION                      = 30
+def DEFAULT_APP_COMPAT_VERSION                      = "1.1.0"
+
+// Plugin dependencies
+def DEFAULT_GOOGLE_PLAY_SERVICES_LOCATION_VERSION   = "18.0.0"
+def DEFAULT_OK_HTTP_VERSION                         = "4.9.1"
+def DEFAULT_ANDROID_PERMISSIONS_VERSION             = "0.1.8"
+def DEFAULT_EVENTBUS_VERSION                        = "3.0.0"
+def DEFAULT_LOCAL_BROADCAST_MANAGER_VERSION         = "1.0.0"
+
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
 android {
-    compileSdkVersion project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 30
+    compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
     defaultConfig {
         minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 21
         targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 30
@@ -49,10 +66,26 @@ repositories {
 
 
 dependencies {
+    def androidxAppCompatVersion = safeExtGet('androidxAppCompatVersion', DEFAULT_APP_COMPAT_VERSION)
+    def playServicesLocationVersion = safeExtGet('googlePlayServicesLocationVersion', DEFAULT_GOOGLE_PLAY_SERVICES_LOCATION_VERSION)
+    def okHttpVersion = safeExtGet('okHttpVersion', DEFAULT_OK_HTTP_VERSION)
+    def androidPermissionsVersion = safeExtGet('androidPermissionsVersion', DEFAULT_ANDROID_PERMISSIONS_VERSION)
+    def eventBusVersion = safeExtGet('eventBusVersion', DEFAULT_EVENTBUS_VERSION)
+    def localBroadcastManagerVersion = safeExtGet('localBroadcastManagerVersion', DEFAULT_LOCAL_BROADCAST_MANAGER_VERSION)
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':capacitor-android')
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+
+    api(group: 'com.transistorsoft', name:'tslocationmanager', version: '+')
+    implementation "androidx.localbroadcastmanager:localbroadcastmanager:$localBroadcastManagerVersion"
+    implementation "com.google.android.gms:play-services-location:$playServicesLocationVersion"
+    api "org.greenrobot:eventbus:$eventBusVersion"
+    api "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation 'com.github.tony19:logback-android:2.0.0'
+    implementation "com.intentfilter:android-permissions:$androidPermissionsVersion"
 }
