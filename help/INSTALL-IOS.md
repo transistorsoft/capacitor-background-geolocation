@@ -30,6 +30,10 @@ Edit **`Info.plist`**.  Add the following items (Set **Value** as desired):
 ![](https://dl.dropboxusercontent.com/s/j7udsab7brlj4yk/Screenshot%202016-09-22%2008.33.53.png?dl=1)
 
 
+<!-- TODO Implement capacitor-background-fetch
+
 ## [Configure `capacitor-background-fetch`](https://github.com/transistorsoft/capacitor-background-fetch/blob/master/docs/INSTALL-IOS.md#configure-background-capabilities)
 
 The BackgroundGeolocation SDK makes use internally on __`capacitor-background-fetch`__.  Regardless of whether you instend to implement the `BackgroundFetch` Javascript API in your app, you **must** perform the [Background Fetch iOS Setup](https://github.com/transistorsoft/capacitor-background-fetch/blob/master/docs/INSTALL-IOS.md#configure-background-capabilities) at __`capacitor-background-fetch`__.
+
+-->
