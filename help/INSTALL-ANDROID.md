@@ -1,4 +1,4 @@
-# iOS Setup Instructions (Required)
+# Android Setup Instructions (Required)
 
 :information_source: Use `yarn` or `npm` as desired.
 
