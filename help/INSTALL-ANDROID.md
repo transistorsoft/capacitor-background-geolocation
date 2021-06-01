@@ -34,6 +34,7 @@ A number of other **`ext`** variables are available but should generally not nee
 
 | Option             | Default     | Description |
 |--------------------|------------|--------------|
+|`googlePlayServicesLocationVersion`  | `18.0.0` | `com.google.android.gms:play-services-location` |
 |`okHttpVersion`     | `4.9.1`    | *BackgroundGeolocation* uses the excellent [okhttp](https://square.github.io/okhttp/) framework for its HTTP Service |
 |`localBroadcastManagerVersion`  | `1.0.0` | `androidx.localbroadcastmanager:localbroadcastmanager` |
 
