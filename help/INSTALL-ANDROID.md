@@ -17,7 +17,7 @@ The plugin is aware of a number of Gradle **`ext`** variables (See your app's **
 
 ### :open_file_folder: **`android/variables.gradle`**
 
-```gradle
+```diff
 ext {
     minSdkVersion = 21
     compileSdkVersion = 30
@@ -25,8 +25,8 @@ ext {
     .
     .
     .
-    // capacitor-background-geolocation variables
-    googlePlayServicesLocationVersion = '18.0.0'
++   // capacitor-background-geolocation variables
++   googlePlayServicesLocationVersion = '18.0.0'
 }
 ```
 
