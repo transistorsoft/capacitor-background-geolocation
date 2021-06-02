@@ -23,7 +23,8 @@
     "@capacitor/core": "^3.0.0-rc.3",
     "@capacitor/ios": "^3.0.0-rc.3",
     "@ionic/angular": "^5.5.2",
-    "@transistorsoft/capacitor-background-geolocation": "file:..",
+    "@transistorsoft/capacitor-background-fetch": "^0.0.3",
+    "@transistorsoft/capacitor-background-geolocation": "^0.0.7",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2"

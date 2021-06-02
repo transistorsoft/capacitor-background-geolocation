@@ -4,6 +4,8 @@
 
 ```
 npm install @transistorsoft/capacitor-background-geolocation
+npm install @transistorsoft/capacitor-background-fetch
+
 npx cap sync
 ```
 

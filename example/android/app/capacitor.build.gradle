@@ -9,6 +9,7 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
+    implementation project(':transistorsoft-capacitor-background-fetch')
     implementation project(':transistorsoft-capacitor-background-geolocation')
 
 }

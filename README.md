@@ -46,12 +46,14 @@ The **[Android module](http://www.transistorsoft.com/shop/products/capacitor-bac
 
 ```bash
 $ yarn add @transistorsoft/capacitor-background-geolocation
+$ yarn add @transistorsoft/capacitor-background-fetch
 $ npx cap sync
 ```
 
 ### With `npm`
 ```console
 $ npm install @transistorsoft/capacitor-background-geolocation --save
+$ npm install @transistorsoft/capacitor-background-fetch --save
 $ npx cap sync
 ```
 

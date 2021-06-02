@@ -1,5 +1,9 @@
 [
 	{
+		"pkg": "@transistorsoft/capacitor-background-fetch",
+		"classpath": "com.transistorsoft.bgfetch.capacitor.BackgroundFetchPlugin"
+	},
+	{
 		"pkg": "@transistorsoft/capacitor-background-geolocation",
 		"classpath": "com.transistorsoft.bggeo.capacitor.BackgroundGeolocationPlugin"
 	}
