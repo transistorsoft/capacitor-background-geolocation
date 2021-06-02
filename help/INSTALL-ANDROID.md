@@ -7,11 +7,10 @@ npm install @transistorsoft/capacitor-background-geolocation
 npx cap sync
 ```
 
-<!-- TODO:  Implement capacitor-background-fetch
 ## Configure `capacitor-background-fetch`
 
-You must perform the [Android Setup](https://github.com/transistorsoft/capacitor-background-fetch/blob/master/docs/INSTALL-ANDROID.md) for `@transistorsoft/capacitor-background-fetch`.
--->
+You must perform the [Android Setup](https://github.com/transistorsoft/capacitor-background-fetch/blob/master/help/INSTALL-ANDROID.md) for `@transistorsoft/capacitor-background-fetch`.
+
 
 ## Gradle Configuration
 
