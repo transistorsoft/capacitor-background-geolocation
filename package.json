@@ -48,8 +48,8 @@
     "eslint": "eslint . --ext ts",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
     "swiftlint": "node-swiftlint",
-    "docgen": "docgen --api BackgroundGeolocationPlugin --output-readme README.md --output-json dist/docs.json",
-    "build": "npm run clean && tsc && rollup -c rollup.config.js",
+    "docgen": "sh ./scripts/generate-docs",
+    "build": "npm run clean && tsc && rollup -c rollup.config.js && npm run docgen",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "prepublishOnly": "npm run build"
