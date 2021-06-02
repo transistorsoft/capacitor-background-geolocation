@@ -10,6 +10,8 @@ import org.greenrobot.eventbus.Subscribe;
 public class BackgroundGeolocationHeadlessTask {
   @Subscribe
   public void onHeadlessEvent(HeadlessEvent event) {
+    BackgroundGeolocation bgGeo = BackgroundGeolocation.getInstance(event.getContext());
+
     Log.d(BackgroundGeolocation.TAG, "\uD83D\uDC80  event: " + event.getName());
     Log.d(BackgroundGeolocation.TAG,  "*************** Event: " + event.getEvent());
 
