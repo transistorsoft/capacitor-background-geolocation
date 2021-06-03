@@ -314,7 +314,6 @@ var capacitorBackgroundGeolocation = (function (core) {
         config = TransistorAuthorizationToken.applyIf(config);
         return config;
     };
-    /// Events
     var LOG_LEVEL_OFF = 0;
     var LOG_LEVEL_ERROR = 1;
     var LOG_LEVEL_WARNING = 2;
@@ -354,6 +353,87 @@ var capacitorBackgroundGeolocation = (function (core) {
     var BackgroundGeolocation = /** @class */ (function () {
         function BackgroundGeolocation() {
         }
+        Object.defineProperty(BackgroundGeolocation, "EVENT_BOOT", {
+            /// Events
+            get: function () { return Events.BOOT; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_TERMINATE", {
+            get: function () { return Events.TERMINATE; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_LOCATION", {
+            get: function () { return Events.LOCATION; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_MOTIONCHANGE", {
+            get: function () { return Events.MOTIONCHANGE; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_HTTP", {
+            get: function () { return Events.HTTP; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_HEARTBEAT", {
+            get: function () { return Events.HEARTBEAT; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_PROVIDERCHANGE", {
+            get: function () { return Events.PROVIDERCHANGE; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_ACTIVITYCHANGE", {
+            get: function () { return Events.ACTIVITYCHANGE; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_GEOFENCE", {
+            get: function () { return Events.GEOFENCE; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_GEOFENCESCHANGE", {
+            get: function () { return Events.GEOFENCESCHANGE; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_ENABLEDCHANGE", {
+            get: function () { return Events.ENABLEDCHANGE; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_CONNECTIVITYCHANGE", {
+            get: function () { return Events.CONNECTIVITYCHANGE; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_SCHEDULE", {
+            get: function () { return Events.SCHEDULE; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_POWERSAVECHANGE", {
+            get: function () { return Events.POWERSAVECHANGE; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_NOTIFICATIONACTION", {
+            get: function () { return Events.NOTIFICATIONACTION; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "EVENT_AUTHORIZATION", {
+            get: function () { return Events.AUTHORIZATION; },
+            enumerable: false,
+            configurable: true
+        });
         Object.defineProperty(BackgroundGeolocation, "LOG_LEVEL_OFF", {
             get: function () { return LOG_LEVEL_OFF; },
             enumerable: false,

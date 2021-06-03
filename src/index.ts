@@ -31,6 +31,7 @@ class Subscription {
   }
 }
 
+
 /// Validate provided config for #ready, #setConfig, #reset.
 const validateConfig = (config:any) => {
   // Detect obsolete notification* fields and re-map to Notification instance.
@@ -60,7 +61,6 @@ const validateConfig = (config:any) => {
   return config;
 };
 
-/// Events
 const LOG_LEVEL_OFF     =  0;
 const LOG_LEVEL_ERROR   =  1;
 const LOG_LEVEL_WARNING =  2;
@@ -106,6 +106,24 @@ const ACCURACY_AUTHORIZATION_REDUCED     = 1;
 
 /// BackgroundGeolocation JS API
 export default class BackgroundGeolocation {
+  /// Events
+  static get EVENT_BOOT()                  { return Events.BOOT; }
+  static get EVENT_TERMINATE()             { return Events.TERMINATE; }
+  static get EVENT_LOCATION()              { return Events.LOCATION; }
+  static get EVENT_MOTIONCHANGE()          { return Events.MOTIONCHANGE; }
+  static get EVENT_HTTP()                  { return Events.HTTP; }
+  static get EVENT_HEARTBEAT()             { return Events.HEARTBEAT; }
+  static get EVENT_PROVIDERCHANGE()        { return Events.PROVIDERCHANGE; }
+  static get EVENT_ACTIVITYCHANGE()        { return Events.ACTIVITYCHANGE; }
+  static get EVENT_GEOFENCE()              { return Events.GEOFENCE; }
+  static get EVENT_GEOFENCESCHANGE()       { return Events.GEOFENCESCHANGE; }
+  static get EVENT_ENABLEDCHANGE()         { return Events.ENABLEDCHANGE; }
+  static get EVENT_CONNECTIVITYCHANGE()    { return Events.CONNECTIVITYCHANGE; }
+  static get EVENT_SCHEDULE()              { return Events.SCHEDULE; }
+  static get EVENT_POWERSAVECHANGE()       { return Events.POWERSAVECHANGE; }
+  static get EVENT_NOTIFICATIONACTION()    { return Events.NOTIFICATIONACTION; }
+  static get EVENT_AUTHORIZATION()         { return Events.AUTHORIZATION; }
+
 	static get LOG_LEVEL_OFF()                        { return LOG_LEVEL_OFF; }
   static get LOG_LEVEL_ERROR()                      { return LOG_LEVEL_ERROR; }
   static get LOG_LEVEL_WARNING()                    { return LOG_LEVEL_WARNING; }
