@@ -25,7 +25,9 @@ allprojects {
         maven {
           url("${project(':transistorsoft-capacitor-background-geolocation').projectDir}/libs")
         }
-
+        maven {
+          url("${project(':transistorsoft-capacitor-background-fetch').projectDir}/libs")
+        }
 
     }
 }
