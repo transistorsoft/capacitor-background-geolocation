@@ -7,20 +7,37 @@ Fully-featured, Capacitor Background Geolocation demo application.
 
 ## Installation
 
-```console
-  git clone https://github.com/transistorsoft/capacitor-background-geolocation.git
-  cd capacitor-background-geolocation/example
-  npm install
+- First clone the plugin repo.
 
-  ionic build
-  npx cap sync
+```console
+git clone https://github.com/transistorsoft/capacitor-background-geolocation.git
+cd capacitor-background-geolocation
+```
+
+- Now compile the plugin's typescript source code.
+
+```console
+npm install
+npm run build
+```
+
+:information_source: Ignore warning `(!) this has been rewritten to undefined`
+
+- Now install the `/example` as you would any Capacitor app.
+
+```console
+cd example
+npm install
+
+ionic build
+npx cap sync
 ```
 
 - Now run it:
 
 ```console
-  ionic capacitor run android
-  ionic capacitor run ios
+ionic capacitor run android
+ionic capacitor run ios
 ```
 
 - The quickest way to see the plugin in-action is to boot the **iOS** simulator and *simulate location* with *Freeway Drive*.
