@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.0.10] &mdash; 2021-06-06
+- Fixed iOS .podspec.  Was still referencing TSBackgroundFetch.xcframework, which was removed from this repo now that capacitor-background-fetch exitsts.
+
 ## [0.0.9] &mdash; 2021-06-03
 - Add `EVENT_` constants to `BackgroundGeolocation` class, eg: `BackgroundGeolocation.EVENT_LOCATION`.
 - Fix Android example.  Was not configuring background-fetch

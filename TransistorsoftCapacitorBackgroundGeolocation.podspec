@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.dependency 'Capacitor'
   s.dependency 'CocoaLumberjack', '~> 3.7.2'
   s.libraries           = 'sqlite3', 'z'
-  s.vendored_frameworks = ['ios/TSLocationManager.xcframework', 'ios/TSBackgroundFetch.xcframework']
-
+  s.vendored_frameworks = ['ios/TSLocationManager.xcframework']
+  s.static_framework = true
   s.swift_version = '5.1'
 end
