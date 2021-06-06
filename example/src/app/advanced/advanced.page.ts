@@ -184,9 +184,6 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   * Configure BackgroundGeolocation plugin
   */
   async configureBackgroundGeolocation() {
-    alert("EVENT_LOCATION: " + BackgroundGeolocation.EVENT_LOCATION);
-
-
     // [optional] We first bind all our event-handlers to *this* so that we have the option to later remove these
     // listeners with BackgroundGeolocation.un("eventname", this.onMyHandler), since the #bind method returns a new function instance.
     // To remove an event-handler requires a reference to the *exact* success-callback provided to #on
