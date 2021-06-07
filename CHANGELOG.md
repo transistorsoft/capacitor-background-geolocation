@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.0.11] &mdash; 2021-06-07
+- [Fixed] iOS.  Small change to TSLocationManager to ignore onResume events when .ready() not yet called.  This was causing the plugin to start itself before ready is called.  Could result in missed events.
+
 ## [0.0.10] &mdash; 2021-06-06
 - Fixed iOS .podspec.  Was still referencing TSBackgroundFetch.xcframework, which was removed from this repo now that capacitor-background-fetch exitsts.
 

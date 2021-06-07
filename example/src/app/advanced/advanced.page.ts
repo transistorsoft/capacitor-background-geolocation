@@ -3,6 +3,7 @@ import {
   ViewChild,
   ElementRef,
   OnInit,
+  NgZone,
   AfterContentInit
 } from '@angular/core';
 
@@ -112,13 +113,14 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   testModeTimer: any;
 
   constructor(
-    public alertCtrl:AlertController,
-    public router:Router,
-    public modalController:ModalController,
+    private alertCtrl:AlertController,
+    private router:Router,
+    private modalController:ModalController,
     private loadingCtrl: LoadingController,
     private bgService: BGService,
-    public settingsService: SettingsService,
-    public platform:Platform) {
+    private settingsService: SettingsService,
+    private zone: NgZone,
+    private platform:Platform) {
 
     // FAB Menu state.
     this.isMainMenuOpen = false;
@@ -163,19 +165,24 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   }
 
   async ionViewWillEnter() {
+    console.log('⚙️ ionViewWillEnter');
+
+    // Setup the GoogleMap
+    await this.configureMap();
+
     // When live-reloading, we need to tell the plugin to remove all its listeners otherwise new listeners
     // are accumulated with each live-reload.
     await BackgroundGeolocation.removeListeners();
     // Re-register Transistor Demo Server Authorization listener.
     registerTransistorAuthorizationListener(this.router);
 
+
     // Configure the plugin.
     this.configureBackgroundGeolocation();
   }
 
-  ngAfterContentInit()  {
-    // Setup the GoogleMap.
-    this.configureMap();
+  async ngAfterContentInit()  {
+    console.log('⚙️ ngAfterContentInit');
   }
 
   ngOnInit() {}
@@ -259,14 +266,16 @@ export class AdvancedPage implements OnInit, AfterContentInit {
     }).then(async (state) => {
       // Store the plugin state onto ourself for convenience.
       console.log('- BackgroundGeolocation is ready: ', state);
-      this.state.enabled = state.enabled;
-      this.state.isMoving = state.isMoving;
-      this.state.geofenceProximityRadius = state.geofenceProximityRadius;
-      this.state.trackingMode = state.trackingMode;
+      this.zone.run(() => {
+        this.state.enabled = state.enabled;
+        this.state.isMoving = state.isMoving;
+        this.state.geofenceProximityRadius = state.geofenceProximityRadius;
+        this.state.trackingMode = state.trackingMode;
 
-      if ((state.schedule.length > 0)) {
-        BackgroundGeolocation.startSchedule();
-      }
+        if ((state.schedule.length > 0)) {
+          BackgroundGeolocation.startSchedule();
+        }
+      });
     }).catch((error) => {
       console.warn('- BackgroundGeolocation configuration error: ', error);
     });
@@ -276,109 +285,113 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   * Configure Google Maps
   */
   configureMap() {
-    // Handle case where app booted without network accesss (google maps lib fails to load)
-    if (typeof(google) !== 'object') {
-      console.warn('- map not loaded');
-      return;
-    }
-    this.locationMarkers = [];
-    this.geofenceMarkers = [];
-    this.geofenceHitMarkers = [];
-
-    let latLng = new google.maps.LatLng(-34.9290, 138.6010);
-
-    let mapOptions = {
-      center: latLng,
-      zoom: 15,
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
-      zoomControl: false,
-      mapTypeControl: false,
-      panControl: false,
-      rotateControl: false,
-      scaleControl: false,
-      streetViewControl: false,
-      disableDefaultUI: true
-    };
-    this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
-
-    // Create LongPress event-handler
-    new LongPress(this.map, 500);
-
-    // Tap&hold detected.  Play a sound a draw a circular cursor.
-    google.maps.event.addListener(this.map, 'longpresshold', this.onLongPressStart.bind(this));
-    // Longpress cancelled.  Get rid of the circle cursor.
-    google.maps.event.addListener(this.map, 'longpresscancel', this.onLongPressCancel.bind(this));
-    // Longpress initiated, add the geofence
-    google.maps.event.addListener(this.map, 'longpress', this.onLongPress.bind(this));
-
-    // Blue current location marker
-    this.currentLocationMarker = new google.maps.Marker({
-      zIndex: 10,
-      map: this.map,
-      title: 'Current Location',
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 12,
-        fillColor: COLORS.blue,
-        fillOpacity: 1,
-        strokeColor: COLORS.white,
-        strokeOpacity: 1,
-        strokeWeight: 6
+    return new Promise((resolve:Function) => {
+      // Handle case where app booted without network accesss (google maps lib fails to load)
+      if (typeof(google) !== 'object') {
+        console.warn('- map not loaded');
+        return;
       }
-    });
-    // Light blue location accuracy circle
-    this.locationAccuracyCircle = new google.maps.Circle({
-      map: this.map,
-      zIndex: 9,
-      fillColor: COLORS.light_blue,
-      fillOpacity: 0.4,
-      strokeOpacity: 0
-    });
-    // Stationary Geofence
-    this.stationaryRadiusCircle = new google.maps.Circle({
-      zIndex: 0,
-      fillColor: COLORS.red,
-      strokeColor: COLORS.red,
-      strokeWeight: 1,
-      fillOpacity: 0.3,
-      strokeOpacity: 0.7,
-      map: this.map
-    });
-    // Route polyline
-    let seq = {
-      repeat: '30px',
-      icon: {
-        path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
-        scale: 1,
-        fillOpacity: 0,
-        strokeColor: COLORS.white,
+      this.locationMarkers = [];
+      this.geofenceMarkers = [];
+      this.geofenceHitMarkers = [];
+
+      let latLng = new google.maps.LatLng(-34.9290, 138.6010);
+
+      let mapOptions = {
+        center: latLng,
+        zoom: 15,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        zoomControl: false,
+        mapTypeControl: false,
+        panControl: false,
+        rotateControl: false,
+        scaleControl: false,
+        streetViewControl: false,
+        disableDefaultUI: true
+      };
+      this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
+
+      // Create LongPress event-handler
+      new LongPress(this.map, 500);
+
+      // Tap&hold detected.  Play a sound a draw a circular cursor.
+      google.maps.event.addListener(this.map, 'longpresshold', this.onLongPressStart.bind(this));
+      // Longpress cancelled.  Get rid of the circle cursor.
+      google.maps.event.addListener(this.map, 'longpresscancel', this.onLongPressCancel.bind(this));
+      // Longpress initiated, add the geofence
+      google.maps.event.addListener(this.map, 'longpress', this.onLongPress.bind(this));
+
+      // Blue current location marker
+      this.currentLocationMarker = new google.maps.Marker({
+        zIndex: 10,
+        map: this.map,
+        title: 'Current Location',
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 12,
+          fillColor: COLORS.blue,
+          fillOpacity: 1,
+          strokeColor: COLORS.white,
+          strokeOpacity: 1,
+          strokeWeight: 6
+        }
+      });
+      // Light blue location accuracy circle
+      this.locationAccuracyCircle = new google.maps.Circle({
+        map: this.map,
+        zIndex: 9,
+        fillColor: COLORS.light_blue,
+        fillOpacity: 0.4,
+        strokeOpacity: 0
+      });
+      // Stationary Geofence
+      this.stationaryRadiusCircle = new google.maps.Circle({
+        zIndex: 0,
+        fillColor: COLORS.red,
+        strokeColor: COLORS.red,
         strokeWeight: 1,
-        strokeOpacity: 1
-      }
-    };
-    this.polyline = new google.maps.Polyline({
-      map: (this.settingsService.applicationState.mapHidePolyline) ? null : this.map,
-      zIndex: 1,
-      geodesic: true,
-      strokeColor: COLORS.polyline_color,
-      strokeOpacity: 0.7,
-      strokeWeight: 7,
-      icons: [seq]
+        fillOpacity: 0.3,
+        strokeOpacity: 0.7,
+        map: this.map
+      });
+      // Route polyline
+      let seq = {
+        repeat: '30px',
+        icon: {
+          path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
+          scale: 1,
+          fillOpacity: 0,
+          strokeColor: COLORS.white,
+          strokeWeight: 1,
+          strokeOpacity: 1
+        }
+      };
+      this.polyline = new google.maps.Polyline({
+        map: (this.settingsService.applicationState.mapHidePolyline) ? null : this.map,
+        zIndex: 1,
+        geodesic: true,
+        strokeColor: COLORS.polyline_color,
+        strokeOpacity: 0.7,
+        strokeWeight: 7,
+        icons: [seq]
+      });
+      // Popup geofence cursor for adding geofences via LongPress
+      this.geofenceCursor = new google.maps.Marker({
+        clickable: false,
+        zIndex: 100,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 100,
+          fillColor: COLORS.green,
+          fillOpacity: 0.2,
+          strokeColor: COLORS.green,
+          strokeWeight: 1,
+          strokeOpacity: 0.7
+        }
+      });
+      resolve();
     });
-    // Popup geofence cursor for adding geofences via LongPress
-    this.geofenceCursor = new google.maps.Marker({
-      clickable: false,
-      zIndex: 100,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 100,
-        fillColor: COLORS.green,
-        fillOpacity: 0.2,
-        strokeColor: COLORS.green,
-        strokeWeight: 1,
-        strokeOpacity: 0.7
-      }
-    });
+
   }
 
   ////
@@ -626,6 +639,12 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   }
 
   async onToggleEnabled() {
+    const state = await BackgroundGeolocation.getState();
+
+    if (state.enabled === this.state.enabled) {
+      // The plugin is already in the desired state.  Ignored.  onToggleEnabled fires on initial boot.
+      return;
+    }
     this.bgService.playSound('BUTTON_CLICK');
 
     if (this.state.enabled) {
@@ -642,8 +661,8 @@ export class AdvancedPage implements OnInit, AfterContentInit {
         BackgroundGeolocation.startGeofences().then(onSuccess).catch(onFailure);
       }
     } else {
-      this.state.isMoving = false;
       await BackgroundGeolocation.stop();
+      this.state.isMoving = false;
       this.clearMarkers();
     }
   }
@@ -711,12 +730,14 @@ export class AdvancedPage implements OnInit, AfterContentInit {
     // Print a log message to SDK's logger to prove this executed, even in the background.
     BackgroundGeolocation.logger.debug("👍 [onLocation] received location in Javascript: " + location.uuid);
 
-    this.setCenter(location);
+    this.zone.run(() => {
+      this.setCenter(location);
 
-    if (!location.sample) {
-      // Convert meters -> km -> round nearest hundredth -> fix float xxx.x
-      this.state.odometer = parseFloat((Math.round((location.odometer/1000)*10)/10).toString()).toFixed(1);
-    }
+      if (!location.sample) {
+        // Convert meters -> km -> round nearest hundredth -> fix float xxx.x
+        this.state.odometer = parseFloat((Math.round((location.odometer/1000)*10)/10).toString()).toFixed(1);
+      }
+    });
   }
   /**
   * @event location failure
@@ -730,15 +751,18 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   onMotionChange(event:MotionChangeEvent) {
     console.log('[motionchange] -', event.isMoving, event.location);
 
-    if (event.isMoving) {
-      this.hideStationaryCircle();
-    } else {
-      this.showStationaryCircle(event.location);
-    }
-    this.state.enabled = true;
-    this.state.isChangingPace = false;
-    this.state.isMoving = event.isMoving;
+    this.zone.run(() => {
+      if (event.isMoving) {
+        this.hideStationaryCircle();
+      } else {
+        this.showStationaryCircle(event.location);
+      }
+      this.state.enabled = true;
+      this.state.isChangingPace = false;
+      this.state.isMoving = event.isMoving;
+    });
   }
+
   /**
   * @event heartbeat
   */
@@ -749,10 +773,13 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   * @event activitychange
   */
   onActivityChange(event:MotionActivityEvent) {
-    this.state.activityName = event.activity;
-    this.state.activityIcon = this.iconMap['activity_' + event.activity];
     console.log('[activitychange] -', event.activity, event.confidence);
+    this.zone.run(() => {
+      this.state.activityName = event.activity;
+      this.state.activityIcon = this.iconMap['activity_' + event.activity];
+    });
   }
+
   /**
   * @event providerchange
   */
@@ -767,14 +794,17 @@ export class AdvancedPage implements OnInit, AfterContentInit {
       case BackgroundGeolocation.AUTHORIZATION_STATUS_WHEN_IN_USE:
         break;
     }
+    this.zone.run(() => {
+      this.state.provider = provider;
+    });
 
-    this.state.provider = provider;
   }
   /**
   * @event geofenceschange
   */
   onGeofencesChange(event:GeofencesChangeEvent) {
     console.log('[geofenceschange] -', event);
+
     // All geofences off
     if (!event.on.length && !event.off.length) {
       this.geofenceMarkers.forEach((circle) => {
@@ -801,13 +831,14 @@ export class AdvancedPage implements OnInit, AfterContentInit {
       if (circle) { return; }
       this.geofenceMarkers.push(this.buildGeofenceMarker(geofence));
     });
-
   }
+
   /**
   * @event geofence
   */
   async onGeofence(event:GeofenceEvent) {
     console.log('[geofence] -', event);
+
 
     var circle = this.geofenceMarkers.find((marker) => {
       return marker.identifier === event.identifier;
@@ -922,9 +953,10 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   * @event schedule
   */
   onSchedule(state:State) {
-    this.state.enabled = state.enabled;
-
     console.log('[schedule] - ', state);
+    this.zone.run(() => {
+      this.state.enabled = state.enabled;
+    });
   }
   /**
   * @event powersavechange
@@ -932,8 +964,11 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   onPowerSaveChange(isPowerSaveMode) {
     console.log('[js powersavechange: ', isPowerSaveMode);
     this.settingsService.toast('Power-save mode: ' + ((isPowerSaveMode) ? 'ON' : 'OFF'), null, 5000);
-    this.state.containerBorder = (isPowerSaveMode) ? CONTAINER_BORDER_POWER_SAVE_ON : CONTAINER_BORDER_POWER_SAVE_OFF;
+    this.zone.run(() => {
+      this.state.containerBorder = (isPowerSaveMode) ? CONTAINER_BORDER_POWER_SAVE_ON : CONTAINER_BORDER_POWER_SAVE_OFF;
+    });
   }
+
   /**
   * @event connectivitychange
   */
@@ -947,9 +982,12 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   onEnabledChange(enabled:boolean) {
     this.settingsService.toast('enabledchange: ' + enabled);
     console.log('[enabledchange] -', enabled);
-    this.state.enabled = enabled;
-    this.state.isMoving = false;
+    this.zone.run(() => {
+      this.state.enabled = enabled;
+      this.state.isMoving = false;
+    });
   }
+
   /**
   * @event notificationaction
   */

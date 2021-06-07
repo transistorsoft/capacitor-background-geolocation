@@ -42,20 +42,6 @@
    		</ion-fab-list>
  	</ion-fab>
 
-  <ion-fab top right>
-  <button ion-fab mini (click)="onClickMapMenu()" color="light"><ion-icon name="map"></ion-icon></button>
-  <ion-fab-list side="left">
-    <ion-fab (click)="onSelectMapOption('mapHideMarkers')" color="{{settingsService.applicationState.mapHideMarkers ? 'light' : 'gold'}}">
-      <ion-icon name="pin" color="{{settingsService.applicationState.mapHideMarkers ? 'dark-grey' : 'black'}}"></ion-icon>
-    </ion-fab>
-    <ion-fab (click)="onSelectMapOption('mapHidePolyline')" color="{{settingsService.applicationState.mapHidePolyline ? 'light' : 'gold'}}">
-      <ion-icon name="pulse" color="{{settingsService.applicationState.mapHidePolyline ? 'dark-grey' : 'black'}}"></ion-icon>
-    </ion-fab>
-    <ion-fab (click)="onSelectMapOption('mapHideGeofenceHits')" color="{{settingsService.applicationState.mapHideGeofenceHits ? 'light' : 'gold'}}">
-      <ion-icon name="radio-button-off" color="{{settingsService.applicationState.mapHideGeofenceHits ? 'dark-grey' : 'black'}}"></ion-icon>
-    </ion-fab>
-  </ion-fab-list>
-</ion-fab>
 	<div #map id="map" style="height:100%;width:100%"></div>
 </ion-content>
 
