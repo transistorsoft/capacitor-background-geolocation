@@ -58,6 +58,7 @@ import com.transistorsoft.locationmanager.geofence.TSGeofence;
 import com.transistorsoft.locationmanager.http.HttpResponse;
 import com.transistorsoft.locationmanager.location.TSCurrentPositionRequest;
 import com.transistorsoft.locationmanager.location.TSLocation;
+import com.transistorsoft.locationmanager.location.TSWatchPositionRequest;
 import com.transistorsoft.locationmanager.logger.TSLog;
 import com.transistorsoft.locationmanager.scheduler.ScheduleEvent;
 import com.transistorsoft.locationmanager.scheduler.TSScheduleManager;
@@ -75,6 +76,8 @@ public class BackgroundGeolocationPlugin extends Plugin {
     private boolean mReady;
 
     private static final String BACKGROUND_GEOLOCATION_HEADLESS_CLASSNAME = "BackgroundGeolocationHeadlessTask";
+
+    private static final String EVENT_WATCHPOSITION = "watchposition";
 
     @Override
     public void load() {
@@ -369,6 +372,73 @@ public class BackgroundGeolocationPlugin extends Plugin {
             e.printStackTrace();
             call.reject(e.getMessage());
         }
+    }
+
+    @PluginMethod()
+    public void watchPosition(final PluginCall call) {
+        JSObject options = call.getObject("options");
+
+        TSWatchPositionRequest.Builder builder = new TSWatchPositionRequest.Builder(getContext());
+
+        builder.setCallback(new TSLocationCallback() {
+            @Override public void onLocation(TSLocation tsLocation) {
+                try {
+                    if (!hasListeners(EVENT_WATCHPOSITION)) {
+                        getAdapter().stopWatchPosition(new TSCallback() {
+                            @Override public void onSuccess() { }
+                            @Override public void onFailure(String s) { }
+                        });
+                        return;
+                    }
+                    notifyListeners(EVENT_WATCHPOSITION, JSObject.fromJSONObject(tsLocation.toJson()));
+                } catch (JSONException e) {
+                    /// This will probably never fire, but...
+                    e.printStackTrace();
+                    JSObject result = new JSObject();
+                    JSObject error = new JSObject();
+                    error.put("code", -1);
+                    result.put("error", error);
+                    notifyListeners(EVENT_WATCHPOSITION, error);
+                }
+            }
+            @Override public void onError(Integer code) {
+                JSObject result = new JSObject();
+                JSObject error = new JSObject();
+                error.put("code", code);
+                result.put("error", error);
+                notifyListeners(EVENT_WATCHPOSITION, result);
+            }
+        });
+
+        try {
+            if (options.has("interval")) {
+                builder.setInterval((long) options.getInt("interval"));
+            }
+            if (options.has("extras")) {
+                builder.setExtras(options.getJSONObject("extras"));
+            }
+            if (options.has("persist")) {
+                builder.setPersist(options.getBoolean("persist"));
+            }
+            if (options.has("desiredAccuracy")) {
+                builder.setDesiredAccuracy(options.getInt("desiredAccuracy"));
+            }
+            getAdapter().watchPosition(builder.build());
+            call.resolve();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            call.reject(e.getMessage());
+        }
+    }
+
+    @PluginMethod()
+    public void stopWatchPosition(final PluginCall call) {
+        getAdapter().stopWatchPosition(new TSCallback() {
+            @Override public void onSuccess() { call.resolve(); }
+            @Override public void onFailure(String error) {
+                call.reject(error);
+            }
+        });
     }
 
     /// Geofencing
@@ -972,7 +1042,6 @@ public class BackgroundGeolocationPlugin extends Plugin {
         bgGeo.onHttp(new TSHttpResponseCallback() {
             @Override
             public void onHttpResponse(HttpResponse event) {
-                TSLog.logger.debug("************************** onHttpResponse");
                 handleEvent(BackgroundGeolocation.EVENT_HTTP, event.toJson());
             }
         });

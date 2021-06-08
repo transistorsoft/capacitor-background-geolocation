@@ -1,4 +1,4 @@
-#import "Plugin.h"
+#import "BackgroundGeolocationModule.h"
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 #import <UIKit/UIKit.h>
@@ -25,11 +25,9 @@ static NSString *const EVENT_NOTIFICATIONACTION = @"notificationaction";
 static NSString *const EVENT_AUTHORIZATION      = @"authorization";
 
 
-@implementation Plugin {
+@implementation BackgroundGeolocationModule {
     NSMutableDictionary *listeners;
     BOOL ready;
-    void(^onLocation)(TSLocation*);
-    void(^onLocationError)(NSError*);
 }
 
 - (void)load {
@@ -276,23 +274,42 @@ static NSString *const EVENT_AUTHORIZATION      = @"authorization";
 - (void) watchPosition:(CAPPluginCall *) call {
     NSDictionary *options = [call getObject:@"options" defaultValue:@{}];
     
-    TSLocationManager *locationManager = [TSLocationManager sharedInstance];
-    
+    __typeof(self) __weak me = self;
     TSWatchPositionRequest *request = [[TSWatchPositionRequest alloc] initWithSuccess:^(TSLocation *location) {
-        // TODO Fire EVENT_WATCHPOSITION here.
-        //[self sendEvent:EVENT_WATCHPOSITION body:[location toDictionary]];
-        NSLog(@"*** TODO watchPosition fire EVENT_WATCHPOSITION unimplemented ***");
+        if (![me hasListeners:EVENT_WATCHPOSITION]) {
+            [[TSLocationManager sharedInstance] stopWatchPosition];
+            return;
+        }
+        [me notifyListeners:EVENT_WATCHPOSITION data:[location toDictionary]];
     } failure:^(NSError *error) {
-        // DO NOTHING.
+        if (![me hasListeners:EVENT_WATCHPOSITION]) {
+            [[TSLocationManager sharedInstance] stopWatchPosition];
+            return;
+        }
+        NSDictionary *result = @{@"error": @{
+            @"code": @(error.code),
+            @"message":error.localizedDescription
+        }};
+        [me notifyListeners:EVENT_WATCHPOSITION data:result];
     }];
 
-    if (options[@"interval"])           { request.interval = [options[@"interval"] doubleValue]; }
-    if (options[@"desiredAccuracy"])    { request.desiredAccuracy = [options[@"desiredAccuracy"] doubleValue]; }
-    if (options[@"persist"])            { request.persist = [options[@"persist"] boolValue]; }
-    if (options[@"extras"])             { request.extras = options[@"extras"]; }
-    if (options[@"timeout"])            { request.timeout = [options[@"timeout"] doubleValue]; }
-
-    [locationManager watchPosition:request];
+    if (options[@"interval"]) {
+        request.interval = [options[@"interval"] doubleValue];
+    }
+    if (options[@"desiredAccuracy"]) {
+        request.desiredAccuracy = [options[@"desiredAccuracy"] doubleValue];
+    }
+    if (options[@"persist"]) {
+        request.persist = [options[@"persist"] boolValue];
+    }
+    if (options[@"extras"]) {
+        request.extras = options[@"extras"];
+    }
+    if (options[@"timeout"]) {
+        request.timeout = [options[@"timeout"] doubleValue];
+    }
+    [[TSLocationManager sharedInstance] watchPosition:request];
+    
     [call resolve];
 }
 
