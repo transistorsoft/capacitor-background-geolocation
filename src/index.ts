@@ -17,6 +17,9 @@ const TAG               = "TSLocationManager";
 /// Container for event-subscriptions.
 let EVENT_SUBSCRIPTIONS:any = [];
 
+/// Container for watchPostion subscriptions.
+let WATCH_POSITION_SUBSCRIPTIONS:any = [];
+
 /// Event handler Subscription
 ///
 class Subscription {
@@ -221,6 +224,41 @@ export default class BackgroundGeolocation {
         reject(error.code);
       });
     });
+  }
+
+  static watchPosition(onLocation:Function, onError?:Function, options?:any) {
+    options = options || {};
+    return new Promise(async (resolve:Function, reject:Function) => {
+
+      const handler = (response:any) => {
+        if (response.hasOwnProperty("error") && (response.error != null)) {
+          if (typeof(onError) === 'function') {
+            onError(response.error.code);
+          } else {
+            console.warn('[BackgroundGeolocation watchPostion] DEFAULT ERROR HANDLER.  Provide an onError handler to watchPosition to receive this message: ', response.error);
+          }
+        } else {
+          onLocation(response);
+        }
+      }
+      const listener:PluginListenerHandle = await NativeModule.addListener("watchposition", handler);
+
+      NativeModule.watchPosition({options:options}).then(() => {
+        WATCH_POSITION_SUBSCRIPTIONS.push(listener);
+        resolve();
+      }).catch((error:any) => {
+        listener.remove();
+        reject(error.message);
+      });
+    });
+  }
+
+  static stopWatchPosition() {
+    for (let n=0;n<WATCH_POSITION_SUBSCRIPTIONS.length;n++) {
+      const subscription = WATCH_POSITION_SUBSCRIPTIONS[n];
+      subscription.remove();
+    }
+    return NativeModule.stopWatchPosition();
   }
 
   static requestPermission() {

@@ -3,7 +3,7 @@
 
 // Define the plugin using the CAP_PLUGIN Macro, and
 // each method the plugin supports using the CAP_PLUGIN_METHOD macro.
-CAP_PLUGIN(Plugin, "BackgroundGeolocation",
+CAP_PLUGIN(BackgroundGeolocationModule, "BackgroundGeolocation",
            CAP_PLUGIN_METHOD(ready, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(reset, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(setConfig, CAPPluginReturnPromise);
@@ -19,7 +19,9 @@ CAP_PLUGIN(Plugin, "BackgroundGeolocation",
            CAP_PLUGIN_METHOD(requestTemporaryFullAccuracy, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(sync, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(getCurrentPosition, CAPPluginReturnPromise);
-
+           CAP_PLUGIN_METHOD(watchPosition, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(stopWatchPosition, CAPPluginReturnPromise);
+           
            CAP_PLUGIN_METHOD(addGeofence, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(addGeofences, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(getGeofences, CAPPluginReturnPromise);

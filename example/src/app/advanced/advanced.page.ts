@@ -107,6 +107,7 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   isResettingOdometer: boolean;
   isEmailingLog: boolean;
   isMapMenuOpen: boolean;
+  isWatchingPosition: boolean;
 
   // Private
   testModeClicks: number;
@@ -128,6 +129,8 @@ export class AdvancedPage implements OnInit, AfterContentInit {
     this.isSyncing = false;
     this.isResettingOdometer = false;
     this.isEmailingLog = false;
+
+    this.isWatchingPosition = false;
 
     this.testModeClicks = 0;
 
@@ -280,6 +283,7 @@ export class AdvancedPage implements OnInit, AfterContentInit {
       console.warn('- BackgroundGeolocation configuration error: ', error);
     });
   }
+
 
   /**
   * Configure Google Maps
@@ -664,6 +668,21 @@ export class AdvancedPage implements OnInit, AfterContentInit {
       await BackgroundGeolocation.stop();
       this.state.isMoving = false;
       this.clearMarkers();
+    }
+  }
+
+  onClickWatchPosition() {
+    this.isWatchingPosition = !this.isWatchingPosition;
+    if (this.isWatchingPosition) {
+      BackgroundGeolocation.watchPosition((location) => {
+        console.log('*** [watchPosition]', location);
+      }, (error) => {
+        console.warn('*** [watchPosition] ERROR: ', error);
+      }, {
+        interval: 1000
+      });
+    } else {
+      BackgroundGeolocation.stopWatchPosition();
     }
   }
 

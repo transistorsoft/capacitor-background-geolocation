@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.0.12] &mdash; 2021-06-08
+- [Fixed] Implement `watchPosition`
+
 ## [0.0.11] &mdash; 2021-06-07
 - [Fixed] iOS.  Small change to TSLocationManager to ignore onResume events when .ready() not yet called.  This was causing the plugin to start itself before ready is called.  Could result in missed events.
 

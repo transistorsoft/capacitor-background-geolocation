@@ -8,7 +8,7 @@
 
 @class CAPPluginCall;
 
-@interface Plugin : CAPPlugin
+@interface BackgroundGeolocationModule: CAPPlugin
 
 @end
 

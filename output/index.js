@@ -280,6 +280,8 @@ var capacitorBackgroundGeolocation = (function (core) {
     var TAG = "TSLocationManager";
     /// Container for event-subscriptions.
     var EVENT_SUBSCRIPTIONS = [];
+    /// Container for watchPostion subscriptions.
+    var WATCH_POSITION_SUBSCRIPTIONS = [];
     /// Event handler Subscription
     ///
     var Subscription = /** @class */ (function () {
@@ -660,6 +662,49 @@ var capacitorBackgroundGeolocation = (function (core) {
                     reject(error.code);
                 });
             });
+        };
+        BackgroundGeolocation.watchPosition = function (onLocation, onError, options) {
+            var _this = this;
+            options = options || {};
+            return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                var handler, listener;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            handler = function (response) {
+                                if (response.hasOwnProperty("error") && (response.error != null)) {
+                                    if (typeof (onError) === 'function') {
+                                        onError(response.error.code);
+                                    }
+                                    else {
+                                        console.warn('[BackgroundGeolocation watchPostion] DEFAULT ERROR HANDLER.  Provide an onError handler to watchPosition to receive this message: ', response.error);
+                                    }
+                                }
+                                else {
+                                    onLocation(response);
+                                }
+                            };
+                            return [4 /*yield*/, NativeModule.addListener("watchposition", handler)];
+                        case 1:
+                            listener = _a.sent();
+                            NativeModule.watchPosition({ options: options }).then(function () {
+                                WATCH_POSITION_SUBSCRIPTIONS.push(listener);
+                                resolve();
+                            }).catch(function (error) {
+                                listener.remove();
+                                reject(error.message);
+                            });
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+        };
+        BackgroundGeolocation.stopWatchPosition = function () {
+            for (var n = 0; n < WATCH_POSITION_SUBSCRIPTIONS.length; n++) {
+                var subscription = WATCH_POSITION_SUBSCRIPTIONS[n];
+                subscription.remove();
+            }
+            return NativeModule.stopWatchPosition();
         };
         BackgroundGeolocation.requestPermission = function () {
             return new Promise(function (resolve, reject) {
