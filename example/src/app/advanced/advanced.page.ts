@@ -371,7 +371,7 @@ export class AdvancedPage implements OnInit, AfterContentInit {
         }
       };
       this.polyline = new google.maps.Polyline({
-        map: (this.settingsService.applicationState.mapHidePolyline) ? null : this.map,
+        map: this.map,
         zIndex: 1,
         geodesic: true,
         strokeColor: COLORS.polyline_color,
@@ -604,44 +604,6 @@ export class AdvancedPage implements OnInit, AfterContentInit {
     this.router.navigate(['/home']);
   }
 
-  onClickMapMenu() {
-    this.isMapMenuOpen = !this.isMapMenuOpen;
-    let soundId = (this.isMapMenuOpen) ? 'OPEN' : 'CLOSE';
-    this.bgService.playSound(soundId);
-  }
-
-  onSelectMapOption(name) {
-    this.bgService.playSound('BUTTON_CLICK');
-    // Invert the value
-    let enabled = !this.settingsService.applicationState[name];
-
-    // Save it:
-    this.settingsService.set(name, enabled);
-
-    // Apply it:
-    let map = (enabled) ? null : this.map;
-    let message = (enabled) ? 'Hide ' : 'Show ';
-    switch(name) {
-      case 'mapHideMarkers':
-        this.locationMarkers.forEach((marker) => {
-          marker.setMap(map);
-        });
-        message += 'map markers';
-        break;
-      case 'mapHidePolyline':
-        this.polyline.setMap(map);
-        message += 'polyline';
-        break;
-      case 'mapHideGeofenceHits':
-        this.geofenceHitMarkers.forEach((marker) => {
-          marker.setMap(map);
-        });
-        message += 'geofence transitions';
-        break;
-     }
-     this.settingsService.toast(message, undefined, 1000);
-  }
-
   async onToggleEnabled() {
     const state = await BackgroundGeolocation.getState();
 
@@ -864,7 +826,7 @@ export class AdvancedPage implements OnInit, AfterContentInit {
     });
 
     if (!circle) { return; }
-    var map = (this.settingsService.applicationState.mapHideGeofenceHits) ? null : this.map;
+    var map = this.map;
 
     let location = event.location;
     let geofenceMarker = this.geofenceHits[event.identifier];
@@ -1088,7 +1050,7 @@ export class AdvancedPage implements OnInit, AfterContentInit {
         strokeWeight: strokeWeight,
         strokeOpacity: 1
       },
-      map: (!this.settingsService.applicationState.mapHideMarkers) ? this.map : null,
+      map: this.map,
       position: new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
     });
   }
