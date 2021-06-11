@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.0.13] &mdash; 2021-06-11
+* [Fixed][iOS] Reports 2 reports of iOS crash `NSInvalidArgumentException (TSLocation.m line 178)` with iOS 14
+.x.  Wrap JSON serialization in @try/@catch block.  iOS JSON serialization docs state the supplied NSError err
+or ref should report problems but it seems this is only "sometimes" now.
+
 ## [0.0.12] &mdash; 2021-06-08
 - [Fixed] Implement `watchPosition`
 
