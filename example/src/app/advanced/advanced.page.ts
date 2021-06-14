@@ -169,6 +169,10 @@ export class AdvancedPage implements OnInit, AfterContentInit {
 
   async ionViewWillEnter() {
     console.log('⚙️ ionViewWillEnter');
+  }
+
+  async ngAfterContentInit()  {
+    console.log('⚙️ ngAfterContentInit');
 
     // Setup the GoogleMap
     await this.configureMap();
@@ -182,10 +186,7 @@ export class AdvancedPage implements OnInit, AfterContentInit {
 
     // Configure the plugin.
     this.configureBackgroundGeolocation();
-  }
 
-  async ngAfterContentInit()  {
-    console.log('⚙️ ngAfterContentInit');
   }
 
   ngOnInit() {}

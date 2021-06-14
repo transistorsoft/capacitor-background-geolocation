@@ -100,31 +100,6 @@ $ npx cap sync
 import BackgroundGeolocation from "@transistorsoft/capacitor-background-geolocation";
 ```
 
-- You can also optionally `import` interfaces:
-```javascript
-import BackgroundGeolocation, {
-  State,
-  Config,
-  Location,
-  LocationError,
-  Geofence,
-  HttpEvent,
-  MotionActivityEvent,
-  ProviderChangeEvent,
-  MotionChangeEvent,
-  GeofenceEvent,
-  GeofencesChangeEvent,
-  HeartbeatEvent,
-  ConnectivityChangeEvent,
-  DeviceSettings,
-  DeviceSettingsRequest,
-  SQLQuery,
-  Authorization, AuthorizationEvent,
-  DeviceInfo,
-  TransistorAuthorizationToken
-} from "@transistorsoft/capacitor-background-geolocation";
-```
-
 ## :large_blue_diamond: Example
 
 There are three main steps to using `BackgroundGeolocation`
@@ -138,7 +113,11 @@ import BackgroundGeolocation from "@transistorsoft/capacitor-background-geolocat
 
 export class HomePage {
 
-  async ionViewWillEnter() {
+  /// WARNING:  DO NOT Use ionViewWillEnter to configure the SDK -- use ngAfterContentInit.  ionViewWillEnter only executes when the
+  /// app is brought to the foreground.  It will NOT execute when the app is launched in the background,
+  /// as the BackgroundGeolocation SDK will often do.
+  ///
+  async ngAfterContentInit() {
     ////
     // 1.  Wire up event-listeners
     //
