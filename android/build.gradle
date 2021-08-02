@@ -1,6 +1,6 @@
 ext {
     junitVersion = project.hasProperty('junitVersion') ? rootProject.ext.junitVersion : '4.13.1'
-    androidxAppCompatVersion = project.hasProperty('androidxAppCompatVersion') ? rootProject.ext.androidxAppCompatVersion : '1.2.0'
+    androidxAppCompatVersion = project.hasProperty('androidxAppCompatVersion') ? rootProject.ext.androidxAppCompatVersion : '1.3.1'
     androidxJunitVersion = project.hasProperty('androidxJunitVersion') ? rootProject.ext.androidxJunitVersion : '1.1.2'
     androidxEspressoCoreVersion = project.hasProperty('androidxEspressoCoreVersion') ? rootProject.ext.androidxEspressoCoreVersion : '3.3.0'
 }
@@ -21,13 +21,13 @@ apply plugin: 'com.android.library'
 // Android dependencies
 def DEFAULT_COMPILE_SDK_VERSION                     = 30
 def DEFAULT_TARGET_SDK_VERSION                      = 30
-def DEFAULT_APP_COMPAT_VERSION                      = "1.1.0"
+def DEFAULT_APP_COMPAT_VERSION                      = "1.3.1"
 
 // Plugin dependencies
 def DEFAULT_GOOGLE_PLAY_SERVICES_LOCATION_VERSION   = "18.0.0"
 def DEFAULT_OK_HTTP_VERSION                         = "4.9.1"
 def DEFAULT_ANDROID_PERMISSIONS_VERSION             = "0.1.8"
-def DEFAULT_EVENTBUS_VERSION                        = "3.0.0"
+def DEFAULT_EVENTBUS_VERSION                        = "3.2.0"
 def DEFAULT_LOCAL_BROADCAST_MANAGER_VERSION         = "1.0.0"
 
 def safeExtGet(prop, fallback) {
@@ -87,5 +87,5 @@ dependencies {
     api "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation 'org.slf4j:slf4j-api:1.7.25'
     implementation 'com.github.tony19:logback-android:2.0.0'
-    implementation "com.intentfilter:android-permissions:$androidPermissionsVersion"
+    implementation "io.github.nishkarsh:android-permissions:$androidPermissionsVersion"
 }

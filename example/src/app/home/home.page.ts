@@ -42,9 +42,10 @@ export class HomePage {
 
   }
 
-  ionViewWillEnter() {
+  ngAfterContentInit() {
     this.init();
   }
+
   async init() {
 
 
