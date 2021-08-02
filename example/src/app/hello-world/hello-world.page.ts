@@ -33,7 +33,7 @@ export class HelloWorldPage implements OnInit {
 
   }
 
-  ionViewWillEnter() {
+  ngAfterContentInit() {
     this.configureBackgroundGeolocation();
   }
 
