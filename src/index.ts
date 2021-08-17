@@ -194,6 +194,10 @@ export default class BackgroundGeolocation {
     return NativeModule.startSchedule();
   }
 
+  static stopSchedule() {
+    return NativeModule.stopSchedule();
+  }
+
   static startGeofences() {
     return NativeModule.startGeofences();
   }

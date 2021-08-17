@@ -42,6 +42,8 @@ The **[Android module](http://www.transistorsoft.com/shop/products/capacitor-bac
 
 ## :large_blue_diamond: Installing the Plugin
 
+:warning: Capacitor 3+ required.
+
 ### With `yarn`
 
 ```bash
