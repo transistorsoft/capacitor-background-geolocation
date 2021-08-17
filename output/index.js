@@ -636,6 +636,9 @@ var capacitorBackgroundGeolocation = (function (core) {
         BackgroundGeolocation.startSchedule = function () {
             return NativeModule.startSchedule();
         };
+        BackgroundGeolocation.stopSchedule = function () {
+            return NativeModule.stopSchedule();
+        };
         BackgroundGeolocation.startGeofences = function () {
             return NativeModule.startGeofences();
         };
