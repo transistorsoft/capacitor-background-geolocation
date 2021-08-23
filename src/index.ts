@@ -385,6 +385,16 @@ export default class BackgroundGeolocation {
     });
   }
 
+  static getGeofence(identifier:string) {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.getGeofence({identifier:identifier}).then((result:any) => {
+        resolve(result);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
   static geofenceExists(identifier:string) {
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.geofenceExists({identifier:identifier}).then((result:any) => {

@@ -145,7 +145,7 @@ export class SettingsService {
   async applyTestConfig() {
 
     let geofences = [{
-      "identifier": "[Cordova] Home",
+      "identifier": "[Capacitor] Home",
       "radius": 200.0,
       "latitude": 45.51872221233045,
       "longitude": -73.60041976465013,
@@ -161,7 +161,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Parc Outremont",
+      "identifier": "[Capacitor] Parc Outremont",
       "radius": 200.0,
       "latitude": 45.51791915253888,
       "longitude": -73.60480434117284,
@@ -177,7 +177,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] 5 Saison",
+      "identifier": "[Capacitor] 5 Saison",
       "radius": 200.0,
       "latitude": 45.52193435702239,
       "longitude": -73.60793815706307,
@@ -193,7 +193,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Laj",
+      "identifier": "[Capacitor] Laj",
       "radius": 200.0,
       "latitude": 45.52011166353691,
       "longitude": -73.61188565687189,
@@ -209,7 +209,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Park Beaubien",
+      "identifier": "[Capacitor] Park Beaubien",
       "radius": 200.0,
       "latitude": 45.51536622906458,
       "longitude": -73.60916110960558,
@@ -225,7 +225,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Parc & Fairmount",
+      "identifier": "[Capacitor] Parc & Fairmount",
       "radius": 200.0,
       "latitude": 45.5204308608878,
       "longitude": -73.59730225310089,
@@ -241,7 +241,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Parc Couches Tard",
+      "identifier": "[Capacitor] Parc Couches Tard",
       "radius": 200.0,
       "latitude": 45.51744539760233,
       "longitude": -73.5908963928221,
@@ -257,7 +257,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Laurier & Côtes Saint Catherines",
+      "identifier": "[Capacitor] Laurier & Côtes Saint Catherines",
       "radius": 200.0,
       "latitude": 45.51602235252262,
       "longitude": -73.59890979915006,
@@ -273,7 +273,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Mountain 1",
+      "identifier": "[Capacitor] Mountain 1",
       "radius": 200.0,
       "latitude": 45.51339446482965,
       "longitude": -73.5890430151955,
@@ -289,7 +289,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Mountain 2",
+      "identifier": "[Capacitor] Mountain 2",
       "radius": 200.0,
       "latitude": 45.511936585973096,
       "longitude": -73.59662309075495,
@@ -305,7 +305,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Mountain 3",
+      "identifier": "[Capacitor] Mountain 3",
       "radius": 200.0,
       "latitude": 45.50873361477508,
       "longitude": -73.59089814860727,
@@ -321,7 +321,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Mountain 4",
+      "identifier": "[Capacitor] Mountain 4",
       "radius": 200.0,
       "latitude": 45.50414694296492,
       "longitude": -73.5916710539562,
@@ -337,7 +337,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Mountain 5",
+      "identifier": "[Capacitor] Mountain 5",
       "radius": 200.0,
       "latitude": 45.50491473767328,
       "longitude": -73.58654527405864,
@@ -353,7 +353,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Mountain Lake",
+      "identifier": "[Capacitor] Mountain Lake",
       "radius": 200.0,
       "latitude": 45.49860916086097,
       "longitude": -73.59621565704647,
@@ -369,7 +369,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Park JFK",
+      "identifier": "[Capacitor] Park JFK",
       "radius": 200.0,
       "latitude": 45.52135522992923,
       "longitude": -73.61568446341691,
@@ -385,7 +385,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Rope Park",
+      "identifier": "[Capacitor] Rope Park",
       "radius": 200.0,
       "latitude": 45.51335215591131,
       "longitude": -73.58016477295465,
@@ -401,7 +401,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Cafe Union",
+      "identifier": "[Capacitor] Cafe Union",
       "radius": 200.0,
       "latitude": 45.5332674993574,
       "longitude": -73.61939297593483,
@@ -417,7 +417,7 @@ export class SettingsService {
         }
       }
     }, {
-      "identifier": "[Cordova] Park Laurier",
+      "identifier": "[Capacitor] Park Laurier",
       "radius": 200.0,
       "latitude": 45.53237479609443,
       "longitude": -73.58741778627864,
