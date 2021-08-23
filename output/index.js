@@ -818,6 +818,15 @@ var capacitorBackgroundGeolocation = (function (core) {
                 });
             });
         };
+        BackgroundGeolocation.getGeofence = function (identifier) {
+            return new Promise(function (resolve, reject) {
+                NativeModule.getGeofence({ identifier: identifier }).then(function (result) {
+                    resolve(result);
+                }).catch(function (error) {
+                    reject(error.message);
+                });
+            });
+        };
         BackgroundGeolocation.geofenceExists = function (identifier) {
             return new Promise(function (resolve, reject) {
                 NativeModule.geofenceExists({ identifier: identifier }).then(function (result) {

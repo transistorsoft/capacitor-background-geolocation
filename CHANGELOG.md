@@ -1,7 +1,9 @@
 # Change Log
 
-## Unreleased
+## [4.2.2] &mdash; 2021-08-23
+* [Fixed][iOS] add config change listeners for `heartbeatInterval` and `preventSuspend` to dynamically update interval when changed with `setConfig`.
 * [Fixed] Method `stopSchedule` was not implemented.
+* [Fixed] Method `getGeofence` was not implemented.
 
 ## [4.2.1] &mdash; 2021-08-03
 * [Changed][Android] Revert default `okHttpVersion` back to `3.12.13`.  `4.x` requires `minSdkVersion 21` (*Android 5*).
