@@ -820,6 +820,10 @@ var capacitorBackgroundGeolocation = (function (core) {
         };
         BackgroundGeolocation.getGeofence = function (identifier) {
             return new Promise(function (resolve, reject) {
+                if (identifier === null) {
+                    reject('Identifier is null');
+                    return;
+                }
                 NativeModule.getGeofence({ identifier: identifier }).then(function (result) {
                     resolve(result);
                 }).catch(function (error) {
