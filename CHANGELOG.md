@@ -1,5 +1,8 @@
 # Change Log
 
+## Unreleased
+* [Added] Null-check identifier !== null in getGeofence, hasGeofence, removeGeofence
+
 ## [4.2.2] &mdash; 2021-08-23
 * [Fixed][iOS] add config change listeners for `heartbeatInterval` and `preventSuspend` to dynamically update interval when changed with `setConfig`.
 * [Fixed] Method `stopSchedule` was not implemented.
