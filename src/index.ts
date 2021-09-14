@@ -387,6 +387,10 @@ export default class BackgroundGeolocation {
 
   static getGeofence(identifier:string) {
     return new Promise((resolve:Function, reject:Function) => {
+      if (identifier === null) {
+        reject('identifier is null');
+        return;
+      }
       NativeModule.getGeofence({identifier:identifier}).then((result:any) => {
         resolve(result);
       }).catch((error:PluginResultError) => {
@@ -397,6 +401,10 @@ export default class BackgroundGeolocation {
 
   static geofenceExists(identifier:string) {
     return new Promise((resolve:Function, reject:Function) => {
+      if (identifier === null) {
+        reject('identifier is null');
+        return;
+      }
       NativeModule.geofenceExists({identifier:identifier}).then((result:any) => {
         resolve(result.exists);
       }).catch((error:PluginResultError) => {
@@ -407,6 +415,10 @@ export default class BackgroundGeolocation {
 
   static removeGeofence(identifier:string) {
     return new Promise((resolve:Function, reject:Function) => {
+      if (identifier === null) {
+        reject('identifier is null');
+        return;
+      }
       NativeModule.removeGeofence({identifier:identifier}).then(() => {
         resolve();
       }).catch((error:PluginResultError) => {

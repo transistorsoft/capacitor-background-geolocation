@@ -105,6 +105,12 @@ public class BackgroundGeolocationPlugin extends Plugin {
     }
 
     @PluginMethod()
+    public void registerPlugin(PluginCall call) {
+        JSObject result = new JSObject();
+        call.resolve(result);
+    }
+
+    @PluginMethod()
     public void ready(PluginCall call) throws JSONException {
         JSObject params = call.getObject("options");
 
@@ -307,10 +313,20 @@ public class BackgroundGeolocationPlugin extends Plugin {
     }
 
     @PluginMethod()
-    public void requestTemporaryFullAccuracy(PluginCall call) {
-        JSObject result = new JSObject();
-        result.put("accuracyAuthorization", LocationProviderChangeEvent.ACCURACY_AUTHORIZATION_FULL);
-        call.resolve(result);
+    public void requestTemporaryFullAccuracy(final PluginCall call) {
+        String purpose = call.getString("purpose");
+        getAdapter().requestTemporaryFullAccuracy(purpose, new TSRequestPermissionCallback() {
+            @Override public void onSuccess(int accuracyAuthorization) {
+                JSObject result = new JSObject();
+                result.put("accuracyAuthorization", accuracyAuthorization);
+                call.resolve(result);
+            }
+            @Override public void onFailure(int accuracyAuthorization) {
+                JSObject result = new JSObject();
+                result.put("accuracyAuthorization", accuracyAuthorization);
+                call.resolve(result);
+            }
+        });
     }
 
     @PluginMethod()
