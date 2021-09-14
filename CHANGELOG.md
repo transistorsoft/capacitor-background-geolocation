@@ -1,6 +1,10 @@
 # Change Log
 
-## Unreleased
+## 4.3.0 &mdash; 2021-09-13
+
+* [Added][Android] Implement new Android 12 "reduced accuracy" mechanism `requestTemporaryFullAccuracy`.
+* [Fixed][iOS] `Authorization.refreshPayload refreshToken` was not performing a String replace on the `{refreshToken}` template, instead over-writing the entire string.  Eg:  if provided with `'refresh_token': 'Bearer {refreshToken}`, `Bearer ` would be over-written and replaced with only the refresh-token.
+* [Fixed][Android] Fixed crash reported by Huawei device, where verticalAccuracy returns NaN.
 * [Added] Null-check identifier !== null in getGeofence, hasGeofence, removeGeofence
 
 ## [4.2.2] &mdash; 2021-08-23

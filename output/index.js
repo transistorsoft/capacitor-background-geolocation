@@ -821,7 +821,7 @@ var capacitorBackgroundGeolocation = (function (core) {
         BackgroundGeolocation.getGeofence = function (identifier) {
             return new Promise(function (resolve, reject) {
                 if (identifier === null) {
-                    reject('Identifier is null');
+                    reject('identifier is null');
                     return;
                 }
                 NativeModule.getGeofence({ identifier: identifier }).then(function (result) {
@@ -833,6 +833,10 @@ var capacitorBackgroundGeolocation = (function (core) {
         };
         BackgroundGeolocation.geofenceExists = function (identifier) {
             return new Promise(function (resolve, reject) {
+                if (identifier === null) {
+                    reject('identifier is null');
+                    return;
+                }
                 NativeModule.geofenceExists({ identifier: identifier }).then(function (result) {
                     resolve(result.exists);
                 }).catch(function (error) {
@@ -842,6 +846,10 @@ var capacitorBackgroundGeolocation = (function (core) {
         };
         BackgroundGeolocation.removeGeofence = function (identifier) {
             return new Promise(function (resolve, reject) {
+                if (identifier === null) {
+                    reject('identifier is null');
+                    return;
+                }
                 NativeModule.removeGeofence({ identifier: identifier }).then(function () {
                     resolve();
                 }).catch(function (error) {

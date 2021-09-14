@@ -402,7 +402,17 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   ////
   // UI event handlers
   //
-  onClickMainMenu() {
+  async onClickMainMenu() {
+    await BackgroundGeolocation.addGeofence({
+      identifier: '1',
+      latitude: 1,
+      longitude: 1,
+      radius: 200,
+      notifyOnEntry: true,
+      notifyOnExit: true
+    });
+
+
     this.isMainMenuOpen = !this.isMainMenuOpen;
     if (this.isMainMenuOpen) {
       this.bgService.playSound('OPEN');
@@ -765,10 +775,23 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   /**
   * @event providerchange
   */
-  onProviderChange(provider:ProviderChangeEvent) {
-    console.log('[providerchange] -', provider);
+  onProviderChange(event:ProviderChangeEvent) {
+    console.log('[providerchange] -', event);
 
-    switch(provider.status) {
+    if ((event.status == BackgroundGeolocation.AUTHORIZATION_STATUS_ALWAYS) && (event.accuracyAuthorization == BackgroundGeolocation.ACCURACY_AUTHORIZATION_REDUCED)) {
+      // Supply "Purpose" key from Info.plist as 1st argument.
+      BackgroundGeolocation.requestTemporaryFullAccuracy("DemoPurpose").then((accuracyAuthorization) => {
+        if (accuracyAuthorization == BackgroundGeolocation.ACCURACY_AUTHORIZATION_FULL) {
+          console.log(`[requestTemporaryFullAccuracy] GRANTED:  ${accuracyAuthorization}`);
+        } else {
+          console.log(`[requestTemporaryFullAccuracy] DENIED:  ${accuracyAuthorization}`);
+        }
+      }).catch((error) => {
+        console.log(`[requestTemporaryFullAccuracy] FAILED TO SHOW DIALOG: ${error}`);
+      });
+    }
+
+    switch(event.status) {
       case BackgroundGeolocation.AUTHORIZATION_STATUS_DENIED:
         break;
       case BackgroundGeolocation.AUTHORIZATION_STATUS_ALWAYS:
@@ -777,7 +800,7 @@ export class AdvancedPage implements OnInit, AfterContentInit {
         break;
     }
     this.zone.run(() => {
-      this.state.provider = provider;
+      this.state.provider = event;
     });
 
   }
