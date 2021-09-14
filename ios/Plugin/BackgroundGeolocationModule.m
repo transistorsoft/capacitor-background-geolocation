@@ -127,6 +127,12 @@ static NSString *const EVENT_AUTHORIZATION      = @"authorization";
     }];
 }
 
+- (void)registerPlugin:(CAPPluginCall *) call {
+    NSString *pluginId = [call getString:@"id" defaultValue:nil];
+    TSConfig *config = [TSConfig sharedInstance];
+    [config registerPlugin:pluginId];
+}
+
 - (void)ready:(CAPPluginCall *) call {
     TSLocationManager *locationManager = [TSLocationManager sharedInstance];
     NSDictionary *params = [call getObject:@"options" defaultValue:@{}];
