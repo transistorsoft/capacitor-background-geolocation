@@ -4,6 +4,8 @@ import {
 } from '@ionic/angular';
 import {Injectable} from "@angular/core";
 
+import { Storage } from '@capacitor/storage';
+
 const APP_SETTINGS = [
 
   {name: 'geofenceRadius', defaultValue: 200},
@@ -42,20 +44,26 @@ export class SettingsService {
     private alertCtrl: AlertController,
     private toastCtrl: ToastController
   ) {
-    this.storage = (<any>window).localStorage;
-
     this.geofenceRadiusOptions = GEOFENCE_RADIUS_OPTIONS;
     this.geofenceLoiteringDelayOptions = GEOFENCE_LOITERING_DELAY_OPTIONS;
 
     this.applicationState = {};
-    if (this.storage.hasOwnProperty('settings')) {
-      this.loadState();
-    } else {
-      APP_SETTINGS.forEach((setting) => {
-        this.applicationState[setting.name] = setting.defaultValue;
-      });
-      this.saveState();
-    }
+
+    this.init();
+
+  }
+
+  async init() {
+    Storage.get({key: 'settings'}).then((result) => {
+      if (result.value) {
+        this.loadState(result.value);
+      } else {
+        APP_SETTINGS.forEach((setting) => {
+          this.applicationState[setting.name] = setting.defaultValue;
+        });
+        this.saveState();
+      }
+    });
   }
 
   getApplicationState() {
@@ -438,10 +446,11 @@ export class SettingsService {
     await BackgroundGeolocation.addGeofences(geofences);
     await BackgroundGeolocation.resetOdometer();
 
-    let localStorage = (<any>window).localStorage;
+    const orgname = (await Storage.get({key: 'orgname'})).value;
+    const username = (await Storage.get({key: 'username'})).value;
     let token:TransistorAuthorizationToken = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(
-      localStorage.getItem('orgname'),
-      localStorage.getItem('username'),
+      orgname,
+      username,
       ENV.TRACKER_HOST
     );
 
@@ -475,8 +484,8 @@ export class SettingsService {
     });
   }
 
-  private loadState() {
-    this.applicationState = JSON.parse(this.storage.getItem('settings'));
+  private loadState(json) {
+    this.applicationState = JSON.parse(json);
     let invalid = false;
     APP_SETTINGS.forEach((setting) => {
       if (!this.applicationState.hasOwnProperty(setting.name)) {
@@ -489,7 +498,7 @@ export class SettingsService {
     this.myState = Object.assign({}, this.applicationState);
   }
   private saveState() {
-    this.storage.setItem('settings', JSON.stringify(this.applicationState, null));
+    Storage.set({key: 'settings', value: JSON.stringify(this.applicationState, null)});
     this.myState = Object.assign({}, this.applicationState);
   }
 }

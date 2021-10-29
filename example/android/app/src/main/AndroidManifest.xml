@@ -7,7 +7,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="" />
+        <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="96453dbb4ab9365552809eb60147876b07d54aa0eb61a8b7be01095782897336" />
         <provider android:authorities="${applicationId}.fileprovider" android:exported="false" android:grantUriPermissions="true" android:name="androidx.core.content.FileProvider">
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
         </provider>
