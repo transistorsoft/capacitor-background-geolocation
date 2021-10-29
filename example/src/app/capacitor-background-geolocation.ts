@@ -22,9 +22,9 @@ import BackgroundGeolocation, {
   SQLQuery,
   Authorization, AuthorizationEvent,
   DeviceInfo,
-  TransistorAuthorizationToken
+  TransistorAuthorizationToken,
+  Subscription
 } from "@transistorsoft/capacitor-background-geolocation";  // <-- Use "capacitor-background-geolocation" for customers-only version
-
 
 export default BackgroundGeolocation;
 
@@ -47,5 +47,6 @@ export {
   SQLQuery,
   Authorization, AuthorizationEvent,
   DeviceInfo,
-  TransistorAuthorizationToken
+  TransistorAuthorizationToken,
+  Subscription
 };

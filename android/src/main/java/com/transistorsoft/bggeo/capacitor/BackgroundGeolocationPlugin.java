@@ -969,6 +969,8 @@ public class BackgroundGeolocationPlugin extends Plugin {
     }
 
     private void registerEventListeners() {
+        Log.d("TSLocationManager", "******************* register event listerns");
+
         BackgroundGeolocation bgGeo = getAdapter();
         // Events
         bgGeo.onPlayServicesConnectError((new TSPlayServicesConnectErrorCallback() {

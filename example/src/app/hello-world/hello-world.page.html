@@ -14,13 +14,17 @@
 
 <ion-content>
 	<ion-list>
-  		<ion-item *ngFor="let event of events">
-  			<ion-row>
-  				<ion-col align-self-stretch><p class="title"><strong>[event]&nbsp;{{ event.name }}</strong></p></ion-col>
-    			<ion-col align-self-end><p class="timestamp">{{event.timestamp}}</p></ion-col>
-			</ion-row>
-    		<pre><code>{{ event.content}}</code></pre>
-  		</ion-item>
+  		<ion-grid *ngFor="let event of events.reverse()" class="event">
+  			<ion-row class="ion-justify-content-start header">
+					<ion-col size="6" class="ion-align-self-start ion-align-items-center">
+						<strong>{{ event.name }}</strong>
+					</ion-col>
+					<ion-col class="ion-align-self-end ion-align-items-center" class="timestamp">
+						<ion-label>{{event.timestamp}}</ion-label>
+					</ion-col>
+				</ion-row>
+				<ion-row><pre><code>{{ event.content}}</code></pre></ion-row>
+  		</ion-grid>
 	</ion-list>
 </ion-content>
 

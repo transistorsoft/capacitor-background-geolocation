@@ -943,85 +943,109 @@ var capacitorBackgroundGeolocation = (function (core) {
         /// Event Handling
         ///
         BackgroundGeolocation.onLocation = function (success, failure) {
-            BackgroundGeolocation.addListener(Events.LOCATION, success, failure);
+            return BackgroundGeolocation.addListener(Events.LOCATION, success, failure);
         };
         BackgroundGeolocation.onMotionChange = function (success) {
-            BackgroundGeolocation.addListener(Events.MOTIONCHANGE, success);
+            return BackgroundGeolocation.addListener(Events.MOTIONCHANGE, success);
         };
         BackgroundGeolocation.onHttp = function (success) {
-            BackgroundGeolocation.addListener(Events.HTTP, success);
+            return BackgroundGeolocation.addListener(Events.HTTP, success);
         };
         BackgroundGeolocation.onHeartbeat = function (success) {
-            BackgroundGeolocation.addListener(Events.HEARTBEAT, success);
+            return BackgroundGeolocation.addListener(Events.HEARTBEAT, success);
         };
         BackgroundGeolocation.onProviderChange = function (success) {
-            BackgroundGeolocation.addListener(Events.PROVIDERCHANGE, success);
+            return BackgroundGeolocation.addListener(Events.PROVIDERCHANGE, success);
         };
         BackgroundGeolocation.onActivityChange = function (success) {
-            BackgroundGeolocation.addListener(Events.ACTIVITYCHANGE, success);
+            return BackgroundGeolocation.addListener(Events.ACTIVITYCHANGE, success);
         };
         BackgroundGeolocation.onGeofence = function (success) {
-            BackgroundGeolocation.addListener(Events.GEOFENCE, success);
+            return BackgroundGeolocation.addListener(Events.GEOFENCE, success);
         };
         BackgroundGeolocation.onGeofencesChange = function (success) {
-            BackgroundGeolocation.addListener(Events.GEOFENCESCHANGE, success);
+            return BackgroundGeolocation.addListener(Events.GEOFENCESCHANGE, success);
         };
         BackgroundGeolocation.onSchedule = function (success) {
-            BackgroundGeolocation.addListener(Events.SCHEDULE, success);
+            return BackgroundGeolocation.addListener(Events.SCHEDULE, success);
         };
         BackgroundGeolocation.onEnabledChange = function (success) {
-            BackgroundGeolocation.addListener(Events.ENABLEDCHANGE, success);
+            return BackgroundGeolocation.addListener(Events.ENABLEDCHANGE, success);
         };
         BackgroundGeolocation.onConnectivityChange = function (success) {
-            BackgroundGeolocation.addListener(Events.CONNECTIVITYCHANGE, success);
+            return BackgroundGeolocation.addListener(Events.CONNECTIVITYCHANGE, success);
         };
         BackgroundGeolocation.onPowerSaveChange = function (success) {
-            BackgroundGeolocation.addListener(Events.POWERSAVECHANGE, success);
+            return BackgroundGeolocation.addListener(Events.POWERSAVECHANGE, success);
         };
         BackgroundGeolocation.onNotificationAction = function (success) {
-            BackgroundGeolocation.addListener(Events.NOTIFICATIONACTION, success);
+            return BackgroundGeolocation.addListener(Events.NOTIFICATIONACTION, success);
         };
         BackgroundGeolocation.onAuthorization = function (success) {
-            BackgroundGeolocation.addListener(Events.AUTHORIZATION, success);
+            return BackgroundGeolocation.addListener(Events.AUTHORIZATION, success);
         };
         ///
         /// Listen to a plugin event
         ///
         BackgroundGeolocation.addListener = function (event, success, failure) {
-            return __awaiter(this, void 0, void 0, function () {
-                var handler, listener;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!Events[event.toUpperCase()]) {
-                                throw (TAG + "#addListener - Unknown event '" + event + "'");
-                            }
-                            handler = function (response) {
-                                if (response.hasOwnProperty("value")) {
-                                    response = response.value;
-                                }
-                                if (response.hasOwnProperty("error") && (response.error != null)) {
-                                    if (typeof (failure) === 'function') {
-                                        failure(response.error);
-                                    }
-                                    else {
-                                        success(response);
-                                    }
-                                }
-                                else {
-                                    success(response);
-                                }
-                            };
-                            return [4 /*yield*/, NativeModule.addListener(event, handler)];
-                        case 1:
-                            listener = _a.sent();
-                            EVENT_SUBSCRIPTIONS.push(new Subscription(event, listener, success));
-                            return [2 /*return*/];
+            if (!Events[event.toUpperCase()]) {
+                throw (TAG + "#addListener - Unknown event '" + event + "'");
+            }
+            var handler = function (response) {
+                if (response.hasOwnProperty("value")) {
+                    response = response.value;
+                }
+                if (response.hasOwnProperty("error") && (response.error != null)) {
+                    if (typeof (failure) === 'function') {
+                        failure(response.error);
                     }
-                });
+                    else {
+                        success(response);
+                    }
+                }
+                else {
+                    success(response);
+                }
+            };
+            // Create a flag to capture edge-case where the developer subscribes to an event then IMMEDIATELY calls subscription.remove()
+            // before NativeModule.addListener has resolved.
+            // The developer would have to do something weird like this:
+            //   const subscription = BackgroundGeolocation.onLocation(this.onLocation);
+            //   subscription.remove();
+            //
+            // The reason for this is I don't want developers to have to await calls to BackgroundGeolocation.onXXX(myHandler).
+            //
+            var isRemoved = false;
+            var subscriptionProxy = {
+                remove: function () {
+                    // EmptyFn until NativeModule.addListener resolves and re-writes this function
+                    isRemoved = true;
+                    console.warn('[BackgroundGeolocation.addListener] Unexpected call to subscription.remove() on subscriptionProxy.  Waiting for NativeModule.addListener to resolve.');
+                }
+            };
+            // Now add the listener and re-write subscriptionProxy.remove.
+            NativeModule.addListener(event, handler).then(function (listener) {
+                var subscription = new Subscription(event, listener, success);
+                EVENT_SUBSCRIPTIONS.push(subscription);
+                subscriptionProxy.remove = function () {
+                    listener.remove();
+                    // Remove from EVENT_SUBSCRIPTIONS.
+                    if (EVENT_SUBSCRIPTIONS.indexOf(subscription) >= 0) {
+                        EVENT_SUBSCRIPTIONS.splice(EVENT_SUBSCRIPTIONS.indexOf(subscription), 1);
+                    }
+                };
+                if (isRemoved) {
+                    // Caught edge-case.  Developer added an event-handler then immediately call subscription.remove().
+                    subscriptionProxy.remove();
+                }
             });
+            // Store a ref to original PluginListenerHandle.remove.
+            //const _remove = listener.remove;
+            // Attach our customer .remove() wrapper.
+            return subscriptionProxy;
         };
         BackgroundGeolocation.removeListener = function (event, callback) {
+            console.warn('BackgroundGeolocation.removeListener is deprecated.  Event-listener methods (eg: onLocation) now return a Subscription instance.  Call subscription.remove() on the returned subscription instead.  Eg:\nconst subscription = BackgroundGeolocation.onLocation(myLocationHandler)\n...\nsubscription.remove()');
             return new Promise(function (resolve, reject) {
                 var found = null;
                 for (var n = 0, len = EVENT_SUBSCRIPTIONS.length; n < len; n++) {

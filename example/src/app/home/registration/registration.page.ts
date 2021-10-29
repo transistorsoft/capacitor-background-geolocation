@@ -6,6 +6,8 @@ import {
 	Platform
 } from '@ionic/angular';
 
+import { Storage } from '@capacitor/storage';
+
 import BackgroundGeolocation from "../../capacitor-background-geolocation";
 
 import {ENV} from "../../ENV";
@@ -70,10 +72,8 @@ export class RegistrationPage implements OnInit {
       transistorAuthorizationToken: token
     });
 
-    const localStorage = (<any>window).localStorage;
-
-    localStorage.setItem('orgname', this.orgname);
-    localStorage.setItem('username', this.username);
+    await Storage.set({key: 'orgname', value: this.orgname});
+    await Storage.set({key: 'username', value: this.username});
 
     this.modalController.dismiss({
     	orgname: this.orgname,
