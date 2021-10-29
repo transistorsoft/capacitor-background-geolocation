@@ -2,7 +2,7 @@
 
 ## 4.4.0 &mdash; 2021-10-29
 * [Added] New `Authorization.strategy "SAS"` (alternative to default `JWT`).
-* [Changed] **Deprecated** `BackgroundGeolocation.removeListener`.  All event-handlers now return a `react-native` `Subscription` instance containing a `.remove()` method.  You will keep track of your own `subscription` instances and call `.remove()` upon them when you wish to remove an event listener.  Eg:
+* [Changed] **Deprecated** `BackgroundGeolocation.removeListener`.  All event-handlers now return a `Subscription` instance containing a `.remove()` method.  You will keep track of your own `subscription` instances and call `.remove()` upon them when you wish to remove an event listener.  Eg:
 
 ```javascript
 /// OLD
