@@ -60,8 +60,13 @@ allprojects {
         google()
         jcenter()
 
++       // capacitor-background-geolocation
 +       maven {
 +         url("${project(':transistorsoft-capacitor-background-geolocation').projectDir}/libs")
++       }
++       // capacitor-background-fetch
++       maven {
++         url("${project(':transistorsoft-capacitor-background-fetch').projectDir}/libs")
 +       }
     }
 }

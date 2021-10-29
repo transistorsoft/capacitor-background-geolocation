@@ -526,65 +526,65 @@ export default class BackgroundGeolocation {
   /// Event Handling
   ///
   static onLocation(success:Function, failure:Function) {
-    BackgroundGeolocation.addListener(Events.LOCATION, success, failure);
+    return BackgroundGeolocation.addListener(Events.LOCATION, success, failure);
   }
 
   static onMotionChange(success:Function) {
-    BackgroundGeolocation.addListener(Events.MOTIONCHANGE, success);
+    return BackgroundGeolocation.addListener(Events.MOTIONCHANGE, success);
   }
 
   static onHttp(success:Function) {
-    BackgroundGeolocation.addListener(Events.HTTP, success);
+    return BackgroundGeolocation.addListener(Events.HTTP, success);
   }
 
   static onHeartbeat(success:Function) {
-    BackgroundGeolocation.addListener(Events.HEARTBEAT, success);
+    return BackgroundGeolocation.addListener(Events.HEARTBEAT, success);
   }
 
   static onProviderChange(success:Function) {
-    BackgroundGeolocation.addListener(Events.PROVIDERCHANGE, success);
+    return BackgroundGeolocation.addListener(Events.PROVIDERCHANGE, success);
   }
 
   static onActivityChange(success:Function) {
-    BackgroundGeolocation.addListener(Events.ACTIVITYCHANGE, success);
+    return BackgroundGeolocation.addListener(Events.ACTIVITYCHANGE, success);
   }
 
   static onGeofence(success:Function) {
-    BackgroundGeolocation.addListener(Events.GEOFENCE, success);
+    return BackgroundGeolocation.addListener(Events.GEOFENCE, success);
   }
 
   static onGeofencesChange(success:Function) {
-    BackgroundGeolocation.addListener(Events.GEOFENCESCHANGE, success);
+    return BackgroundGeolocation.addListener(Events.GEOFENCESCHANGE, success);
   }
 
   static onSchedule(success:Function) {
-    BackgroundGeolocation.addListener(Events.SCHEDULE, success);
+    return BackgroundGeolocation.addListener(Events.SCHEDULE, success);
   }
 
   static onEnabledChange(success:Function) {
-    BackgroundGeolocation.addListener(Events.ENABLEDCHANGE, success);
+    return BackgroundGeolocation.addListener(Events.ENABLEDCHANGE, success);
   }
 
   static onConnectivityChange(success:Function) {
-    BackgroundGeolocation.addListener(Events.CONNECTIVITYCHANGE, success);
+    return BackgroundGeolocation.addListener(Events.CONNECTIVITYCHANGE, success);
   }
 
   static onPowerSaveChange(success:Function) {
-    BackgroundGeolocation.addListener(Events.POWERSAVECHANGE, success);
+    return BackgroundGeolocation.addListener(Events.POWERSAVECHANGE, success);
   }
 
   static onNotificationAction(success:Function) {
-    BackgroundGeolocation.addListener(Events.NOTIFICATIONACTION, success);
+    return BackgroundGeolocation.addListener(Events.NOTIFICATIONACTION, success);
   }
 
   static onAuthorization(success:Function) {
-    BackgroundGeolocation.addListener(Events.AUTHORIZATION, success);
+    return BackgroundGeolocation.addListener(Events.AUTHORIZATION, success);
   }
 
   ///
   /// Listen to a plugin event
   ///
-  static async addListener(event:string, success:Function, failure?:Function) {
+  static addListener(event:string, success:Function, failure?:Function) {
     if (!Events[event.toUpperCase()]) {
       throw (TAG + "#addListener - Unknown event '" + event + "'");
     }
@@ -604,11 +604,47 @@ export default class BackgroundGeolocation {
       }
     }
 
-    const listener:PluginListenerHandle = await NativeModule.addListener(event, handler);
-    EVENT_SUBSCRIPTIONS.push(new Subscription(event, listener, success));
+    // Create a flag to capture edge-case where the developer subscribes to an event then IMMEDIATELY calls subscription.remove()
+    // before NativeModule.addListener has resolved.
+    // The developer would have to do something weird like this:
+    //   const subscription = BackgroundGeolocation.onLocation(this.onLocation);
+    //   subscription.remove();
+    //
+    // The reason for this is I don't want developers to have to await calls to BackgroundGeolocation.onXXX(myHandler).
+    //
+    let isRemoved = false;
+
+    const subscriptionProxy = {
+      remove: () => {
+        // EmptyFn until NativeModule.addListener resolves and re-writes this function
+        isRemoved = true;
+        console.warn('[BackgroundGeolocation.addListener] Unexpected call to subscription.remove() on subscriptionProxy.  Waiting for NativeModule.addListener to resolve.');
+      }
+    };
+
+    // Now add the listener and re-write subscriptionProxy.remove.
+    NativeModule.addListener(event, handler).then((listener:PluginListenerHandle) => {
+      const subscription = new Subscription(event, listener, success);
+      EVENT_SUBSCRIPTIONS.push(subscription);
+
+      subscriptionProxy.remove = () => {
+        listener.remove();
+        // Remove from EVENT_SUBSCRIPTIONS.
+        if (EVENT_SUBSCRIPTIONS.indexOf(subscription) >= 0) {
+          EVENT_SUBSCRIPTIONS.splice(EVENT_SUBSCRIPTIONS.indexOf(subscription), 1);
+        }
+      }
+      if (isRemoved) {
+        // Caught edge-case.  Developer added an event-handler then immediately call subscription.remove().
+        subscriptionProxy.remove();
+      }
+    });
+
+    return subscriptionProxy;
   }
 
   static removeListener(event:string, callback:Function) {
+    console.warn('BackgroundGeolocation.removeListener is deprecated.  Event-listener methods (eg: onLocation) now return a Subscription instance.  Call subscription.remove() on the returned subscription instead.  Eg:\nconst subscription = BackgroundGeolocation.onLocation(myLocationHandler)\n...\nsubscription.remove()');
     return new Promise((resolve:Function, reject:Function) => {
       let found = null;
       for (let n=0,len=EVENT_SUBSCRIPTIONS.length;n<len;n++) {

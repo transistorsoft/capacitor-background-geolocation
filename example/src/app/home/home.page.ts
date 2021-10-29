@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
-import { Router} from '@angular/router';
+import { Router, NavigationStart, Event as NavigationEvent } from '@angular/router';
 import {
   ModalController,
   AlertController,
   Platform
 } from '@ionic/angular';
+
+import { Storage } from '@capacitor/storage';
 
 import { RegistrationPage } from './registration/registration.page';
 
@@ -39,33 +41,33 @@ export class HomePage {
     public platform: Platform,
     public router: Router
   ) {
-
+    this.router.events.subscribe(this.onRouterNavigate.bind(this));
   }
 
   ngAfterContentInit() {
     this.init();
   }
 
-  async init() {
+  /// Stop BackgroundGeolocation and remove all listeners when we navigation back to Home.
+  async onRouterNavigate(event:NavigationEvent) {
+    if (event instanceof NavigationStart) {
+      if (event.url === '/home') {
+        await BackgroundGeolocation.removeListeners();
+        await BackgroundGeolocation.stop();
+      }
+    }
+  }
 
+  async init() {
 
     // When we return to Home page, stop the plugin and remove all listeners.
     await BackgroundGeolocation.stop();
     await BackgroundGeolocation.removeListeners();
+
     registerTransistorAuthorizationListener(this.router);
 
-    const localStorage = (<any>window).localStorage;
-
-    this.orgname = localStorage.getItem('orgname');
-    this.username = localStorage.getItem('username');
-
-    // Handle install of previous version, where orgname didn't exist and reverse the values, placing username into orgname.
-    if (this.isValid(this.username) && this.orgname == null) {
-      localStorage.setItem('orgname', this.username);
-      localStorage.removeItem('username');
-      this.orgname = this.username;
-      this.username = null;
-    }
+    this.orgname = (await Storage.get({key: 'orgname'})).value;
+    this.username = (await Storage.get({key: 'username'})).value;
 
     this.url = ENV.TRACKER_HOST;
     if (this.isValid(this.orgname)) {
@@ -105,23 +107,19 @@ export class HomePage {
     await modal.present();
   }
 
-  async onClickNavigate(value) {
-    let localStorage = (<any>window).localStorage;
-    let orgname = localStorage.getItem('orgname');
-    let username = localStorage.getItem('username');
+  async onClickNavigate(app) {
     // Sanity check.
-    if (!this.isValid(orgname) || !this.isValid(username)) {
+    if (!this.isValid(this.orgname) || !this.isValid(this.username)) {
       return this.onClickRegister();
     }
-    if (this.willDiscloseBackgroundPermission(value)) {
+    if (await this.willDiscloseBackgroundPermission(app)) {
       return;
     }
 
     // Persist the selected page.
-    localStorage.setItem('page', value);
+    await Storage.set({key: 'page', value: app});
 
-    this.router.navigate(['/' + value]);
-
+    this.router.navigate(['/' + app]);
   }
 
   async initBackgroundGeolocation() {
@@ -201,9 +199,8 @@ export class HomePage {
     return USERNAME_VALIDATOR.test(name);
   }
 
-  private willDiscloseBackgroundPermission(routeName):boolean {
-    let localStorage = (<any>window).localStorage;
-    let hasDisclosedBackgroundPermission = (localStorage.getItem('hasDisclosedBackgroundPermission') !== null);
+  private async willDiscloseBackgroundPermission(routeName):Promise<boolean> {
+    const hasDisclosedBackgroundPermission = (await Storage.get({key: 'hasDisclosedBackgroundPermission'})).value;
 
     if (!hasDisclosedBackgroundPermission) {
       this.alertCtrl.create({
@@ -212,10 +209,10 @@ export class HomePage {
         subHeader: 'Subtitle',
         message: 'BG Geo collects location data to enable tracking your trips to work and calculate distance travelled even when the app is closed or not in use.\n\nThis data will be uploaded to tracker.transistorsoft.com where you may view and/or delete your location history.',
         buttons: ['Close']
-      }).then((alert:any) => {
+      }).then(async (alert:any) => {
         alert.present();
-        alert.onDidDismiss().then(() => {
-          localStorage.setItem('hasDisclosedBackgroundPermission', true);
+        alert.onDidDismiss().then(async () => {
+          await Storage.set({key: 'hasDisclosedBackgroundPermission', value: 'true'});
           this.onClickNavigate(routeName);
         });
       });

@@ -3,11 +3,14 @@ import {
   ViewChild,
   ElementRef,
   OnInit,
+  OnDestroy,
   NgZone,
   AfterContentInit
 } from '@angular/core';
 
 import { Router} from '@angular/router';
+
+import { Storage } from '@capacitor/storage';
 
 import {
   AlertController,
@@ -28,7 +31,8 @@ import BackgroundGeolocation, {
   GeofencesChangeEvent,
   HeartbeatEvent,
   ConnectivityChangeEvent,
-  TransistorAuthorizationToken
+  TransistorAuthorizationToken,
+  Subscription
 } from "../capacitor-background-geolocation";
 
 import {ENV} from "../ENV";
@@ -64,7 +68,7 @@ const MESSAGE = {
   templateUrl: './advanced.page.html',
   styleUrls: ['./advanced.page.scss'],
 })
-export class AdvancedPage implements OnInit, AfterContentInit {
+export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   @ViewChild('map', {static: true}) private mapElement: ElementRef;
 	/**
   * @property {google.Map} Reference to Google Map instance
@@ -113,6 +117,9 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   testModeClicks: number;
   testModeTimer: any;
 
+  // Event subscriptions
+  subscriptions: any;
+
   constructor(
     private alertCtrl:AlertController,
     private router:Router,
@@ -122,6 +129,9 @@ export class AdvancedPage implements OnInit, AfterContentInit {
     private settingsService: SettingsService,
     private zone: NgZone,
     private platform:Platform) {
+
+    // Event subscriptions
+    this.subscriptions = [];
 
     // FAB Menu state.
     this.isMainMenuOpen = false;
@@ -177,9 +187,6 @@ export class AdvancedPage implements OnInit, AfterContentInit {
     // Setup the GoogleMap
     await this.configureMap();
 
-    // When live-reloading, we need to tell the plugin to remove all its listeners otherwise new listeners
-    // are accumulated with each live-reload.
-    await BackgroundGeolocation.removeListeners();
     // Re-register Transistor Demo Server Authorization listener.
     registerTransistorAuthorizationListener(this.router);
 
@@ -187,59 +194,53 @@ export class AdvancedPage implements OnInit, AfterContentInit {
     // Configure the plugin.
     this.configureBackgroundGeolocation();
 
+    // To remove event-listeners during development live-reload.
+    window.onbeforeunload = () => this.ngOnDestroy();
   }
 
   ngOnInit() {}
+
+  ngOnDestroy() {
+    this.unsubscribe();
+  }
+
+  subscribe(subscription:Subscription) {
+    this.subscriptions.push(subscription);
+  }
+
+  unsubscribe() {
+    this.subscriptions.forEach((subscription) => subscription.remove() );
+    this.subscriptions = [];
+  }
 
   /**
   * Configure BackgroundGeolocation plugin
   */
   async configureBackgroundGeolocation() {
-    // [optional] We first bind all our event-handlers to *this* so that we have the option to later remove these
-    // listeners with BackgroundGeolocation.un("eventname", this.onMyHandler), since the #bind method returns a new function instance.
-    // To remove an event-handler requires a reference to the *exact* success-callback provided to #on
-    // eg:
-    //  this.onLocation = this.onLocation.bind(this);
-    //  BackgroundGeolocation.onLocation(this.onLocation);  <-- add listener
-    //  BackgroundGeolocation.un("location", this.onLocation);  <-- remove listener
-    // If you don't plan to remove events, this is unnecessary.
+    // Listen to BackgroundGeolocation events.  Each BackgroundGeolocation event-listener returns a Subscription
+    // instance containing only a .remove() method used for unsubscribing from the event.
+    // We manage a collection of these Subscriptions so we can unsubscribe when the view is destroyed or refreshed during
+    // development with --livereload (@see ngOnDestroy above).
     //
-    this.onLocation = this.onLocation.bind(this);
-    this.onLocationError = this.onLocationError.bind(this);
-    this.onMotionChange = this.onMotionChange.bind(this);
-    this.onHeartbeat = this.onHeartbeat.bind(this);
-    this.onGeofence = this.onGeofence.bind(this);
-    this.onActivityChange = this.onActivityChange.bind(this);
-    this.onProviderChange = this.onProviderChange.bind(this);
-    this.onGeofencesChange = this.onGeofencesChange.bind(this);
-    this.onSchedule = this.onSchedule.bind(this);
-    this.onHttp = this.onHttp.bind(this);
-
-    this.onPowerSaveChange = this.onPowerSaveChange.bind(this);
-    this.onConnectivityChange = this.onConnectivityChange.bind(this);
-    this.onEnabledChange = this.onEnabledChange.bind(this);
-
-    // Listen to BackgroundGeolocation events
-    BackgroundGeolocation.onLocation(this.onLocation, this.onLocationError);
-    BackgroundGeolocation.onMotionChange(this.onMotionChange);
-    BackgroundGeolocation.onHeartbeat(this.onHeartbeat);
-    BackgroundGeolocation.onGeofence(this.onGeofence);
-    BackgroundGeolocation.onActivityChange(this.onActivityChange);
-    BackgroundGeolocation.onProviderChange(this.onProviderChange);
-    BackgroundGeolocation.onGeofencesChange(this.onGeofencesChange);
-    BackgroundGeolocation.onSchedule(this.onSchedule);
-    BackgroundGeolocation.onHttp(this.onHttp);
-    BackgroundGeolocation.onPowerSaveChange(this.onPowerSaveChange);
-    BackgroundGeolocation.onConnectivityChange(this.onConnectivityChange);
-    BackgroundGeolocation.onEnabledChange(this.onEnabledChange);
-    BackgroundGeolocation.onNotificationAction(this.onNotificationAction);
+    this.subscribe(BackgroundGeolocation.onLocation(this.onLocation.bind(this), this.onLocationError.bind(this)));
+    this.subscribe(BackgroundGeolocation.onMotionChange(this.onMotionChange.bind(this)));
+    this.subscribe(BackgroundGeolocation.onHeartbeat(this.onHeartbeat.bind(this)));
+    this.subscribe(BackgroundGeolocation.onGeofence(this.onGeofence.bind(this)));
+    this.subscribe(BackgroundGeolocation.onActivityChange(this.onActivityChange.bind(this)));
+    this.subscribe(BackgroundGeolocation.onProviderChange(this.onProviderChange.bind(this)));
+    this.subscribe(BackgroundGeolocation.onGeofencesChange(this.onGeofencesChange.bind(this)));
+    this.subscribe(BackgroundGeolocation.onSchedule(this.onSchedule.bind(this)));
+    this.subscribe(BackgroundGeolocation.onHttp(this.onHttp.bind(this)));
+    this.subscribe(BackgroundGeolocation.onPowerSaveChange(this.onPowerSaveChange.bind(this)));
+    this.subscribe(BackgroundGeolocation.onConnectivityChange(this.onConnectivityChange.bind(this)));
+    this.subscribe(BackgroundGeolocation.onEnabledChange(this.onEnabledChange.bind(this)));
+    this.subscribe(BackgroundGeolocation.onNotificationAction(this.onNotificationAction.bind(this)));
 
     /// A Big red border is rendered around view when the device is in "Power Saving Mode".
     this.state.containerBorder = (await BackgroundGeolocation.isPowerSaveMode()) ? CONTAINER_BORDER_POWER_SAVE_ON : CONTAINER_BORDER_POWER_SAVE_OFF;
 
-    const localStorage = (<any>window).localStorage;
-    const orgname = localStorage.getItem('orgname') || ''
-    const username = localStorage.getItem('username') || '';
+    const orgname = (await Storage.get({key: 'orgname'})).value;
+    const username = (await Storage.get({key: 'username'})).value;
 
     let token:TransistorAuthorizationToken = await
       BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(orgname, username,ENV.TRACKER_HOST);
@@ -403,16 +404,6 @@ export class AdvancedPage implements OnInit, AfterContentInit {
   // UI event handlers
   //
   async onClickMainMenu() {
-    await BackgroundGeolocation.addGeofence({
-      identifier: '1',
-      latitude: 1,
-      longitude: 1,
-      radius: 200,
-      notifyOnEntry: true,
-      notifyOnExit: true
-    });
-
-
     this.isMainMenuOpen = !this.isMainMenuOpen;
     if (this.isMainMenuOpen) {
       this.bgService.playSound('OPEN');
@@ -536,8 +527,9 @@ export class AdvancedPage implements OnInit, AfterContentInit {
 
   async onClickEmailLogs() {
     this.bgService.playSound('BUTTON_CLICK');
-    const storage = (<any>window).localStorage;
-    const email = storage.getItem('settings:email');
+
+
+    const email = (await Storage.get({key: 'settings:email'})).value;
     if (!email) {
       // Prompt user to enter a unique identifier for tracker.transistorsoft.com
       const prompt = await this.alertCtrl.create({
@@ -559,7 +551,7 @@ export class AdvancedPage implements OnInit, AfterContentInit {
             if (data.email.length < 1) {
               return;
             }
-            storage.setItem('settings:email', data.email);
+            Storage.set({key: 'settings:email', value: data.email});
             this.doEmailLog(data.email);
 
           }

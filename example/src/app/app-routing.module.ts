@@ -1,23 +1,11 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes, Router, NavigationEnd } from '@angular/router';
-
-const localStorage = (<any>window).localStorage;
-let orgname = localStorage.getItem('orgname');
-let username = localStorage.getItem('username');
-let isRegistered = (orgname && username);
-let root = (isRegistered) ? localStorage.getItem('page') : 'home'
-
-if (!root) { root = 'home'; }
+import { Storage } from '@capacitor/storage';
 
 const routes: Routes = [
   {
     path: 'home',
     loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
-  },
-  {
-    path: '',
-    redirectTo: root,
-    pathMatch: 'full'
   },
   {
     path: 'hello-world',
@@ -29,7 +17,6 @@ const routes: Routes = [
   },
 ];
 
-
 @NgModule({
   imports: [
     RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
@@ -38,17 +25,28 @@ const routes: Routes = [
 })
 export class AppRoutingModule {
   constructor(router:Router) {
-    // [Demo Hack]  Set the default route when navigation is detected.
-    // Determines which app to render as the root page:
-    // - Hello World
-    // - Simple Map
-    // - Advanced.
-    router.events.subscribe((event) => {
+    this.init(router);
+
+    router.events.subscribe(async (event) => {
       if (!(event instanceof NavigationEnd)) return;
-      let root = event.url.substring(1, event.url.length);
+      const root = event.url.substring(1, event.url.length);
       if (root.length > 0) {
-        localStorage.setItem('page', root);
+        await Storage.set({key: 'page', value: root});
       }
     });
+  }
+
+  async init(router:Router) {
+    // Navigate to current App (or /home).
+    const page = (await Storage.get({key: 'page'})).value;
+    const orgname = (await Storage.get({key: 'orgname'})).value;
+    const username = (await Storage.get({key: 'username'})).value;
+    const isRegistered = ((orgname !== null) && (username !== null));
+
+    if (page && isRegistered) {
+      router.navigate(['/' + page]);
+    } else {
+      router.navigate(['/home']);
+    }
   }
 }
