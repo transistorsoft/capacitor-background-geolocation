@@ -1,0 +1,23 @@
+ion-list {
+	padding: 5px 5px 0 5px;
+}
+.event {
+	border: 2px solid black;
+	margin-bottom: 5px;
+	padding: 0;
+	.header {
+		background-color: #000;
+		color: #fff;
+	}
+	.timestamp {
+		font-size: 14px;
+		text-align: right;
+	}
+
+	ion-col {
+		padding: 10px;
+	}
+	code {
+		font-size: 12px;
+	}
+}
