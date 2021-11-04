@@ -259,7 +259,7 @@ export default class SettingsService {
 
       try {
         setTimeout(async () => {
-          const email = await this.prompt('Email Address', 'Please enter your email address');
+          const email = await this.prompt('Email Address', 'Please enter your email address', 'your@email.com');
           this.set('email', email);
           setTimeout(() => resolve(email), 100);
         }, 100)
@@ -406,7 +406,7 @@ export default class SettingsService {
   /**
   * Prompt user for input
   */
-  prompt(title:string, message:string, placeholder?:string):Promise<any> {
+  prompt(title:string, message:string|null, placeholder?:string):Promise<any> {
     return new Promise((resolve, reject) => {
       if (!this._alert) { return reject('alert is undefined'); }
 
