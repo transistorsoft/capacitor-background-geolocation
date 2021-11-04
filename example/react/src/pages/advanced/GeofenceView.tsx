@@ -2,6 +2,7 @@
 /// This view is activated by long-pressing on the Map.
 ///
 import {
+  IonPage,
   IonHeader,
   IonContent,
   IonIcon,
@@ -23,6 +24,7 @@ import { add } from "ionicons/icons";
 
 import BackgroundGeolocation from "@transistorsoft/capacitor-background-geolocation";
 import SettingsService from "./lib/SettingsService";
+import './styles.css';
 
 const validate = (value:string) => {
   return (value !== null) && (value.length > 0);
@@ -67,7 +69,7 @@ const GeofenceView: React.FC = (props:any) => {
   }
 
   return (
-    <>
+    <IonPage className="GeofenceView">
       <IonHeader>
         <IonToolbar color="tertiary">
           <IonButtons slot="start">
@@ -123,7 +125,7 @@ const GeofenceView: React.FC = (props:any) => {
         </IonItem>
 
       </IonContent>
-    </>
+    </IonPage>
   )
 };
 

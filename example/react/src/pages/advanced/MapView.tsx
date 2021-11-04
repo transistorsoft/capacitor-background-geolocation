@@ -66,7 +66,9 @@ const MapView: React.FC<ContainerProps> = () => {
 
   React.useEffect(() => {
     /// Subscribe to BackgroundGeolocation events.
-    subscribe(BackgroundGeolocation.onLocation(setLocation));
+    subscribe(BackgroundGeolocation.onLocation(setLocation, (error) => {
+      console.warn('[onLocation] ERROR: ', error);
+    }));
     subscribe(BackgroundGeolocation.onMotionChange(setMotionChangeEvent));
     subscribe(BackgroundGeolocation.onGeofence(setGeofenceEvent));
     subscribe(BackgroundGeolocation.onGeofencesChange(setGeofencesChangeEvent));
@@ -556,7 +558,7 @@ const MapView: React.FC<ContainerProps> = () => {
 
 
   return (
-    <div id="map" style={{height:'100%', width:'100%'}}></div>
+    <div id="map" className="MapView" style={{height:'100%', width:'100%'}}></div>
   );
 };
 
