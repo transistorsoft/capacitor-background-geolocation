@@ -85,7 +85,7 @@ const Registration: React.FC = (props:any) => {
   }
 
   return (
-    <IonPage>
+    <IonPage className="Registration">
       <IonHeader>
         <IonToolbar color="tertiary">
           <IonButtons slot="start">
