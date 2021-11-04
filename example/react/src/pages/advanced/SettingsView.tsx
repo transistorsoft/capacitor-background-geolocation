@@ -1,4 +1,5 @@
 import {
+  IonPage,
   IonHeader,
   IonContent,
   IonIcon,
@@ -37,6 +38,7 @@ import BackgroundGeolocation, {
   Subscription
 } from "@transistorsoft/capacitor-background-geolocation";
 
+import './styles.css';
 import {ENV} from "../../config/ENV"
 import SettingsService from "./lib/SettingsService";
 
@@ -101,9 +103,6 @@ const SettingsView: React.FC = (props:any) => {
             defaultState[setting.name] = state[setting.name];
         }
       });
-
-      console.log('DEfault State: ', JSON.stringify(defaultState, null, 2));
-
       // Now update the React State with current plugin State.
       setState((prevState:any) => ({...prevState, defaultState}));
     });
@@ -119,8 +118,6 @@ const SettingsView: React.FC = (props:any) => {
     if (setting.dataType === 'integer') {
       value = parseInt(value, 10);
     }
-
-    console.log('*** onFieldChange: ', value, state[setting.name], pluginState[setting.name]);
 
     if (state[setting.name] === value) { return; }
 
@@ -201,7 +198,7 @@ const SettingsView: React.FC = (props:any) => {
   const buildInputField = (setting:any, i:number, onChangeCallback:Function) => {
     return (
       <IonItem key={setting.name}>
-        <IonLabel color="primary" position="stacked" style={{fontSize: 23}}>{setting.name}</IonLabel>
+        <IonLabel color="primary" position="stacked" mode="md">{setting.name}</IonLabel>
         <IonInput value={state[setting.name]} debounce={2000} onIonChange={(e) => onChangeCallback(setting, e.detail.value)}/>
       </IonItem>
     );
@@ -212,7 +209,7 @@ const SettingsView: React.FC = (props:any) => {
     return (
       <IonItem key={setting.name}>
         <IonCol style={{paddingLeft:0}}>
-          <IonLabel color="primary">{setting.name}</IonLabel>
+          <IonLabel color="primary" mode="md">{setting.name}</IonLabel>
         </IonCol>
         <IonCol size="2">
           <IonToggle checked={state[setting.name]} onIonChange={(e) => onChangeCallback(setting, e.detail.checked)}/>
@@ -228,7 +225,7 @@ const SettingsView: React.FC = (props:any) => {
     if (typeof(setting.values[0]) === 'object') {
       return (
         <IonItem key={setting.name}>
-          <IonLabel color="primary" position="stacked" style={{fontSize: 23}}>{setting.name}</IonLabel>
+          <IonLabel color="primary" position="stacked" mode="md">{setting.name}</IonLabel>
           <IonSelect value={state[setting.name]} onIonChange={(e) => onChangeCallback(setting, e.detail.value)}>
             {setting.values.map((value:any, i:number) => (
               <IonSelectOption value={value.value}>{value.label}</IonSelectOption>
@@ -239,7 +236,7 @@ const SettingsView: React.FC = (props:any) => {
     } else {
       return (
         <IonItem key={setting.name}>
-          <IonLabel color="primary" position="stacked" style={{fontSize: 23}}>{setting.name}</IonLabel>
+          <IonLabel color="primary" position="stacked" mode="md">{setting.name}</IonLabel>
           <IonSelect value={state[setting.name]} onIonChange={(e) => onChangeCallback(setting, e.detail.value)}>
             {setting.values.map((value:any, i:number) => (
               <IonSelectOption value={value}>{value}</IonSelectOption>
@@ -292,7 +289,7 @@ const SettingsView: React.FC = (props:any) => {
   }
 
   return (
-    <>
+    <IonPage className="SettingsView">
       <IonHeader>
         <IonToolbar color="tertiary">
           <IonButtons slot="start">
@@ -303,30 +300,30 @@ const SettingsView: React.FC = (props:any) => {
       </IonHeader>
       <IonContent fullscreen scrollY={true}>
         <IonList>
-          <IonListHeader color="dark" style={{fontSize:16}}><IonIcon icon={navigate} />&nbsp;Geolocation</IonListHeader>
+          <IonListHeader mode="md" color="dark"><IonIcon icon={navigate} />&nbsp;Geolocation</IonListHeader>
           {renderSettingsGroup('geolocation')}
           <IonItemDivider />
 
-          <IonListHeader color="dark" style={{fontSize:16}}><IonIcon icon={walk} />&nbsp;Activity Recognition</IonListHeader>
+          <IonListHeader mode="md" color="dark"><IonIcon icon={walk} />&nbsp;Activity Recognition</IonListHeader>
           {renderSettingsGroup('activity recognition')}
           <IonItemDivider />
 
-          <IonListHeader color="dark" style={{fontSize:16}}><IonIcon icon={cloudUpload} />&nbsp;HTTP &amp; Persistence</IonListHeader>
+          <IonListHeader mode="md" color="dark"><IonIcon icon={cloudUpload} />&nbsp;HTTP &amp; Persistence</IonListHeader>
           {renderSettingsGroup('http')}
           <IonItemDivider />
 
-          <IonListHeader color="dark" style={{fontSize:16}}><IonIcon icon={cog} />&nbsp;Application</IonListHeader>
+          <IonListHeader mode="md" color="dark"><IonIcon icon={cog} />&nbsp;Application</IonListHeader>
           {renderSettingsGroup('application')}
           <IonItemDivider />
 
-          <IonListHeader color="dark" style={{fontSize:16}}><IonIcon icon={bug} />&nbsp;Logging &amp; Debug</IonListHeader>
+          <IonListHeader mode="md" color="dark"><IonIcon icon={bug} />&nbsp;Logging &amp; Debug</IonListHeader>
           {renderSettingsGroup('debug')}
           <IonButton onClick={onClickDestroyLogs} color="danger" expand="full" shape="round">
             {(isDestroyingLog) ? <IonSpinner name="dots" /> : 'Destroy Logs'}
           </IonButton>
           <IonItemDivider />
 
-          <IonListHeader color="dark" style={{fontSize:16}}><IonIcon icon={radioButtonOn} />&nbsp;Geofence Testing (Freeway Drive)</IonListHeader>
+          <IonListHeader mode="md" color="dark"><IonIcon icon={radioButtonOn} />&nbsp;Geofence Testing (Freeway Drive)</IonListHeader>
           <IonRow>
             <IonCol>
               <IonButton onClick={onClickRemoveGeofences} expand="full" color="danger">
@@ -342,7 +339,7 @@ const SettingsView: React.FC = (props:any) => {
           {getGeofenceTestSettings()}
         </IonList>
       </IonContent>
-    </>
+    </IonPage>
   )
 };
 
