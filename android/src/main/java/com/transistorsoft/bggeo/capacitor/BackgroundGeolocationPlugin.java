@@ -96,7 +96,6 @@ public class BackgroundGeolocationPlugin extends Plugin {
         if (activity != null) {
             bgGeo.setActivity(activity);
         }
-        registerEventListeners();
     }
 
     private void handlePlayServicesConnectError(Integer errorCode) {
@@ -132,7 +131,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
             return;
         }
         mReady = true;
-
+        registerEventListeners();
         BackgroundGeolocation adapter = BackgroundGeolocation.getInstance(getContext());
 
         if (config.isFirstBoot()) {
@@ -969,8 +968,6 @@ public class BackgroundGeolocationPlugin extends Plugin {
     }
 
     private void registerEventListeners() {
-        Log.d("TSLocationManager", "******************* register event listerns");
-
         BackgroundGeolocation bgGeo = getAdapter();
         // Events
         bgGeo.onPlayServicesConnectError((new TSPlayServicesConnectErrorCallback() {
