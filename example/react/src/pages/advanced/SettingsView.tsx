@@ -298,7 +298,7 @@ const SettingsView: React.FC = (props:any) => {
           <IonTitle>Settings</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen scrollY={true}>
+      <IonContent fullscreen>
         <IonList>
           <IonListHeader mode="md" color="dark"><IonIcon icon={navigate} />&nbsp;Geolocation</IonListHeader>
           {renderSettingsGroup('geolocation')}
