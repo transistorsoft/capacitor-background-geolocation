@@ -1,0 +1,9 @@
+/**
+ * SettingsView
+ */
+.SettingsView ion-list-header {
+	font-size:  18px;
+}
+.SettingsView ion-label[position=stacked] {
+	font-size:  23px;
+}

@@ -130,7 +130,7 @@ const Home: React.FC = () => {
     return ((org !== null) && (username !== null) && (org.length > 0) && (username.length >0));
   }
   return (
-    <IonPage>
+    <IonPage className="Home">
       <IonHeader hidden={hidden}>
         <IonToolbar color="tertiary">
           <IonTitle color="dark">Background Geolocation</IonTitle>

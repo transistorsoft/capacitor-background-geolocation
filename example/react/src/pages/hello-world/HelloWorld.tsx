@@ -192,7 +192,7 @@ const HelloWorld: React.FC = () => {
   }
 
   return (
-    <IonPage>
+    <IonPage className="HelloWorld">
       <IonHeader>
         <IonToolbar color="tertiary">
           <IonTitle color="dark">HelloWorld</IonTitle>
@@ -223,6 +223,7 @@ const HelloWorld: React.FC = () => {
             <IonButton onClick={onClickGetCurrentPosition}><IonIcon icon={navigate} /></IonButton>
           </IonButtons>
           <IonButtons slot="end">
+
             <IonButton onClick={onClickGetState}>Get State</IonButton>
             <IonButton onClick={onClickClear} style={{marginRight:20}}>Clear</IonButton>
             <IonButton onClick={onClickChangePace} fill="solid" disabled={!enabled} color={(isMoving) ? "danger" : "success"} style={{width:50}}><IonIcon icon={(isMoving) ? pause : play} /></IonButton>

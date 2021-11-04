@@ -15,6 +15,7 @@ import { trash, add, cog, lockOpenOutline, lockOpen, speedometer, mail, cloudUpl
 
 import BackgroundGeolocation from "@transistorsoft/capacitor-background-geolocation";
 
+import './styles.css';
 import SettingsView from "./SettingsView";
 import SettingsService from "./lib/SettingsService";
 
@@ -103,7 +104,7 @@ const FABMenu: React.FC<ContainerProps> = (props:any) => {
     setOpen(false);
     const count = await BackgroundGeolocation.getCount();
     if (!count) {
-      settingsService.alert('Locations database is empty');
+      settingsService.toast('Locations database is empty', 1000);
       return;
     }
 
@@ -124,7 +125,7 @@ const FABMenu: React.FC<ContainerProps> = (props:any) => {
     setOpen(false);
     const count = await BackgroundGeolocation.getCount();
     if (!count) {
-      settingsService.toast('Locations database is empty');
+      settingsService.toast('Locations database is empty', 1000);
       return;
     }
 

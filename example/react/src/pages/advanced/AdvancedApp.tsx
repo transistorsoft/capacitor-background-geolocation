@@ -25,6 +25,7 @@ import BackgroundGeolocation, {
 import {ENV} from "../../config/ENV";
 import SettingsService from "./lib/SettingsService";
 
+import './styles.css';
 import MapView from "./MapView";
 import FABMenu from "./FABMenu";
 
@@ -187,12 +188,12 @@ const AdvancedApp: React.FC = () => {
   }
 
   return (
-    <IonPage>
+    <IonPage className="AdvancedApp">
       <IonHeader>
         <IonToolbar color="tertiary">
           <IonTitle color="dark">BG Geolocation</IonTitle>
           <IonButtons slot="start">
-            <IonButton onClick={onClickHome}><IonIcon name="close" /></IonButton>
+            <IonButton onClick={onClickHome}><IonIcon icon={home} /></IonButton>
           </IonButtons>
           <IonButtons slot="end">
             <IonToggle checked={enabled} onIonChange={e => onToggleEnabled(e.detail.checked)}/>
