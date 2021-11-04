@@ -1,0 +1,26 @@
+[
+	{
+		"pkg": "@capacitor/app",
+		"classpath": "com.capacitorjs.plugins.app.AppPlugin"
+	},
+	{
+		"pkg": "@capacitor/haptics",
+		"classpath": "com.capacitorjs.plugins.haptics.HapticsPlugin"
+	},
+	{
+		"pkg": "@capacitor/keyboard",
+		"classpath": "com.capacitorjs.plugins.keyboard.KeyboardPlugin"
+	},
+	{
+		"pkg": "@capacitor/storage",
+		"classpath": "com.capacitorjs.plugins.storage.StoragePlugin"
+	},
+	{
+		"pkg": "@transistorsoft/capacitor-background-fetch",
+		"classpath": "com.transistorsoft.bgfetch.capacitor.BackgroundFetchPlugin"
+	},
+	{
+		"pkg": "@transistorsoft/capacitor-background-geolocation",
+		"classpath": "com.transistorsoft.bggeo.capacitor.BackgroundGeolocationPlugin"
+	}
+]

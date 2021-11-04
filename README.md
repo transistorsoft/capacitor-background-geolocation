@@ -203,7 +203,7 @@ The `BackgroundGeolocation` Javascript API supports [Promises](https://developer
 
 ## :large_blue_diamond: [Demo Application](./example)
 
-A fully-featured [Demo App](./example) is available in this repo.  After first cloning this repo, follow the installation instructions in the [README](./example/README.md) there.  This demo-app includes an advanced settings-screen allowing you to quickly experiment with all the different settings available for each platform.
+A fully-featured [Demo App](./example) is available in this repo, for both *React* and *Angular*.  After first cloning this repo, follow the installation instructions in the [README](./example/README.md) there.  This demo-app includes an advanced settings-screen allowing you to quickly experiment with all the different settings available for each platform.
 
 ![Home](https://dl.dropboxusercontent.com/s/wa43w1n3xhkjn0i/home-framed-350.png?dl=1)
 ![Settings](https://dl.dropboxusercontent.com/s/8oad228siog49kt/settings-framed-350.png?dl=1)
@@ -216,29 +216,4 @@ A simple Node-based [web-application](https://github.com/transistorsoft/backgrou
 ![](https://dl.dropboxusercontent.com/s/px5rzz7wybkv8fs/background-geolocation-console-map.png?dl=1)
 
 ![](https://dl.dropboxusercontent.com/s/tiy5b2oivt0np2y/background-geolocation-console-grid.png?dl=1)
-
-# License
-
-The MIT License (MIT)
-
-Copyright (c) 2018 Chris Scott, Transistor Software
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
 
