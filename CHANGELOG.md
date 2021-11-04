@@ -1,5 +1,8 @@
 # Change Log
 
+## 4.4.1 &mdash; 2021-11-03
+* [Changed][Android] Minnor change to Move Android plugin's registration of event-listeners into the .ready method instead of Capacitor plugin init stage.
+ 
 ## 4.4.0 &mdash; 2021-10-29
 * [Added] New `Authorization.strategy "SAS"` (alternative to default `JWT`).
 * [Changed] **Deprecated** `BackgroundGeolocation.removeListener`.  All event-handlers now return a `Subscription` instance containing a `.remove()` method.  You will keep track of your own `subscription` instances and call `.remove()` upon them when you wish to remove an event listener.  Eg:

@@ -1039,9 +1039,6 @@ var capacitorBackgroundGeolocation = (function (core) {
                     subscriptionProxy.remove();
                 }
             });
-            // Store a ref to original PluginListenerHandle.remove.
-            //const _remove = listener.remove;
-            // Attach our customer .remove() wrapper.
             return subscriptionProxy;
         };
         BackgroundGeolocation.removeListener = function (event, callback) {
