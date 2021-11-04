@@ -1,0 +1,6 @@
+{
+	"appId": "com.transistorsoft.backgroundgeolocation.capacitor",
+	"appName": "BGGeolocation",
+	"webDir": "build",
+	"bundledWebRuntime": false
+}
