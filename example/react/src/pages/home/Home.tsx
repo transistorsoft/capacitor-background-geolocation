@@ -1,3 +1,9 @@
+/// This is the root view of the demo app.  It acts as the application switcher and
+/// registration system for demo server at tracker.transistorsoft.com
+///
+/// This is really just boiler-plate stuff in support of the demo app.  There's nothing
+/// special to see here with-respect-to BackgroundGeolocation implementation.
+///
 import {
   IonContent,
   IonHeader,
