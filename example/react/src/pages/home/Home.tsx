@@ -20,7 +20,9 @@ import {
   IonCol,
   IonToggle,
   IonFooter,
-  useIonModal
+  useIonModal,
+  useIonAlert,
+  isPlatform
 } from '@ionic/react';
 
 import React from "react";
@@ -42,8 +44,11 @@ const Home: React.FC = () => {
   const [enabled, setEnabled] = React.useState(false);
   const [org, setOrg] = React.useState("");
   const [username, setUsername] = React.useState("");
+  const [deviceModel, setDeviceModel] = React.useState("");
   const [hidden, setHidden] = React.useState<boolean>(true);
   const [defaultRoute, setDefaultRoute] = React.useState<string|undefined>(undefined);
+  /// One-time disclosure Alert
+  const [alert] = useIonAlert();
   /// Registration Modal
   const [presentRegistration, dismissRegistration] = useIonModal(Registration, {
     org,
@@ -95,6 +100,9 @@ const Home: React.FC = () => {
   /// Load Auth credentials orgname and username.
   /// Load default route (eg: /hello-world, /advanced) and update state.
   const init = async () => {
+    BackgroundGeolocation.getDeviceInfo().then((deviceInfo) => {
+      setDeviceModel(deviceInfo.model);
+    });
     const org = await Storage.get({key: 'orgname'});
     if (org.value !== null) {
       setOrg(org.value);
@@ -125,16 +133,57 @@ const Home: React.FC = () => {
     presentRegistration();
   }
 
-  const onClickNavigate = (page:string) => {
+  const onClickNavigate = async (page:string) => {
     if (!isRegistered()) {
       return presentRegistration();
     }
+    if (await willDiscloseBackgroundPermission(page)) {
+      return;
+    }
+
     setDefaultRoute(page);
   }
 
   const isRegistered = () => {
     return ((org !== null) && (username !== null) && (org.length > 0) && (username.length >0));
   }
+
+  /// New Google Play Console requirements for BACKGROUND_LOCATION permission require a one-time
+  /// "disclosure for background location access", just a simple Alert with only an [OK] button where
+  /// you declare something "this app tracks your location in the background for these reasons X, Y and Z".
+  ///
+  /// See Transistor Blog for more information:
+  ///   https://transistorsoft.medium.com/new-google-play-console-guidelines-for-sensitive-app-permissions-d9d2f4911353
+  ///
+  const willDiscloseBackgroundPermission = (page:string):Promise<boolean> => {
+    return new Promise(async (resolve, reject) => {
+      if (!isPlatform('android')) {
+        // Will disclose for iOS devices?  NO!
+        return resolve(false);
+      }
+      const hasDisclosedBackgroundPermission = (await Storage.get({key: 'hasDisclosedBackgroundPermission'})).value === 'true';
+      resolve(!hasDisclosedBackgroundPermission);
+      // If we've already disclosed, we're done here.
+      if (hasDisclosedBackgroundPermission) { return; }
+      // Show the one-time disclosure Alert
+      alert({
+        header: 'Background Location Access',
+        message: 'BG Geo collects location data to enable tracking your trips to work and calculate distance travelled even when the app is closed or not in use.\n\nThis data will be uploaded to tracker.transistorsoft.com where you may view and/or delete your location history.',
+        buttons: [{
+          text: 'Close',
+          handler: (e) => {
+            // Now set a flag that we've disclosed to the user so this alert never gets shown again.
+            Storage.set({key: 'hasDisclosedBackgroundPermission', value: 'true'});
+            // And continue along with routing to the desired Page...
+            setDefaultRoute(page);
+          }
+        }],
+        backdropDismiss: false,  // <-- Important for Play Console review that this alert is not easily dismissed.
+        cssClass: 'background-location-disclosure'
+      })
+    });
+  }
+
   return (
     <IonPage className="Home">
       <IonHeader hidden={hidden}>
@@ -152,12 +201,12 @@ const Home: React.FC = () => {
           </IonRow>
           <IonRow>
             <IonCol>
-              <IonButton expand="full" onClick={() => onClickNavigate('/hello-world')}>Hello World</IonButton>
+              <IonButton expand="full" shape="round" color="tertiary" onClick={() => onClickNavigate('/hello-world')}>Hello World</IonButton>
             </IonCol>
           </IonRow>
           <IonRow>
             <IonCol>
-              <IonButton expand="full" onClick={() => onClickNavigate('/advanced')}>Advanced App</IonButton>
+              <IonButton expand="full" shape="round" color="tertiary" onClick={() => onClickNavigate('/advanced')}>Advanced App</IonButton>
             </IonCol>
           </IonRow>
         </IonGrid>
@@ -169,12 +218,12 @@ const Home: React.FC = () => {
         </p>
         <p style={{textAlign: 'center', fontWeight: 'bold', fontSize:14}}>{`${ENV.TRACKER_HOST}/${org}`}</p>
         <IonItem>
-          <IonLabel color="primary" position="fixed" style={{width:75, textAlign:'right'}}>Org: </IonLabel>
+          <IonLabel color="primary" style={{width:75, textAlign:'right'}}>Org: </IonLabel>
           <IonInput readonly={true} value={org} />
         </IonItem>
         <IonItem>
-          <IonLabel color="primary" position="fixed" style={{width:75, textAlign: 'right'}} >Username</IonLabel>
-          <IonInput readonly={true} value={username} />
+          <IonLabel color="primary" style={{width:75, textAlign: 'right'}} >Device ID</IonLabel>
+          <IonInput readonly={true} value={deviceModel + '-' + username} />
         </IonItem>
         <IonRow style={{justifyContent: 'center'}}>
             <IonButton color="danger" size="default" onClick={onClickRegister} style={{width:150}}>Edit</IonButton>
