@@ -32,6 +32,8 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
+import {ENV} from "./config/ENV";
+
 /// Ugly old Google Javascript Maps SDK ref.
 declare var google:any;
 
@@ -70,9 +72,9 @@ const App: React.FC = () => {
         // Already loaded?  Good to go!
         return resolve();
       }
-      // Append Google Maps <script> tag directly to the dom and wait for the onload signal to resolve()
+      // Append Google Maps <script> tag directly to the dom and wait for the onload signal
       const script = document.createElement('script');
-      script.src = "http://maps.google.com/maps/api/js?libraries=geometry&key=AIzaSyDXTDr2C3iU9jgwpNVpZjeWzOc-DyCgkt8";
+      script.src = `http://maps.google.com/maps/api/js?libraries=geometry&key=${ENV.GOOGLE_MAPS_API_KEY}`;
       script.async = true;
       script.onload = () => resolve()
       document.body.appendChild(script);
