@@ -23,6 +23,8 @@ import BackgroundGeolocation, {
 } from "@transistorsoft/capacitor-background-geolocation";
 
 import {ENV} from "../../config/ENV";
+import {registerTransistorAuthorizationListener} from '../../config/Authorization';
+
 import SettingsService from "./lib/SettingsService";
 
 import './styles.css';
@@ -58,6 +60,7 @@ const AdvancedApp: React.FC = () => {
   const [clickBufferTimeout, setClickBufferTimeout] = React.useState<any>(0);
 
   React.useEffect(() => {
+    registerTransistorAuthorizationListener(history);
     initBackgroundGeolocation();
     return () => {
       unsubscribe();
