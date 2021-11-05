@@ -2,6 +2,7 @@
 import React from "react";
 
 import {useIonModal} from '@ionic/react';
+import { useHistory } from 'react-router-dom';
 
 import BackgroundGeolocation, {
   State,
@@ -48,6 +49,7 @@ const unsubscribe = () => {
 
 const MapView: React.FC<ContainerProps> = () => {
   const settingsService = SettingsService.getInstance();
+  const history = useHistory();
 
   const [enabled, setEnabled] = React.useState(false);
   const [location, setLocation] = React.useState<Location|null>(null);
@@ -57,6 +59,7 @@ const MapView: React.FC<ContainerProps> = () => {
   const [state, setState] = React.useState<State|null>(null);
   const [geofenceCoordinate, setGeofenceCoordinate] = React.useState<any>();
 
+  /// "Add Geofence" modal.  Initiated from long-pressing on map.
   const [presentGeofenceView, dismissGeofenceView] = useIonModal(GeofenceView, {
     coordinate: geofenceCoordinate,
     onDismiss: () => {
@@ -65,6 +68,8 @@ const MapView: React.FC<ContainerProps> = () => {
   });
 
   React.useEffect(() => {
+    createGoogleMap();
+
     /// Subscribe to BackgroundGeolocation events.
     subscribe(BackgroundGeolocation.onLocation(setLocation, (error) => {
       console.warn('[onLocation] ERROR: ', error);
@@ -74,14 +79,8 @@ const MapView: React.FC<ContainerProps> = () => {
     subscribe(BackgroundGeolocation.onGeofencesChange(setGeofencesChangeEvent));
     subscribe(BackgroundGeolocation.onEnabledChange(setEnabled));
 
-    /// It's tricky business loading the Google Maps Javascript SDK.
-    if (typeof(google) !== 'object') {
-      loadGoogleMap()
-    } else {
-      onMapLoad();
-    }
-
     return () => {
+      // Cleanup when view is destroyed or refreshed.
       clearMarkers();
       unsubscribe();
     }
@@ -255,15 +254,14 @@ const MapView: React.FC<ContainerProps> = () => {
     });
   }, [geofencesChangeEvent]);
 
-  const loadGoogleMap = () => {
-    const script = document.createElement('script');
-    script.src = "http://maps.google.com/maps/api/js?libraries=geometry&key=AIzaSyDXTDr2C3iU9jgwpNVpZjeWzOc-DyCgkt8";
-    script.async = false;
-    script.onload = onMapLoad;
-    document.body.appendChild(script);
-  }
+  /// Creates the Google Maps instance and all its assets.
+  const createGoogleMap = () => {
+    // If we don't have a map element here, we cannot continue.
+    if (typeof(google) !== 'object') {
+      settingsService.alert('Fatal Error', 'Failed to load Google Maps Javascript SDK');
+      return history.goBack();
+    }
 
-  const onMapLoad = () => {
     const latLng = new google.maps.LatLng(-34.9290, 138.6010);
     const mapOptions = {
       center: latLng,
@@ -281,6 +279,7 @@ const MapView: React.FC<ContainerProps> = () => {
     const el = document.getElementById('map');
     map = new google.maps.Map(el, mapOptions);
 
+    // LongPress component for adding geofences.
     new LongPress(map, 500);
     // Tap&hold detected.  Play a sound a draw a circular cursor.
     google.maps.event.addListener(map, 'longpresshold', onLongPressStart);
@@ -375,15 +374,7 @@ const MapView: React.FC<ContainerProps> = () => {
     const latlng = e.latLng;
     geofenceCursor.setMap(null);
     setGeofenceCoordinate(latlng);
-    presentGeofenceView()
-    /*
-    let modal = this.modalController.create('GeofencePage', {
-      bgService: this.bgService,
-      latitude: latlng.lat(),
-      longitude: latlng.lng()
-    });
-    modal.present();
-    */
+    presentGeofenceView();
   }
 
   /// Re-center the map with provided Location.
@@ -555,7 +546,6 @@ const MapView: React.FC<ContainerProps> = () => {
     polyline.setMap(null);
     polyline.setPath([]);
   }
-
 
   return (
     <div id="map" className="MapView" style={{height:'100%', width:'100%'}}></div>
