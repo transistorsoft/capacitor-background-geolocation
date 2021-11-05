@@ -28,6 +28,7 @@ import BackgroundGeolocation, {
   Subscription
 } from "@transistorsoft/capacitor-background-geolocation";
 
+import {registerTransistorAuthorizationListener} from '../../config/Authorization';
 import {ENV} from "../../config/ENV";
 
 /// Collection of BackgroundGeolocation event-subscriptions.
@@ -65,6 +66,7 @@ const HelloWorld: React.FC = () => {
 
   /// mount/unmount Effect.
   React.useEffect(() => {
+    registerTransistorAuthorizationListener(history);
     initBackgroundGeolocation();
 
     return () => {
