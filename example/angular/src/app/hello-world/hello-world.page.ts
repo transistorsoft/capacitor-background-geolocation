@@ -1,9 +1,12 @@
 import {
+  NavController,
+} from '@ionic/angular';
+
+import {
   Component,
   OnInit,
   OnDestroy,
   NgZone,
-
 } from '@angular/core';
 
 import { Router } from '@angular/router';
@@ -41,7 +44,7 @@ export class HelloWorldPage implements OnInit, OnDestroy {
 
   subscriptions: any;
 
-  constructor(public router:Router, private zone:NgZone) {
+  constructor(public navCtrl:NavController, public router:Router, private zone:NgZone) {
     this.events = [];
     this.subscriptions = [];
 
@@ -57,9 +60,12 @@ export class HelloWorldPage implements OnInit, OnDestroy {
   }
 
   ngAfterContentInit() {
+    console.log('⚙️ ngAfterContentInit');
+  }
+
+  ionViewWillEnter() {
+    console.log('⚙️ ionViewWillEnter');
     this.configureBackgroundGeolocation();
-    // [NOTE] For development with live-reload:  remove event-listeners each time we refresh with live-reload.
-    window.onbeforeunload = () => this.ngOnDestroy();
   }
 
   ngOnInit() {
@@ -70,7 +76,7 @@ export class HelloWorldPage implements OnInit, OnDestroy {
   }
 
   async configureBackgroundGeolocation() {
-    // Listen to BackgroundGeolocation events.
+    // Step 1:  Listen to BackgroundGeolocation events.
     this.subscribe(BackgroundGeolocation.onEnabledChange(this.onEnabledChange.bind(this)));
     this.subscribe(BackgroundGeolocation.onLocation(this.onLocation.bind(this)));
     this.subscribe(BackgroundGeolocation.onMotionChange(this.onMotionChange.bind(this)));
@@ -86,15 +92,11 @@ export class HelloWorldPage implements OnInit, OnDestroy {
     const orgname = (await Storage.get({key: 'orgname'})).value;
     const username = (await Storage.get({key: 'username'})).value;
 
-
     const token:TransistorAuthorizationToken = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(
       orgname,
       username,
       ENV.TRACKER_HOST
     );
-
-    // Step 1:  Listen to events
-
 
     // Step 2:  Configure the plugin
     BackgroundGeolocation.ready({
@@ -135,8 +137,7 @@ export class HelloWorldPage implements OnInit, OnDestroy {
   }
   // Return to Home screen (app switcher)
   onClickHome() {
-    //this.navCtrl.setRoot('HomePage');
-    this.router.navigate(['/home']);
+    this.navCtrl.navigateBack('/home');
   }
 
   // #start / #stop tracking
@@ -243,7 +244,7 @@ export class HelloWorldPage implements OnInit, OnDestroy {
   * @param {Object} event object, eg: {location}, {provider}, {activity}
   */
   private addEvent(name, date, event) {
-    let timestamp = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    const timestamp = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
     this.zone.run(() => {
       this.events.push({
         name: name,
