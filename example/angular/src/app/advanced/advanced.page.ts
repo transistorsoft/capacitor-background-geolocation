@@ -13,6 +13,7 @@ import { Router} from '@angular/router';
 import { Storage } from '@capacitor/storage';
 
 import {
+  NavController,
   AlertController,
   Platform,
   ModalController,
@@ -121,6 +122,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   subscriptions: any;
 
   constructor(
+    private navCtrl:NavController,
     private alertCtrl:AlertController,
     private router:Router,
     private modalController:ModalController,
@@ -179,6 +181,11 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
 
   async ionViewWillEnter() {
     console.log('⚙️ ionViewWillEnter');
+    // Re-register Transistor Demo Server Authorization listener.
+    registerTransistorAuthorizationListener(this.router);
+
+    // Configure the plugin.
+    this.configureBackgroundGeolocation();
   }
 
   async ngAfterContentInit()  {
@@ -186,16 +193,6 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
 
     // Setup the GoogleMap
     await this.configureMap();
-
-    // Re-register Transistor Demo Server Authorization listener.
-    registerTransistorAuthorizationListener(this.router);
-
-
-    // Configure the plugin.
-    this.configureBackgroundGeolocation();
-
-    // To remove event-listeners during development live-reload.
-    window.onbeforeunload = () => this.ngOnDestroy();
   }
 
   ngOnInit() {}
@@ -604,7 +601,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
 
   // Return to Home screen (app switcher)
   onClickHome() {
-    this.router.navigate(['/home']);
+    this.navCtrl.navigateBack('/home');
   }
 
   async onToggleEnabled() {

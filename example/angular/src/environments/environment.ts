@@ -1,16 +1,25 @@
-// This file can be replaced during build by using the `fileReplacements` array.
-// `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
+/// Hack environment to conditionally load environment.local.  If it doesn't exist, a warning
+/// is generated but the app works.
+///
+/// If environment.local does exist, you can export your own custom GOOGLE_MAP_API_KEY, eg:
+///
+/// module.exports = {
+///   GOOGLE_MAP_API_KEY: "<my api key>"
+/// }
+///
+declare function require(name:string);
+
+var ENV = {
+  GOOGLE_MAP_API_KEY: ''
+};
+
+try {
+  ENV = require('./environment.local');
+} catch (e) {}
 
 export const environment = {
+  TRACKER_HOST: 'http://tracker.transistorsoft.com',
+  GOOGLE_MAP_API_KEY: ENV.GOOGLE_MAP_API_KEY,
   production: false
 };
 
-/*
- * For easier debugging in development mode, you can import the following file
- * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
- * This import should be commented out in production mode because it will have a negative impact
- * on performance if an error is thrown.
- */
-// import 'zone.js/dist/zone-error';  // Included with Angular CLI.

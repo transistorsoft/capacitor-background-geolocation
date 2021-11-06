@@ -14,7 +14,7 @@
 
 <ion-content>
 	<ion-list>
-  		<ion-grid *ngFor="let event of events.reverse()" class="event">
+  		<ion-grid *ngFor="let event of events.slice().reverse()" class="event">
   			<ion-row class="ion-justify-content-start header">
 					<ion-col size="6" class="ion-align-self-start ion-align-items-center">
 						<strong>{{ event.name }}</strong>
