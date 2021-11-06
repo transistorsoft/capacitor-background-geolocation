@@ -18,6 +18,7 @@ import SettingsService from "./lib/SettingsService";
 import {LongPress} from './lib/LongPress';
 import {COLORS} from "../../config/Colors";
 import GeofenceView from "./GeofenceView";
+import {ENV} from "../../config/ENV";
 
 declare var google:any;
 
@@ -25,6 +26,8 @@ interface ContainerProps { }
 
 const SUBSCRIPTIONS:Subscription[] = [];
 
+/// Google Map references.
+let map:any = null;
 let lastLocation:Location|null = null;
 let currentLocationMarker:any = null;
 let lastDirectionChangeLocation:Location|null = null;
@@ -32,7 +35,6 @@ let locationAccuracyCircle:any = null;
 let stationaryRadiusCircle:any = null;
 let polyline:any = null;
 let geofenceCursor:any = null;
-let map:any = null;
 
 const locationMarkers:any = [];
 let geofenceMarkers:any = [];
@@ -51,6 +53,7 @@ const MapView: React.FC<ContainerProps> = () => {
   const settingsService = SettingsService.getInstance();
   const history = useHistory();
 
+  const [googleMapsSdkLoaded, setGoogleMapsSdkLoaded] = React.useState((typeof(google) === 'object'));
   const [enabled, setEnabled] = React.useState(false);
   const [location, setLocation] = React.useState<Location|null>(null);
   const [motionChangeEvent, setMotionChangeEvent] = React.useState<MotionChangeEvent|null>(null);
@@ -104,6 +107,8 @@ const MapView: React.FC<ContainerProps> = () => {
     BackgroundGeolocation.getState((state:State) => {
       setState(state);
     });
+    if (map === null) { return; }
+
     if (!enabled) {
       clearMarkers();
     }
@@ -112,6 +117,8 @@ const MapView: React.FC<ContainerProps> = () => {
   /// onMotionChange Effect.
   React.useEffect(() => {
     if (motionChangeEvent === null) { return; }
+    if (map === null) { return; }
+
     if (motionChangeEvent.isMoving) {
       hideStationaryCircle();
     } else {
@@ -122,6 +129,7 @@ const MapView: React.FC<ContainerProps> = () => {
   /// onGeofence Effect.
   React.useEffect(() => {
     if (geofenceEvent === null) { return; }
+    if (map === null) { return; }
 
     const circle = geofenceMarkers.find((marker:any) => {
       return marker.identifier === geofenceEvent.identifier;
@@ -225,6 +233,7 @@ const MapView: React.FC<ContainerProps> = () => {
   /// onGeofencesChange Effect.
   React.useEffect(() => {
     if (geofencesChangeEvent === null) { return; }
+    if (map === null) { return; }
 
     // All geofences off
     if (!geofencesChangeEvent.on.length && !geofencesChangeEvent.off.length) {
@@ -257,9 +266,9 @@ const MapView: React.FC<ContainerProps> = () => {
   /// Creates the Google Maps instance and all its assets.
   const createGoogleMap = () => {
     // If we don't have a map element here, we cannot continue.
-    if (typeof(google) !== 'object') {
-      settingsService.alert('Fatal Error', 'Failed to load Google Maps Javascript SDK');
-      return history.goBack();
+    if (!googleMapsSdkLoaded) {
+      settingsService.alert('Google Maps SDK Error', 'Failed to load Google Maps Javascript SDK');
+      return;
     }
 
     const latLng = new google.maps.LatLng(-34.9290, 138.6010);
@@ -547,8 +556,16 @@ const MapView: React.FC<ContainerProps> = () => {
     polyline.setPath([]);
   }
 
-  return (
-    <div id="map" className="MapView" style={{height:'100%', width:'100%'}}></div>
+  return (googleMapsSdkLoaded) ? (
+    <div id="map" className="MapView" style={{height:'100%', width:'100%'}} />
+  ) : (
+    <div style={{padding:10}}>
+      <h4>Failed to load Google Maps Javascript SDK</h4>
+      <ul>
+        <li>Do you have an internet connection?</li>
+      </ul>
+      {(location != null) ? (<pre><code style={{fontSize:10}}>{JSON.stringify(location, null, 2)}</code></pre>) : <div />}
+    </div>
   );
 };
 
