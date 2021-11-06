@@ -74,9 +74,11 @@ const AdvancedApp: React.FC = () => {
   }, [location]);
 
   const initBackgroundGeolocation = async () => {
+    /// Listen to some events.
     subscribe(BackgroundGeolocation.onLocation(setLocation, (error) => {
       console.log('[onLocation] ERROR: ', error);
     }));
+
     subscribe(BackgroundGeolocation.onMotionChange((location) => {
       setIsMoving(location.isMoving);
     }));
@@ -96,7 +98,7 @@ const AdvancedApp: React.FC = () => {
 
     BackgroundGeolocation.ready({
       // Debugging.
-      reset: true,
+      reset: false,
       debug: true,
       logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
       transistorAuthorizationToken: token,

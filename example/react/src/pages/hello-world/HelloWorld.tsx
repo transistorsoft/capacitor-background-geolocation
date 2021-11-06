@@ -70,6 +70,7 @@ const HelloWorld: React.FC = () => {
     initBackgroundGeolocation();
 
     return () => {
+      // Remove all BackgroundGeolocation event Subscriptions when the view is destroyed.
       unsubscribe();
     }
   }, []);
