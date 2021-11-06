@@ -135,13 +135,16 @@ static NSString *const EVENT_AUTHORIZATION      = @"authorization";
 
 - (void)ready:(CAPPluginCall *) call {
     TSLocationManager *locationManager = [TSLocationManager sharedInstance];
+    TSConfig *config = [TSConfig sharedInstance];
     NSDictionary *params = [call getObject:@"options" defaultValue:@{}];
-    
+    BOOL reset = (params[@"reset"]) ? [params[@"reset"] boolValue] : YES;
     if (ready) {
-        [locationManager log:@"warn" message:@"#ready already called.  Redirecting to #setConfig"];
-        TSConfig *config = [TSConfig sharedInstance];
-        
-        [config updateWithDictionary:params];
+        if (reset) {
+            [locationManager log:@"warn" message:@"#ready already called.  Redirecting to #setConfig"];
+            [config updateWithDictionary:params];
+        } else {
+            [locationManager log:@"warn" message:@"#ready already called.  Ignored Config since reset: false"];
+        }
         [call resolve:[config toDictionary]];
         return;
     }
@@ -151,7 +154,6 @@ static NSString *const EVENT_AUTHORIZATION      = @"authorization";
         if (config.isFirstBoot) {
             [config updateWithDictionary:params];
         } else {
-            BOOL reset = (params[@"reset"]) ? [params[@"reset"] boolValue] : YES;
             if (reset) {
                 [config reset:YES];
                 [config updateWithDictionary:params];
