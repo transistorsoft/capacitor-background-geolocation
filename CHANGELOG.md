@@ -1,5 +1,8 @@
 # Change Log
 
+## 4.4.2 &mdash; 2021-11-05
+* [Fixed][iOS] Minor fix to iOS reset:false behaviour.  When .ready() was called a 2nd time, the plugin would apply the config anyway, bypassing reset:false.
+
 ## 4.4.1 &mdash; 2021-11-03
 * [Changed][Android] Minnor change to Move Android plugin's registration of event-listeners into the .ready method instead of Capacitor plugin init stage.
  
