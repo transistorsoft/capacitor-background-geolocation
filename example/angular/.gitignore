@@ -31,3 +31,5 @@ npm-debug.log*
 /www
 
 ios/DerivedData
+
+src/environments/environment.local

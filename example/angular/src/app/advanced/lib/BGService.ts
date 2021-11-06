@@ -227,9 +227,8 @@ export class BGService {
 
   async playSound(name) {
     let soundId = 0;
-    let deviceInfo = await BackgroundGeolocation.getDeviceInfo();
     if (typeof(name) === 'string') {
-      soundId = SOUND_MAP[deviceInfo.platform][name];
+      soundId = SOUND_MAP[this.deviceInfo.platform][name];
     } else if (typeof(name) === 'number') {
       soundId = name;
     }
