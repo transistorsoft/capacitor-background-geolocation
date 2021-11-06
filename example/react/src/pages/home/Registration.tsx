@@ -73,7 +73,7 @@ const Registration: React.FC = (props:any) => {
       transistorAuthorizationToken: token
     });
 
-    // Persist are credentials.
+    // Persist our credentials.
     Storage.set({key: 'orgname', value: orgname});
     Storage.set({key: 'username', value: username});
 
