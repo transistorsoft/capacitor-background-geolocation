@@ -2,6 +2,11 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes, Router, NavigationEnd } from '@angular/router';
 import { Storage } from '@capacitor/storage';
 
+import {environment} from "../environments/environment";
+
+/// Ugly old Google Javascript Maps SDK ref.
+declare var google:any;
+
 const routes: Routes = [
   {
     path: 'home',
@@ -37,16 +42,35 @@ export class AppRoutingModule {
   }
 
   async init(router:Router) {
+    await this.loadGoogleMaps();
     // Navigate to current App (or /home).
     const page = (await Storage.get({key: 'page'})).value;
     const orgname = (await Storage.get({key: 'orgname'})).value;
     const username = (await Storage.get({key: 'username'})).value;
     const isRegistered = ((orgname !== null) && (username !== null));
-
     if (page && isRegistered) {
       router.navigate(['/' + page]);
     } else {
       router.navigate(['/home']);
     }
   }
+
+  /// Before rendering the App, first load the Google Maps Javascript SDK
+  /// This is a bit of a hack using the old Javascript Maps SDK.  Would be much better
+  /// to use a native Maps implementation.
+  async loadGoogleMaps():Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (typeof(google) === 'object') {
+        // Already loaded?  Good to go!
+        return resolve();
+      }
+      // Append Google Maps <script> tag directly to the dom and wait for the onload signal
+      const script = document.createElement('script');
+      script.src = `http://maps.google.com/maps/api/js?libraries=geometry&key=${environment.GOOGLE_MAP_API_KEY}`;
+      script.async = true;
+      script.onload = () => resolve()
+      document.body.appendChild(script);
+    });
+  }
+
 }
