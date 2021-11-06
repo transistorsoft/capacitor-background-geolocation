@@ -32,11 +32,6 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
-import {ENV} from "./config/ENV";
-
-/// Ugly old Google Javascript Maps SDK ref.
-declare var google:any;
-
 const App: React.FC = () => {
   /// Provide some UI assets to SettingsService so it can use its methods.
   /// WARNING:  I found I had to disable animations due to timing issues showing
@@ -50,7 +45,6 @@ const App: React.FC = () => {
   /// - toast()
   const [alert] = useIonAlert();
   const [toast] = useIonToast();
-  const [ready, setReady] = React.useState(false);
 
   /// SettingsService is just a handy helper class in support of the demo app.
   /// It has nothing to do with BackgroundGeolocation.
@@ -59,30 +53,8 @@ const App: React.FC = () => {
     toast: toast
   });
 
-  React.useEffect(() => {
-    loadGoogleMaps().then(() => setReady(true))
-  }, []);
-
-  /// Before rendering the App, first load the Google Maps Javascript SDK
-  /// This is a bit of a hack using the old Javascript Maps SDK.  Would be much better
-  /// to use a native Maps implementation.
-  const loadGoogleMaps = ():Promise<void> => {
-    return new Promise((resolve, reject) => {
-      if (typeof(google) === 'object') {
-        // Already loaded?  Good to go!
-        return resolve();
-      }
-      // Append Google Maps <script> tag directly to the dom and wait for the onload signal
-      const script = document.createElement('script');
-      script.src = `http://maps.google.com/maps/api/js?libraries=geometry&key=${ENV.GOOGLE_MAPS_API_KEY}`;
-      script.async = true;
-      script.onload = () => resolve()
-      document.body.appendChild(script);
-    });
-  }
-
   return (
-    <IonApp> {ready ?
+    <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
           <Route exact path="/home">
@@ -99,7 +71,6 @@ const App: React.FC = () => {
           </Route>
         </IonRouterOutlet>
       </IonReactRouter>
-    : <div />}
     </IonApp>
   );
 };
