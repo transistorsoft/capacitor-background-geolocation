@@ -9,7 +9,7 @@
 ///
 declare function require(name:string);
 
-var ENV = {
+let ENV = {
   GOOGLE_MAP_API_KEY: ''
 };
 

@@ -36,7 +36,7 @@ import BackgroundGeolocation, {
   Subscription
 } from "../capacitor-background-geolocation";
 
-import {ENV} from "../ENV";
+import {environment} from "../../environments/environment";
 import {ICON_MAP} from "../lib/icon-map";
 import {COLORS} from "../lib/colors";
 import {LongPress} from "./lib/LongPress";
@@ -75,6 +75,11 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   * @property {google.Map} Reference to Google Map instance
   */
   map: any;
+
+  /**
+  * @property {boolean} true if google maps sdk loaded
+  */
+  isGoogleMapsSdkLoaded:boolean;
   /**
   * @property {Object} state
   */
@@ -132,6 +137,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
     private zone: NgZone,
     private platform:Platform) {
 
+    this.isGoogleMapsSdkLoaded = (typeof(google) === 'object');
     // Event subscriptions
     this.subscriptions = [];
 
@@ -166,7 +172,8 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
         enabled: true,
         status: -1
       },
-      containerBorder: 'none'
+      containerBorder: 'none',
+      locationJson: ''
     };
 
 
@@ -240,7 +247,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
     const username = (await Storage.get({key: 'username'})).value;
 
     let token:TransistorAuthorizationToken = await
-      BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(orgname, username,ENV.TRACKER_HOST);
+      BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(orgname, username,environment.TRACKER_HOST);
 
     // With the plugin's #ready method, the supplied config object will only be applied with the first
     // boot of your application.  The plugin persists the configuration you apply to it.  Each boot thereafter,
@@ -290,7 +297,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   configureMap() {
     return new Promise((resolve:Function) => {
       // Handle case where app booted without network accesss (google maps lib fails to load)
-      if (typeof(google) !== 'object') {
+      if (!this.isGoogleMapsSdkLoaded) {
         console.warn('- map not loaded');
         return;
       }
@@ -711,6 +718,14 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
     // Print a log message to SDK's logger to prove this executed, even in the background.
     BackgroundGeolocation.logger.debug("👍 [onLocation] received location in Javascript: " + location.uuid);
 
+    if (!this.isGoogleMapsSdkLoaded) {
+      this.zone.run(() => {
+        this.state.locationJson = JSON.stringify(location, null, 2);
+      });
+
+      return;
+    }
+
     this.zone.run(() => {
       this.setCenter(location);
 
@@ -731,6 +746,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   */
   onMotionChange(event:MotionChangeEvent) {
     console.log('[motionchange] -', event.isMoving, event.location);
+    if (!this.isGoogleMapsSdkLoaded) { return; }
 
     this.zone.run(() => {
       if (event.isMoving) {
@@ -755,6 +771,8 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   */
   onActivityChange(event:MotionActivityEvent) {
     console.log('[activitychange] -', event.activity, event.confidence);
+    if (!this.isGoogleMapsSdkLoaded) { return; }
+
     this.zone.run(() => {
       this.state.activityName = event.activity;
       this.state.activityIcon = this.iconMap['activity_' + event.activity];
@@ -798,6 +816,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   */
   onGeofencesChange(event:GeofencesChangeEvent) {
     console.log('[geofenceschange] -', event);
+    if (!this.isGoogleMapsSdkLoaded) { return; }
 
     // All geofences off
     if (!event.on.length && !event.off.length) {
@@ -832,7 +851,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   */
   async onGeofence(event:GeofenceEvent) {
     console.log('[geofence] -', event);
-
+    if (!this.isGoogleMapsSdkLoaded) { return; }
 
     var circle = this.geofenceMarkers.find((marker) => {
       return marker.identifier === event.identifier;
@@ -1001,6 +1020,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   //
   //
   private setCenter(location:Location) {
+    if (!this.isGoogleMapsSdkLoaded) { return; }
     this.updateCurrentLocationMarker(location);
     setTimeout(function() {
       this.map.setCenter(new google.maps.LatLng(location.coords.latitude, location.coords.longitude));
@@ -1131,6 +1151,8 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   }
 
   resetMarkers() {
+    if (!this.isGoogleMapsSdkLoaded) { return; }
+
     // Clear location-markers.
     this.locationMarkers.forEach((marker) => {
       marker.setMap(null);
@@ -1146,6 +1168,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   }
 
   clearMarkers() {
+    if (!this.isGoogleMapsSdkLoaded) { return; }
     this.resetMarkers();
 
     this.geofenceMarkers.forEach((marker) => {
