@@ -42,7 +42,16 @@
    		</ion-fab-list>
  	</ion-fab>
 
-	<div #map id="map" style="height:100%;width:100%"></div>
+	<div #map id="map" style="height:100%;width:100%">
+    <div [hidden]="isGoogleMapsSdkLoaded">
+      <div style="padding:10px">
+        <p><strong>Failed to load Google Maps SDK</strong></p>
+        <p>Do you have an internet connection?</p>
+        <pre><code style="font-size:10px">{{state.locationJson}}</code></pre>
+      </div>
+    </div>
+  </div>
+
 </ion-content>
 
 <ion-footer>
@@ -61,7 +70,6 @@
 			 <span ion-text class="label" color="">Activity</span>&nbsp;
 			 <ion-icon color="" name="{{state.activityIcon}}"></ion-icon>&nbsp;
 			 <span ion-text class="odometer" color="">{{this.state.odometer}}km</span>
-
 		</ion-title>
 		<ion-buttons slot="end">
 			<ion-button fill="solid" [disabled]="!state.enabled" (click)="onClickChangePace()" style="width:50px" color="{{state.isMoving ? 'danger' : 'success'}}">

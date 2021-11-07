@@ -8,7 +8,7 @@ import BackgroundGeolocation, {
   Subscription
 } from "../capacitor-background-geolocation";
 
-import {ENV} from "../ENV";
+import {environment} from "../../environments/environment";
 
 /// Keep a reference to onHttp subscription.
 let onHttpSubscription:Subscription;
@@ -25,7 +25,7 @@ export async function registerTransistor():Promise<TransistorAuthorizationToken>
       url: ''
     };
   }
-  const token:TransistorAuthorizationToken = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(orgname, username, ENV.TRACKER_HOST);
+  const token:TransistorAuthorizationToken = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(orgname, username, environment.TRACKER_HOST);
 
   await BackgroundGeolocation.setConfig({
     transistorAuthorizationToken: token
@@ -43,7 +43,7 @@ export async function registerTransistorAuthorizationListener(router:Router) {
     switch(event.status) {
       case 403:
       case 406:
-        await BackgroundGeolocation.destroyTransistorAuthorizationToken(ENV.TRACKER_HOST);
+        await BackgroundGeolocation.destroyTransistorAuthorizationToken(environment.TRACKER_HOST);
         const token = await registerTransistor();
         if (token.accessToken !== 'DUMMY_TOKEN') {
           await BackgroundGeolocation.setConfig({
