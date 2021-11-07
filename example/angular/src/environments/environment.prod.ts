@@ -9,7 +9,7 @@
 ///
 declare function require(name:string);
 
-var SECRETS = {
+let SECRETS = {
   GOOGLE_MAP_API_KEY: ''
 };
 

@@ -26,7 +26,7 @@ import BackgroundGeolocation, {
   Subscription
 } from "../capacitor-background-geolocation";
 
-import {ENV} from "../ENV";
+import {environment} from "../../environments/environment";
 
 @Component({
   selector: 'app-hello-world',
@@ -95,7 +95,7 @@ export class HelloWorldPage implements OnInit, OnDestroy {
     const token:TransistorAuthorizationToken = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(
       orgname,
       username,
-      ENV.TRACKER_HOST
+      environment.TRACKER_HOST
     );
 
     // Step 2:  Configure the plugin
@@ -107,7 +107,7 @@ export class HelloWorldPage implements OnInit, OnDestroy {
       stopTimeout: 1,
       stopOnTerminate: false,
       startOnBoot: true,
-      url: ENV.TRACKER_HOST + '/api/locations',
+      url: environment.TRACKER_HOST + '/api/locations',
       // [Android] backgroundPermissionRationale for Always permission.
       backgroundPermissionRationale: {
         title: "Allow {applicationName} to access this device's location even when closed or not in use.",
@@ -119,7 +119,7 @@ export class HelloWorldPage implements OnInit, OnDestroy {
         strategy: 'jwt',
         accessToken: token.accessToken,
         refreshToken: token.refreshToken,
-        refreshUrl: ENV.TRACKER_HOST + '/api/refresh_token',
+        refreshUrl: environment.TRACKER_HOST + '/api/refresh_token',
         refreshPayload: {
           refresh_token: '{refreshToken}'
         },

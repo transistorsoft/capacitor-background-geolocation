@@ -10,7 +10,7 @@ import { Storage } from '@capacitor/storage';
 
 import BackgroundGeolocation from "../../capacitor-background-geolocation";
 
-import {ENV} from "../../ENV";
+import {environment} from "../../../environments/environment";
 
 // Only allow alpha-numeric usernames with '-' and '_'
 const USERNAME_VALIDATOR =  /^[a-zA-Z0-9_-]*$/;
@@ -40,7 +40,7 @@ export class RegistrationPage implements OnInit {
   	let deviceInfo = await BackgroundGeolocation.getDeviceInfo();
   	this.devicename = deviceInfo.manufacturer + ' ' + deviceInfo.model;
 
-  	this.url = ENV.TRACKER_HOST
+  	this.url = environment.TRACKER_HOST
   }
   ngOnInit() {}
 
@@ -64,9 +64,9 @@ export class RegistrationPage implements OnInit {
       return false;
     }
     // Destroy existing cached token.
-    await BackgroundGeolocation.destroyTransistorAuthorizationToken(ENV.TRACKER_HOST);
+    await BackgroundGeolocation.destroyTransistorAuthorizationToken(environment.TRACKER_HOST);
     // Register device with tracker.transistorsoft.com to receive a JSON Web Token (JWT).
-    let token = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(this.orgname, this.username, ENV.TRACKER_HOST);
+    let token = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(this.orgname, this.username, environment.TRACKER_HOST);
 
     await BackgroundGeolocation.setConfig({
       transistorAuthorizationToken: token

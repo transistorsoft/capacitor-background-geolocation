@@ -16,7 +16,7 @@ import BackgroundGeolocation, {
   DeviceInfo
 } from "../capacitor-background-geolocation"
 
-import {ENV} from "../ENV";
+import {environment} from "../../environments/environment";
 
 import {registerTransistorAuthorizationListener} from "../lib/authorization";
 
@@ -68,7 +68,7 @@ export class HomePage {
     this.orgname = (await Storage.get({key: 'orgname'})).value;
     this.username = (await Storage.get({key: 'username'})).value;
 
-    this.url = ENV.TRACKER_HOST;
+    this.url = environment.TRACKER_HOST;
     if (this.isValid(this.orgname)) {
       this.url += '/' + this.orgname;
     }
