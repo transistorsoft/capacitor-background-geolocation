@@ -28,7 +28,7 @@ const GEOFENCE_LOITERING_DELAY_OPTIONS = [1*1000, 10*1000, 30*1000, 60*1000, 5*6
 //
 import BackgroundGeolocation, {TransistorAuthorizationToken} from "../../capacitor-background-geolocation";
 
-import {ENV} from "../../ENV";
+import {environment} from "../../../environments/environment";
 
 @Injectable()
 
@@ -113,7 +113,7 @@ export class SettingsService {
     }
     let toast = await this.toastCtrl.create({
       message: message,
-      duration: duration || 3000
+      duration: duration || 2000
     });
     toast.present();
   }
@@ -451,7 +451,7 @@ export class SettingsService {
     let token:TransistorAuthorizationToken = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(
       orgname,
       username,
-      ENV.TRACKER_HOST
+      environment.TRACKER_HOST
     );
 
     await BackgroundGeolocation.reset({
