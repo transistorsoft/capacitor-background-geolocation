@@ -51,11 +51,12 @@ const AdvancedApp: React.FC = () => {
   const history = useHistory();
   const settingsService = SettingsService.getInstance();
 
+  const [ready, setReady] = React.useState(false);
   const [enabled, setEnabled] = React.useState(false);
   const [isMoving, setIsMoving] = React.useState(false);
-  const [location, setLocation] = React.useState<Location|null>(null);
+  const [location, setLocation] = React.useState<Location>();
   const [odometer, setOdometer] = React.useState(0);
-  const [motionActivityEvent, setMotionActivityEvent] = React.useState<MotionActivityEvent|null>(null);
+  const [motionActivityEvent, setMotionActivityEvent] = React.useState<MotionActivityEvent>();
   const [testClicks, setTestClicks] = React.useState(0);
   const [clickBufferTimeout, setClickBufferTimeout] = React.useState<any>(0);
 
@@ -124,6 +125,7 @@ const AdvancedApp: React.FC = () => {
       setEnabled(state.enabled);
       setIsMoving(state.isMoving!);
       setOdometer(state.odometer);
+      setReady(true);
     });
   }
 
@@ -151,23 +153,24 @@ const AdvancedApp: React.FC = () => {
     }
   }, [testClicks]);
 
-  /// [Home] button handler
-  const onClickHome = () => {
-    history.goBack();
-  }
+  /// Enabled Effect.
+  React.useEffect(() => {
+    // Don't respond to enabledchange until BackgroundGeolocation.ready() resolves.
+    // We're not interested in the initial state-change of the <IonToggle> since BackgroundGeolocation
+    // automatically calls .start() upon itself after .ready() is called.
+    if (!ready) { return; }
 
-  /// Enabled Switch handler.
-  const onToggleEnabled = (value:boolean) => {
-    if (value === undefined) { return; }
-    if (value) {
+    if (enabled) {
       BackgroundGeolocation.start();
     } else {
       BackgroundGeolocation.stop();
-    }
-    setEnabled(value);
-    if (!value) {
       setIsMoving(false);
     }
+  }, [enabled]);
+
+  /// [Home] button handler
+  const onClickHome = () => {
+    history.goBack();
   }
 
   /// Get Current Position button handler.
@@ -201,7 +204,7 @@ const AdvancedApp: React.FC = () => {
             <IonButton onClick={onClickHome}><IonIcon icon={home} /></IonButton>
           </IonButtons>
           <IonButtons slot="end">
-            <IonToggle checked={enabled} onIonChange={e => onToggleEnabled(e.detail.checked)}/>
+            <IonToggle checked={enabled} onIonChange={e => setEnabled(e.detail.checked)}/>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
