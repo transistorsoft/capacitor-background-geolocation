@@ -19,7 +19,7 @@ const loadGoogleMaps = ():Promise<void> => {
     // Allow up to 10s to load Google Maps Javascript SDK before bailing out and letting
     // the react app render itself.
     const timeout = setTimeout(() => {
-      console.warn('Failed to load Google Maps Javascript SDK within 10s');
+      console.warn('[index.tsx] Failed to load Google Maps Javascript SDK within 10s');
       resolve();
     }, 10000);
 
@@ -29,7 +29,7 @@ const loadGoogleMaps = ():Promise<void> => {
     script.async = true;
     script.onload = () => {
       clearTimeout(timeout);
-      console.log('Loaded Google Maps Javascript SDK');
+      console.log('[index.tsx] Loaded Google Maps Javascript SDK');
       resolve();
     }
     document.getElementsByTagName('head')[0].appendChild(script);
