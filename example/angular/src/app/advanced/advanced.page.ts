@@ -188,11 +188,6 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
 
   async ionViewWillEnter() {
     console.log('⚙️ ionViewWillEnter');
-    // Re-register Transistor Demo Server Authorization listener.
-    registerTransistorAuthorizationListener(this.router);
-
-    // Configure the plugin.
-    this.configureBackgroundGeolocation();
   }
 
   async ngAfterContentInit()  {
@@ -200,6 +195,12 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
 
     // Setup the GoogleMap
     await this.configureMap();
+
+    // Re-register Transistor Demo Server Authorization listener.
+    registerTransistorAuthorizationListener(this.router);
+
+    // Configure the plugin.
+    this.configureBackgroundGeolocation();
   }
 
   ngOnInit() {}
