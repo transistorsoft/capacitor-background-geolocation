@@ -140,7 +140,6 @@ const Home: React.FC = () => {
     if (await willDiscloseBackgroundPermission(page)) {
       return;
     }
-
     setDefaultRoute(page);
   }
 
