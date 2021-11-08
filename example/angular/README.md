@@ -1,6 +1,6 @@
 # Demo App with *Angular*
 
-Fully-featured, Capacitor Background Geolocation demo application.
+<img alt="alt_text" width="200px" src="https://dl.dropbox.com/s/w4hw88clxqmlis2/angular-logo.svg?dl=1" />
 
 ![Home](https://dl.dropboxusercontent.com/s/byaayezphkwn36h/home-framed-350.png?dl=1)
 ![Settings](https://dl.dropboxusercontent.com/s/8lvnpp0gowitagq/settings-framed-350.png?dl=1)
