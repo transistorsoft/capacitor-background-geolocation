@@ -9,17 +9,19 @@
 ///
 declare function require(name:string);
 
-let ENV = {
+let SECRETS = {
   GOOGLE_MAP_API_KEY: ''
 };
 
 try {
-  ENV = require('./environment.local');
-} catch (e) {}
+  SECRETS = require('./environment.local');
+} catch (e) {
+  // We expect that ./environment.local may not exist.  Simply carry on.
+}
 
 export const environment = {
   TRACKER_HOST: 'http://tracker.transistorsoft.com',
-  GOOGLE_MAP_API_KEY: ENV.GOOGLE_MAP_API_KEY,
+  GOOGLE_MAP_API_KEY: SECRETS.GOOGLE_MAP_API_KEY,
   production: false
 };
 

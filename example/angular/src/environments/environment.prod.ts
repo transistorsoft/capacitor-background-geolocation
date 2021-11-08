@@ -16,7 +16,7 @@ let SECRETS = {
 try {
   SECRETS = require('./environment.local');
 } catch (e) {
-
+  // We expect that ./environment.local may not exist.  Simply carry on.
 }
 
 export const environment = {
