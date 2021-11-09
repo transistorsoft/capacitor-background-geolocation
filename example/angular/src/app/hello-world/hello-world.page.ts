@@ -61,11 +61,11 @@ export class HelloWorldPage implements OnInit, OnDestroy {
 
   ngAfterContentInit() {
     console.log('⚙️ ngAfterContentInit');
+    this.configureBackgroundGeolocation();
   }
 
   ionViewWillEnter() {
     console.log('⚙️ ionViewWillEnter');
-    this.configureBackgroundGeolocation();
   }
 
   ngOnInit() {
@@ -169,80 +169,67 @@ export class HelloWorldPage implements OnInit, OnDestroy {
     this.events = [];
   }
 
-  /**
-  * @event enabledchange
-  */
+
+  /// @event enabledchange
   onEnabledChange(enabled:boolean) {
     this.isMoving = false;
     this.addEvent('onEnabledChange', new Date(), {enabled: enabled});
   }
-  /**
-  * @event location
-  */
+
+  /// @event location
   onLocation(location:Location) {
     console.log('[event] location: ', location);
     this.addEvent('onLocation', new Date(location.timestamp), location);
 
   }
-  /**
-  * @event motionchange
-  */
+
+  /// @event motionchange
   onMotionChange(event:MotionChangeEvent) {
     console.log('[event] motionchange, isMoving: ', event.isMoving, ', location: ', event.location);
     this.addEvent('onMotionChange', new Date(event.location.timestamp), event);
     this.isMoving = event.isMoving;
   }
-  /**
-  * @event activitychange
-  */
+
+  /// @event activitychange
   onActivityChange(event:MotionActivityEvent) {
     console.log('[event] activitychange: ', event);
     this.addEvent('onActivityChange', new Date(), event);
   }
+
+  /// @event geofence
   onGeofence(event:GeofenceEvent) {
     console.log('[event] geofence: ', event);
     this.addEvent('onGeofence', new Date(event.location.timestamp), event);
   }
-  /**
-  * @event http
-  */
+  /// @event http
   onHttp(response:HttpEvent) {
     console.log('[event] http: ', response);
     this.addEvent('onHttp', new Date(), response);
   }
-  /**
-  * @event providerchange
-  */
+
+  /// @event providerchange
   onProviderChange(provider:ProviderChangeEvent) {
     console.log('[event] providerchange', provider);
     this.addEvent('onProviderChange', new Date(), provider);
   }
-  /**
-  * @event powersavechange
-  */
+
+  /// @event powersavechange
   onPowerSaveChange(isPowerSaveEnabled:boolean) {
     console.log('[event] powersavechange', isPowerSaveEnabled);
     this.addEvent('onPowerSaveChange', new Date(), {isPowerSaveEnabled: isPowerSaveEnabled});
   }
-  /**
-  * @event connectivitychange
-  */
+  /// @event connectivitychange
   onConnectivityChange(event:ConnectivityChangeEvent) {
     console.log('[event] connectivitychange connected? ', event.connected);
     this.addEvent('onConnectivityChange', new Date(), event);
   }
-  /**
-  * @event authorization
-  */
+
+  /// @event authorization
   onAuthorization(event:AuthorizationEvent) {
     console.log('[event] authorization: ', event);
   }
-  /**
-  * Add a record to ion-list
-  * @param {String} event name
-  * @param {Date} date
-  * @param {Object} event object, eg: {location}, {provider}, {activity}
-  */
+
+  /// Add a record to ion-list
   private addEvent(name, date, event) {
     const timestamp = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
     this.zone.run(() => {
@@ -253,7 +240,6 @@ export class HelloWorldPage implements OnInit, OnDestroy {
         content: JSON.stringify(event, null, 2)
       });
     })
-
   }
-
 }
+
