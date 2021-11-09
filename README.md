@@ -29,6 +29,7 @@ The **[Android module](http://www.transistorsoft.com/shop/products/capacitor-bac
 ![Settings](https://dl.dropboxusercontent.com/s/8oad228siog49kt/settings-framed-350.png?dl=1)
 
 # Contents
+- ### 😫 [Help!](../../wiki/Help)
 - ### :books: [API Documentation](https://transistorsoft.github.io/capacitor-background-geolocation)
 - ### [Installing the Plugin](#large_blue_diamond-installing-the-plugin)
 - ### [Setup Guides](#large_blue_diamond-setup-guides)
@@ -109,92 +110,285 @@ There are three main steps to using `BackgroundGeolocation`
 2. `#ready` the plugin.
 3. `#start` the plugin.
 
+:warning: Do not execute *any* API method which will require accessing location-services until the callback to **`#ready`** executes (eg: `#getCurrentPosition`, `#watchPosition`, `#start`).
+
+
 ```javascript
-// Import BackgroundGeolocation + any optional interfaces
-import BackgroundGeolocation from "@transistorsoft/capacitor-background-geolocation";
+// NO!  .ready() has not resolved.
+BackgroundGeolocation.getCurrentPosition(options);
+BackgroundGeolocation.start();
 
-export class HomePage {
+BackgroundGeolocation.ready(config).then((state) => {
+  // YES -- .ready() has now resolved.
+  BackgroundGeolocation.getCurrentPosition(options);
+  BackgroundGeolocation.start();  
+});
 
-  /// WARNING:  DO NOT Use ionViewWillEnter to configure the SDK -- use ngAfterContentInit.  ionViewWillEnter only executes when the
-  /// app is brought to the foreground.  It will NOT execute when the app is launched in the background,
-  /// as the BackgroundGeolocation SDK will often do.
-  ///
-  async ngAfterContentInit() {
-    ////
-    // 1.  Wire up event-listeners
-    //
+// NO!  .ready() has not resolved.
+BackgroundGeolocation.getCurrentPosition(options);
+BackgroundGeolocation.start();
+```
+---------------------------------------------------------------------------------------------
 
-    // This handler fires whenever bgGeo receives a location update.
-    BackgroundGeolocation.onLocation((location) => {
-      console.log('[onLocation]', location);
-    }, ((error) => {  // <-- Location errors
-      console.log('[onLocation] ERROR:', error);
+### Example 1. &mdash; *React*
+
+<img alt="alt_text" width="50px" src="https://hackr.io/tutorials/react/logo-react.svg?ver=1610114789" />
+
+<details>
+  <summary>View Source</summary>
+
+```typescript
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  IonButtons,
+  IonToggle,
+  IonItemDivider,
+  IonLabel
+} from '@ionic/react';
+
+import React from "react";
+
+import BackgroundGeolocation, {
+  Subscription
+} from "@transistorsoft/capacitor-background-geolocation";
+
+const HelloWorld: React.FC = () => {
+  const [ready, setReady] = React.useState(false);
+  const [enabled, setEnabled] = React.useState(false);
+  const [events, setEvents] = React.useState<any[]>([]);
+
+  const addEvent = (name: string, event:any) => {
+    setEvents(previous => [...previous, {
+      name: name,
+      json: JSON.stringify(event, null, 2)
+    }]);
+  }
+
+  React.useEffect(() => {
+    /// 1.  Subscribe to events.
+    const onLocation:Subscription = BackgroundGeolocation.onLocation((location) => {
+      addEvent('onLocation', location);
+    })
+
+    const onMotionChange:Subscription = BackgroundGeolocation.onMotionChange((event) => {
+      addEvent('onMotionChange', event);
     });
 
-    // This handler fires when movement states changes (stationary->moving; moving->stationary)
-    BackgroundGeolocation.onMotionChange((location) => {
-      console.log('[onMotionChange]', location);
-    });
+    const onActivityChange:Subscription = BackgroundGeolocation.onActivityChange((event) => {
+      addEvent('onActivityChange', event);
+    })
 
-    // This event fires when a change in motion activity is detected
-    BackgroundGeolocation.onActivityChange((event) => {
-      console.log('[onActivityChange]', event);
-    });
+    const onProviderChange:Subscription = BackgroundGeolocation.onProviderChange((event) => {
+      addEvent('onProviderChange', event);
+    })
 
-    // This event fires when the user toggles location-services authorization
-    BackgroundGeolocation.onProviderChange((event) => {
-      console.log('[onProviderChange]', event);
-    });
-
-    // See the API docs for a list of all available events -- there are a total of 13 events.
-
-    ////
-    // 2.  Execute #ready method (required)
-    //
+    /// 2. ready the plugin.
     BackgroundGeolocation.ready({
       // Geolocation Config
       desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
       distanceFilter: 10,
       // Activity Recognition
-      stopTimeout: 1,
+      stopTimeout: 5,
       // Application config
       debug: true, // <-- enable this hear sounds for background-geolocation life-cycle.
       logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
       stopOnTerminate: false,   // <-- Allow the background-service to continue tracking when user closes the app.
       startOnBoot: true,        // <-- Auto start tracking when device is powered-up.
-      // HTTP / SQLite config
-      url: 'http://yourserver.com/locations',
-      batchSync: false,       // <-- [Default: false] Set true to sync locations to server in a single HTTP request.
-      autoSync: true,         // <-- [Default: true] Set true to sync each location to server as it arrives.
-      headers: {              // <-- Optional HTTP headers
-        "X-FOO": "bar"
-      },
-      params: {               // <-- Optional HTTP params append to each HTTP request
-        "auth_token": "maybe_your_server_authenticates_via_token_YES?"
-      },
-      extras: {               // <-- Optional meta-data appended to each recorded location.
-        "foo": "bar"
-      }
     }).then((state) => {
-      console.log("BackgroundGeolocation is configured and ready to use ", state.enabled);
-
-      if (!state.enabled) {
-        ////
-        // 3. Start tracking!
-        //
-        BackgroundGeolocation.start().then(() => {
-          console.log("[start] success");
-        });
-      }
-    }).catch((error) => {
-      console.warn('[BackgroundGeolocation ready] ERROR: ', error);
+      setReady(true);
+      setEnabled(state.enabled)
+      addEvent('State', state);
     });
-  }
-}
 
+    return () => {
+      // Remove BackgroundGeolocation event-subscribers when the View is removed or refreshed
+      // during development live-reload.  Without this, event-listeners will accumulate with
+      // each refresh during live-reload.
+      onLocation.remove();
+      onMotionChange.remove();
+      onActivityChange.remove();
+      onProviderChange.remove();
+    }
+  }, []);
+
+  /// 3. start / stop BackgroundGeolocation
+  React.useEffect(() => {
+    if (!ready) { return }
+
+    if (enabled) {
+      BackgroundGeolocation.start();
+    } else {
+      BackgroundGeolocation.stop();
+      setEvents([]);
+    }
+  }, [enabled]);
+
+  return (
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonButtons slot="end">
+            <IonLabel>Toggle to <code>{(enabled ? 'stop()' : 'start()')}</code> &mdash;&gt;</IonLabel>
+            <IonToggle checked={enabled} onIonChange={e => setEnabled(e.detail.checked)}/>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent fullscreen>
+        <div style={{padding:10}}>
+        { events.slice().reverse().map((event, i) => (
+          <div key={i}>
+            <p><strong>{event.name}</strong></p>
+            <small><pre><code>{event.json}</code></pre></small>
+            <IonItemDivider />
+          </div>
+        ))}
+        </div>
+      </IonContent>
+    </IonPage>
+  )
+}
 ```
 
-:warning: Do not execute *any* API method which will require accessing location-services until the callback to **`#ready`** executes (eg: `#getCurrentPosition`, `#watchPosition`, `#start`).
+</details>
+
+---------------------------------------------------------------------------------------------
+
+### Example 2. &mdash; *Angular*
+
+<img alt="alt_text" width="55px" src="https://dl.dropbox.com/s/w4hw88clxqmlis2/angular-logo.svg?dl=1" />
+
+<details>
+  <summary>View Source</summary>
+
+```typescript
+import {
+  Component, 
+  NgZone,
+  OnDestroy
+} from '@angular/core'
+
+import BackgroundGeolocation, {
+  Location,
+  Subscription
+} from "@transistorsoft/capacitor-background-geolocation";
+
+@Component({
+  selector: 'hello-world',
+  template: `
+    <ion-header>
+      <ion-toolbar>
+        <ion-buttons slot="end">
+          <ion-label>Toggle to <code>{{(enabled ? 'stop()' : 'start()')}}</code> &mdash;&gt;</ion-label>
+          <ion-toggle [(ngModel)]="enabled" (ionChange)="onToggleEnabled()" style="display:block;"></ion-toggle>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content fullscreen>
+      <div *ngFor="let event of events.slice().reverse()" style="padding:10px">
+        <div>
+          <p><strong>{{event.name}}</strong></p>
+          <small><pre><code>{{event.json}}</code></pre></small>
+          <ion-item-divider></ion-item-divider>
+        </div>
+      </div>
+    </ion-content>
+  `,
+  styles: []
+})
+
+export class HelloWorldPage implements OnDestroy {
+  ready:boolean = false;
+  enabled:boolean = false;
+  events:any = [];
+  subscriptions:Subscription[] = [];
+
+  constructor(private zone:NgZone) {}
+
+  /// WARNING:  DO NOT Use ionViewWillEnter to configure the SDK -- use ngAfterContentInit.  
+  /// ionViewWillEnter only executes when the app is brought to the foreground.  
+  /// It will NOT execute when the app is launched in the background, as the SDK will often do.
+  /// 
+  ngAfterContentInit() {
+    /// Step 1:  Subscribe to BackgroundGeolocation events.
+    this.subscriptions.push(BackgroundGeolocation.onLocation((location) => {
+      this.addEvent('onLocation', location);
+    }))
+
+    this.subscriptions.push(BackgroundGeolocation.onMotionChange((event) => {
+      this.addEvent('onMotionChange', event);
+    }))
+
+    this.subscriptions.push(BackgroundGeolocation.onActivityChange((event) => {
+      this.addEvent('onActivityChange', event);
+    }))
+
+    this.subscriptions.push(BackgroundGeolocation.onProviderChange((event) => {
+      this.addEvent('onProviderChange', event);
+    }))
+
+    /// Step 2:  Ready the plugin.
+    BackgroundGeolocation.ready({
+      // Geolocation Config
+      desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
+      distanceFilter: 10,
+      // Activity Recognition
+      stopTimeout: 5,
+      // Application config
+      debug: true, // <-- enable this hear sounds for background-geolocation life-cycle.
+      logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
+      stopOnTerminate: false,   // <-- Allow the background-service to continue tracking when user closes the app.
+      startOnBoot: true,        // <-- Auto start tracking when device is powered-up.
+    }).then((state) => {
+      // BackgroundGeolocation is now ready to use.
+      this.ready = true;
+      this.enabled = state.enabled;
+      this.addEvent('State', state);
+    });
+  }
+
+  /// When view is destroyed, be sure to .remove() all BackgroundGeolocation
+  /// event-subscriptions.
+  ngOnDestroy() {
+    this.subscriptions.forEach((subscription:Subscription) => {
+      subscription.remove();
+    })
+  }
+
+  /// Add an event to the view.
+  addEvent(name:string, event:any) {
+    this.zone.run(() => {
+      this.events.push({
+        name: name, 
+        json: JSON.stringify(event, null, 2)
+      })  
+    })    
+  }
+
+  /// Toggle the plugin on/off.
+  onToggleEnabled() {
+    if (!this.ready) { return }
+
+    this.events = [];
+    if (this.enabled) {
+      BackgroundGeolocation.start().then((state) => {
+        this.addEvent('State', state);
+      })
+    } else {
+      BackgroundGeolocation.stop().then((state) => {
+        this.addEvent('State', state);
+      })
+    }
+  }
+}
+```
+
+</details>
+
+---------------------------------------------------------------------------------------------
 
 ### Promise API
 
