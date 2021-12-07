@@ -226,7 +226,12 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void stopSchedule(PluginCall call) {
         getAdapter().stopSchedule();
-        call.resolve();
+        TSConfig config = TSConfig.getInstance(getContext());
+        try {
+            call.resolve(JSObject.fromJSONObject(config.toJson()));
+        } catch (JSONException e) {
+            call.reject(e.getMessage());
+        }
     }
 
     private class StartGeofencesCallback implements TSCallback {

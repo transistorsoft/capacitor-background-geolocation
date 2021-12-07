@@ -1,5 +1,8 @@
 # Change Log
 
+## 4.4.3 &mdash; 2021-12-07
+* [Fixed][Android] Minor fix for Android method stopSchedule -- was not sending State to callback.
+
 ## 4.4.2 &mdash; 2021-11-05
 * [Fixed][iOS] Minor fix to iOS reset:false behaviour.  When .ready() was called a 2nd time, the plugin would apply the config anyway, bypassing reset:false.
 
