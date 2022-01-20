@@ -1,5 +1,9 @@
 # Change Log
 
+## 4.4.4 &mdash; 2022-01-19
+* [Fixed][iOS] Regression bug in iOS SAS authorization strategy
+* [Fixed][Android] Android logger defaulting to LOG_LEVEL_VERBOSE when initially launched configured for LOG_LEVEL_OFF
+
 ## 4.4.3 &mdash; 2021-12-07
 * [Fixed][Android] Minor fix for Android method stopSchedule -- was not sending State to callback.
 
