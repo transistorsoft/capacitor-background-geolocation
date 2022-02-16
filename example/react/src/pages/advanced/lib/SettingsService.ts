@@ -926,7 +926,6 @@ export default class SettingsService {
       enableHeadless: true,
       heartbeatInterval: -1
     });
-    await BackgroundGeolocation.stopSchedule();
   }
 
   /**
