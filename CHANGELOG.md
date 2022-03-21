@@ -1,6 +1,6 @@
 # Change Log
 
-## 4.4.7 &mdash; 2022-03-21
+## 4.4.6 &mdash; 2022-03-21
 * [Fixed] method deviceSettings.isIgnoringBatteryOptimizations had a syntax error in JS API.
 
 ## 4.4.5 &mdash; 2022-02-16
