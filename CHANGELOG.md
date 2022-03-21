@@ -1,5 +1,8 @@
 # Change Log
 
+## 4.4.7 &mdash; 2022-03-21
+* [Fixed] method deviceSettings.isIgnoringBatteryOptimizations had a syntax error in JS API.
+
 ## 4.4.5 &mdash; 2022-02-16
 * [Android] While testing adding 20k geofences, the Logger can cause an `OutOfMemory` error.  Define a dedicated thread executor `Executors.newFixedThreadPool(2)` for posting log messages in background.
 * [iOS] remote event-listeners in onAppTerminate to prevent onEnabledChange event being fired in a dying app configured for `stopOnTerminate: true`
