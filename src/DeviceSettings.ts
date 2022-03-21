@@ -18,7 +18,7 @@ const resolveSettingsRequest = (resolve:Function, request:any) => {
 export default class DeviceSettings {
   static isIgnoringBatteryOptimizations() {
     return new Promise((resolve:Function, reject:Function) => {
-      NativeModule.isIgnoringBatteryOptimizations.then((result:any) => {
+      NativeModule.isIgnoringBatteryOptimizations().then((result:any) => {
         resolve(result.isIgnoringBatteryOptimizations);
       }).catch((error:PluginResultError) => {
         reject(error.message);
