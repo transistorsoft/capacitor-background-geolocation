@@ -181,7 +181,7 @@ var capacitorBackgroundGeolocation = (function (core) {
         }
         DeviceSettings.isIgnoringBatteryOptimizations = function () {
             return new Promise(function (resolve, reject) {
-                NativeModule$1.isIgnoringBatteryOptimizations.then(function (result) {
+                NativeModule$1.isIgnoringBatteryOptimizations().then(function (result) {
                     resolve(result.isIgnoringBatteryOptimizations);
                 }).catch(function (error) {
                     reject(error.message);
