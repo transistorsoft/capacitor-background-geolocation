@@ -1,5 +1,9 @@
 # Change Log
 
+## 4.5.0 &mdash; 2022-03-30
+* [Android] Upgrade `android-permissions` dependency from 0.1.8 -> 2.1.6.
+* [iOS] Rebuild `TSLocationManager.xcframework` with XCode 13.3
+
 ## 4.4.6 &mdash; 2022-03-21
 * [Fixed] method deviceSettings.isIgnoringBatteryOptimizations had a syntax error in JS API.
 
