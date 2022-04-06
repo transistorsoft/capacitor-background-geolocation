@@ -58,7 +58,7 @@ apply from: "variables.gradle"
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
 
 +       // capacitor-background-geolocation
 +       maven {
