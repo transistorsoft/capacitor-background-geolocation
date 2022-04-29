@@ -1,13 +1,40 @@
 import UIKit
 import Capacitor
 
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    
+    /// BackgroundGeolocation location handler.  Return an AnyHashable object to be INSERTed into the plugin's SQLite database or nil to cancel the INSERT.
+    /// location.toDictionary() returns the plugin's default schema.
+    ///
+    /*
+    func onLocation(tsLocation:TSLocation?) -> [AnyHashable:Any]? {
+        let location = tsLocation?.location;
+        let lat = location?.coordinate.latitude
+        let lng = location?.coordinate.longitude;
+        
+        print("onLocation: ", lat!, lng!);
+        
+        if ((lat! > 0) && (lng! < 0) ) {
+            return tsLocation!.toDictionary();
+        } else {
+            return nil;
+        }
+    }
+    */
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        /**
+         * [background-geolocation] Undocumented feature:  This is a native hook for each location recorded by background-geolocation.
+         * Return nil to cancel the SQLite insert (and corresponding HTTP request)
+         */
+        //let locationManager = TSLocationManager.sharedInstance();
+        // locationManager?.beforeInsertBlock = onLocation
         return true
     }
 
