@@ -1,6 +1,6 @@
 # Change Log
 
-## 4.6.0 &mdash; 2022-04-20
+## 4.6.0 &mdash; 2022-04-29
 * [Android] Add a few extra manufacturer-specific `Intent` for `DeviceSettings.showPowerManager()`.
 * [Android] Remove references to deprectated `jcenter` from SDK's gradle files and Setup guide.
 * [Android] Minimum `compileSdkVersion 31` is now required.
