@@ -1,5 +1,15 @@
 # Change Log
 
+## 4.7.0 &mdash; 2022-05-09
+* [Android] Android 12 support for executing `.start()` and `.getCurrentPosition()` while the plugin is disabled and in the background.  This is a bypass of new Android 12 restrictions for starting foreground-services in the background by taking advantage of AlarmManager.
+```
+Fatal Exception: android.app.ForegroundServiceStartNotAllowedException: startForegroundService() not allowed due to mAllowStartForeground false: service
+```
+
+* [Android] Added two new `androidx.lifecycle` dependencies to plugin's `build.gradle`, in addition to corresponding `ext` vars `ext.lifeCycleRunTimeVersion` and `ext.lifeCycleRuntimeVersion`
+- `"androidx.lifecycle:lifecycle-runtime"`
+- `"androidx.lifecycle:lifecycle-extensions"`
+
 ## 4.6.0 &mdash; 2022-04-29
 * [Android] Add a few extra manufacturer-specific `Intent` for `DeviceSettings.showPowerManager()`.
 * [Android] Remove references to deprectated `jcenter` from SDK's gradle files and Setup guide.
