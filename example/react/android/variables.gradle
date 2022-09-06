@@ -1,7 +1,7 @@
 ext {
     minSdkVersion = 21
     compileSdkVersion = 32
-    targetSdkVersion = 31
+    targetSdkVersion = 32
     androidxActivityVersion = '1.2.0'
     androidxAppCompatVersion = '1.4.1'
     androidxCoordinatorLayoutVersion = '1.1.0'
@@ -11,7 +11,7 @@ ext {
     androidxJunitVersion = '1.1.2'
     androidxEspressoCoreVersion = '3.3.0'
     cordovaAndroidVersion = '7.0.0'
-    googlePlayServicesLocationVersion = '19.0.1'
+    googlePlayServicesLocationVersion = '20.0.0'
 }
 
 
