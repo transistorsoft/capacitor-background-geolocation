@@ -900,6 +900,7 @@ export default class SettingsService {
 
     await BackgroundGeolocation.reset({
       transistorAuthorizationToken: token,
+      disableProviderChangeRecord: true,
       debug: true,
       logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
       desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
