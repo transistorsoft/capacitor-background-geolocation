@@ -1,6 +1,11 @@
 # Change Log
 
-## 4.8.2 &mdash; 2022-09-06 
+## 4.8.3 &mdash; 2022-09-14
+* [Android] Add new `Config.disableProviderChangeRecord (default false)` to allow disabling the automatical HTTP POST of the `onProviderChange` location record.  Some users do not want this automatically uploaded locatio
+n whenever the state of location-services is changed (eg: Location-services disabled, Airplane mode, etc).
+* [Android] Fix bug with `disableMotionActivityUpdates: true` and calling `.start()` followed immediately by `.changePace(true)`.  The SDK would fail to enter the moving state, entering the stationary state instead.
+
+## 4.8.2 &mdash; 2022-09-06
 * Add new iOS 15 `CLLocation` attribute `Location.ellipsoidal_altitude` *The altitude as a height above the World Geodetic System 1984 (WGS84) ellipsoid, measured in meters*.  Android `Location.altitude` has always returned *ellipsoidal altutude*, so both `Location.altitude` and `Location.ellipsoidal_altitude` will return the same value.
 
 ## 4.8.1 &mdash; 2022-08-08
