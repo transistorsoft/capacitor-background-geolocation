@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 4.8.3 &mdash; 2022-09-14
 * [Android] Add new `Config.disableProviderChangeRecord (default false)` to allow disabling the automatical HTTP POST of the `onProviderChange` location record.  Some users do not want this automatically uploaded locatio
 n whenever the state of location-services is changed (eg: Location-services disabled, Airplane mode, etc).
 * [Android] Fix bug with `disableMotionActivityUpdates: true` and calling `.start()` followed immediately by `.changePace(true)`.  The SDK would fail to enter the moving state, entering the stationary state instead.
