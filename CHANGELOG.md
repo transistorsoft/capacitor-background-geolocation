@@ -1,5 +1,17 @@
 # Change Log
 
+## 4.9.0 &mdash; 2022-09-29
+* [iOS] Build `TSLocationManager.xcframework` with *XCode 14*.
+* [Android] Add new Config `Notification.channelId` for custom customizing the `NotificationChannel` id.  Some use
+rs have an existing foreground-service and `NotificationChannel` so wish to have the plugin's foreground-service
+s share the same notification and channel.  This option should generally not be used.
+* [Android] Add permission `android.permission.POST_NOTIFICATIONS` for Android 13 (targetSdkVersion 33).  Requ
+ired to allow enabling notifications in Settings->Apps.
+* [Android] Add `null` check when executing `PowerManager.isPowerSaveMode()`
+* [Android] Add new Config option `Authorization.refreshHeaders` for full control over HTTP headers sent to `Author
+ization.refreshUrl` when refreshing auth token.
+
+
 ## 4.8.3 &mdash; 2022-09-14
 * [Android] Add new `Config.disableProviderChangeRecord (default false)` to allow disabling the automatical HTTP POST of the `onProviderChange` location record.  Some users do not want this automatically uploaded locatio
 n whenever the state of location-services is changed (eg: Location-services disabled, Airplane mode, etc).
