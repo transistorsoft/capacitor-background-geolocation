@@ -15,7 +15,7 @@ include ':capacitor-storage'
 project(':capacitor-storage').projectDir = new File('../node_modules/@capacitor/storage/android')
 
 include ':transistorsoft-capacitor-background-fetch'
-project(':transistorsoft-capacitor-background-fetch').projectDir = new File('../node_modules/@transistorsoft/capacitor-background-fetch/android')
+project(':transistorsoft-capacitor-background-fetch').projectDir = new File('../../../../capacitor-background-fetch/android')
 
 include ':transistorsoft-capacitor-background-geolocation'
 project(':transistorsoft-capacitor-background-geolocation').projectDir = new File('../../../android')
