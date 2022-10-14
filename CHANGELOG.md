@@ -1,5 +1,9 @@
 # Change Log
 
+## 4.9.1 &mdash; 2022-10-14
+* [iOS] Fix bug in iOS scheduler firing on days where it should not.
+* [iOS] Rebuild `TSLocationManager.xcframework` with *XCode 13* (instead of *XCode 14*).
+
 ## 4.9.0 &mdash; 2022-09-29
 * [iOS] Build `TSLocationManager.xcframework` with *XCode 14*.
 * [Android] Add new Config `Notification.channelId` for custom customizing the `NotificationChannel` id.  Some use
