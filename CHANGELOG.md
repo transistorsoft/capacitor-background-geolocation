@@ -1,5 +1,10 @@
 # Change Log
 
+## 4.9.2 &mdash; 2022-10-26
+* `getCurrentPosition` options not being sent to native code.
+* [Android] Fix logic error with `getCurrentPosition` not respecting `timeout`.
+* [Android] `play-services:location` has [introduced a breaking change](https://developers.google.com/android/guides/releases#october_13_2022) in `v21`, breaking the plugin.  `googlePlayServicesLocationVersion` will be capped with a maximum of `v20`.  The next major release (`4.10.0`) will set a minimum required version of `v21`.
+
 ## 4.9.1 &mdash; 2022-10-14
 * [iOS] Fix bug in iOS scheduler firing on days where it should not.
 * [iOS] Rebuild `TSLocationManager.xcframework` with *XCode 13* (instead of *XCode 14*).
