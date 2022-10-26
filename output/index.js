@@ -659,7 +659,7 @@ var capacitorBackgroundGeolocation = (function (core) {
         };
         BackgroundGeolocation.getCurrentPosition = function (options) {
             return new Promise(function (resolve, reject) {
-                NativeModule.getCurrentPosition(options).then(function (result) {
+                NativeModule.getCurrentPosition({ options: options }).then(function (result) {
                     resolve(result);
                 }).catch(function (error) {
                     reject(error.code);

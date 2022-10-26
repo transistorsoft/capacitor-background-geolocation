@@ -175,10 +175,13 @@ const AdvancedApp: React.FC = () => {
 
   /// Get Current Position button handler.
   const onClickGetCurrentPosition = () => {
-    settingsService.playSound('BUTTON_CLICK');
-
     BackgroundGeolocation.getCurrentPosition({
-      extras: {
+      persist: true,      // Persist this location and POST to server.
+      timeout: 30,         // Wait up to 30s for a location
+      desiredAccuracy: 60, // Satisfied with a location accuracy of 60 or less.
+      maximumAge: 10000,   // Satisfied up to 10s old.
+      samples: 3,          // Gather 3 samples
+      extras: {           // Arbitrary key/values appended to this location.
         getCurrentPosition: true
       }
     }).then((location) => {
