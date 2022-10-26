@@ -11,7 +11,7 @@ ext {
     androidxJunitVersion = '1.1.2'
     androidxEspressoCoreVersion = '3.3.0'
     cordovaAndroidVersion = '7.0.0'
-    googlePlayServicesLocationVersion = '20.0.0'
+    googlePlayServicesLocationVersion = '21.0.0'
 }
 
 

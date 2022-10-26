@@ -222,7 +222,7 @@ export default class BackgroundGeolocation {
 
   static getCurrentPosition(options:any) {
     return new Promise((resolve:Function, reject:Function) => {
-      NativeModule.getCurrentPosition(options).then((result:Location) => {
+      NativeModule.getCurrentPosition({options: options}).then((result:Location) => {
         resolve(result);
       }).catch((error:any) => {
         reject(error.code);
