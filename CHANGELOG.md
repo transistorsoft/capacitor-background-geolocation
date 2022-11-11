@@ -1,5 +1,8 @@
 # Change Log
 
+## 4.9.3 &mdash; 2022-11-11
+* Update peerDependencies `@capacitor/core: ^4.0.0`
+
 ## 4.9.2 &mdash; 2022-10-26
 * `getCurrentPosition` options not being sent to native code.
 * [Android] Fix logic error with `getCurrentPosition` not respecting `timeout`.
