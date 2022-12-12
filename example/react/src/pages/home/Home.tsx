@@ -28,7 +28,7 @@ import {
 import React from "react";
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import BackgroundGeolocation from "@transistorsoft/capacitor-background-geolocation";
 
@@ -83,7 +83,7 @@ const Home: React.FC = () => {
   React.useEffect(() => {
     if (defaultRoute === undefined) { return; }
 
-    Storage.set({key: 'page', value: defaultRoute});
+    Preferences.set({key: 'page', value: defaultRoute});
 
     if (defaultRoute !== '/home') {
       // Navigating somewhere else...
@@ -103,12 +103,12 @@ const Home: React.FC = () => {
     BackgroundGeolocation.getDeviceInfo().then((deviceInfo) => {
       setDeviceModel(deviceInfo.model);
     });
-    const org = await Storage.get({key: 'orgname'});
+    const org = await Preferences.get({key: 'orgname'});
     if (org.value !== null) {
       setOrg(org.value);
     }
 
-    const username = await Storage.get({key: 'username'});
+    const username = await Preferences.get({key: 'username'});
     if (username.value !== null) {
       setUsername(username.value);
     }
@@ -121,7 +121,7 @@ const Home: React.FC = () => {
     /// currently seleted app (/hello-world or /advanced).  The Home page is "hidden"
     /// by default so we don't see a brief flash of the Home view render before
     /// re-directing to the current app.
-    const page = await Storage.get({key: 'page'});
+    const page = await Preferences.get({key: 'page'});
     if (page.value !== null) {
       setDefaultRoute(page.value);
     } else {
@@ -160,7 +160,7 @@ const Home: React.FC = () => {
         // Will disclose for iOS devices?  NO!
         return resolve(false);
       }
-      const hasDisclosedBackgroundPermission = (await Storage.get({key: 'hasDisclosedBackgroundPermission'})).value === 'true';
+      const hasDisclosedBackgroundPermission = (await Preferences.get({key: 'hasDisclosedBackgroundPermission'})).value === 'true';
       resolve(!hasDisclosedBackgroundPermission);
       // If we've already disclosed, we're done here.
       if (hasDisclosedBackgroundPermission) { return; }
@@ -172,7 +172,7 @@ const Home: React.FC = () => {
           text: 'Close',
           handler: (e) => {
             // Now set a flag that we've disclosed to the user so this alert never gets shown again.
-            Storage.set({key: 'hasDisclosedBackgroundPermission', value: 'true'});
+            Preferences.set({key: 'hasDisclosedBackgroundPermission', value: 'true'});
             // And continue along with routing to the desired Page...
             setDefaultRoute(page);
           }

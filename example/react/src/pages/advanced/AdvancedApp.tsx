@@ -13,7 +13,7 @@ import {
 
 import React from "react";
 import { trash, navigate, home, play, pause } from "ionicons/icons";
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { useHistory } from 'react-router-dom';
 
 import BackgroundGeolocation, {
@@ -87,8 +87,8 @@ const AdvancedApp: React.FC = () => {
     subscribe(BackgroundGeolocation.onActivityChange(setMotionActivityEvent));
 
     // Fetch registered orgname / username from Storage so we can fetch an Auth token from the demo server
-    const org = (await Storage.get({key: 'orgname'})).value;
-    const username = (await Storage.get({key: 'username'})).value;
+    const org = (await Preferences.get({key: 'orgname'})).value;
+    const username = (await Preferences.get({key: 'username'})).value;
     if ((org === null) || (username === null)) {
       history.goBack();
       return;

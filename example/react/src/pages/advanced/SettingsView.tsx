@@ -31,7 +31,7 @@ import {
   radioButtonOn
 } from "ionicons/icons";
 
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import BackgroundGeolocation, {
   State,

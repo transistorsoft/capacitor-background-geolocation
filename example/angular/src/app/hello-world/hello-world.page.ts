@@ -11,7 +11,7 @@ import {
 
 import { Router } from '@angular/router';
 
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import BackgroundGeolocation, {
   Location,
@@ -89,8 +89,8 @@ export class HelloWorldPage implements OnInit, OnDestroy {
     this.subscribe(BackgroundGeolocation.onAuthorization(this.onAuthorization.bind(this)));
 
     // Compose #url: tracker.transistorsoft.com/locations/{username}
-    const orgname = (await Storage.get({key: 'orgname'})).value;
-    const username = (await Storage.get({key: 'username'})).value;
+    const orgname = (await Preferences.get({key: 'orgname'})).value;
+    const username = (await Preferences.get({key: 'username'})).value;
 
     const token:TransistorAuthorizationToken = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(
       orgname,

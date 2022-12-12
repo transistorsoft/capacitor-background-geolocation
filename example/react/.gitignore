@@ -26,3 +26,6 @@ yarn-error.log*
 
 # Optional eslint cache
 .eslintcache
+
+transistor_logback.db
+/tmp/*

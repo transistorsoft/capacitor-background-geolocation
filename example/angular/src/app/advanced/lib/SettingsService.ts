@@ -4,7 +4,7 @@ import {
 } from '@ionic/angular';
 import {Injectable} from "@angular/core";
 
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 const APP_SETTINGS = [
 
@@ -54,7 +54,7 @@ export class SettingsService {
   }
 
   async init() {
-    Storage.get({key: 'settings'}).then((result) => {
+    Preferences.get({key: 'settings'}).then((result) => {
       if (result.value) {
         this.loadState(result.value);
       } else {
@@ -446,8 +446,8 @@ export class SettingsService {
     await BackgroundGeolocation.addGeofences(geofences);
     await BackgroundGeolocation.resetOdometer();
 
-    const orgname = (await Storage.get({key: 'orgname'})).value;
-    const username = (await Storage.get({key: 'username'})).value;
+    const orgname = (await Preferences.get({key: 'orgname'})).value;
+    const username = (await Preferences.get({key: 'username'})).value;
     let token:TransistorAuthorizationToken = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(
       orgname,
       username,
@@ -498,7 +498,7 @@ export class SettingsService {
     this.myState = Object.assign({}, this.applicationState);
   }
   private saveState() {
-    Storage.set({key: 'settings', value: JSON.stringify(this.applicationState, null)});
+    Preferences.set({key: 'settings', value: JSON.stringify(this.applicationState, null)});
     this.myState = Object.assign({}, this.applicationState);
   }
 }

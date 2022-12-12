@@ -17,7 +17,7 @@ import {
 
 import React from "react";
 
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import { trash, navigate, home, play, pause } from "ionicons/icons";
 
@@ -126,8 +126,8 @@ const HelloWorld: React.FC = () => {
       addEvent('onPowerSaveChange', {isPowerSaveMode: enabled});
     }));
 
-    const org = (await Storage.get({key: 'orgname'})).value;
-    const username = (await Storage.get({key: 'username'})).value;
+    const org = (await Preferences.get({key: 'orgname'})).value;
+    const username = (await Preferences.get({key: 'username'})).value;
     if ((org === null) || (username === null)) {
       history.goBack();
       return;

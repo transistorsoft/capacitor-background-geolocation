@@ -1,7 +1,7 @@
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import React from "react";
 
 import { useIonAlert, useIonToast } from '@ionic/react';
