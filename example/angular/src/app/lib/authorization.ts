@@ -1,6 +1,6 @@
 import { Router} from '@angular/router';
 
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import BackgroundGeolocation, {
   HttpEvent,
@@ -14,8 +14,8 @@ import {environment} from "../../environments/environment";
 let onHttpSubscription:Subscription;
 
 export async function registerTransistor():Promise<TransistorAuthorizationToken> {
-  const orgname = (await Storage.get({key: 'orgname'})).value;
-  const username = (await Storage.get({key: 'username'})).value;
+  const orgname = (await Preferences.get({key: 'orgname'})).value;
+  const username = (await Preferences.get({key: 'username'})).value;
   if (orgname == null || username == null) {
   	//this.navCtrl.setRoot('HomePage');
   	return {
@@ -53,7 +53,7 @@ export async function registerTransistorAuthorizationListener(router:Router) {
         }
         break;
       case 410:
-        await Storage.remove({key: 'username'});
+        await Preferences.remove({key: 'username'});
         router.navigate(['/home']);
         break;
     }

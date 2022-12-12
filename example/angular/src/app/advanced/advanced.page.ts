@@ -10,7 +10,7 @@ import {
 
 import { Router} from '@angular/router';
 
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import {
   NavController,
@@ -244,8 +244,8 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
     /// A Big red border is rendered around view when the device is in "Power Saving Mode".
     this.state.containerBorder = (await BackgroundGeolocation.isPowerSaveMode()) ? CONTAINER_BORDER_POWER_SAVE_ON : CONTAINER_BORDER_POWER_SAVE_OFF;
 
-    const orgname = (await Storage.get({key: 'orgname'})).value;
-    const username = (await Storage.get({key: 'username'})).value;
+    const orgname = (await Preferences.get({key: 'orgname'})).value;
+    const username = (await Preferences.get({key: 'username'})).value;
 
     let token:TransistorAuthorizationToken = await
       BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(orgname, username,environment.TRACKER_HOST);
@@ -534,7 +534,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
     this.bgService.playSound('BUTTON_CLICK');
 
 
-    const email = (await Storage.get({key: 'settings:email'})).value;
+    const email = (await Preferences.get({key: 'settings:email'})).value;
     if (!email) {
       // Prompt user to enter a unique identifier for tracker.transistorsoft.com
       const prompt = await this.alertCtrl.create({
@@ -556,7 +556,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
             if (data.email.length < 1) {
               return;
             }
-            Storage.set({key: 'settings:email', value: data.email});
+            Preferences.set({key: 'settings:email', value: data.email});
             this.doEmailLog(data.email);
 
           }

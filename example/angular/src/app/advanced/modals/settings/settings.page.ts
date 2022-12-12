@@ -7,7 +7,7 @@ import {
   LoadingController
 } from "@ionic/angular";
 
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import BackgroundGeolocation, {
   Geofence,
@@ -89,7 +89,7 @@ export class SettingsPage implements OnInit {
   async init() {
 
   	// Load email address for email log
-    const email = (await Storage.get({key: 'settings:email'})).value;
+    const email = (await Preferences.get({key: 'settings:email'})).value;
     if (email) {
       this.email = email;
     }
@@ -270,7 +270,7 @@ export class SettingsPage implements OnInit {
 
   onUpdateEmail() {
     this.bgService.playSound('BUTTON_CLICK');
-    Storage.set({key: 'settings:email', value: this.email});
+    Preferences.set({key: 'settings:email', value: this.email});
   }
 
   onClickEmailLog() {
