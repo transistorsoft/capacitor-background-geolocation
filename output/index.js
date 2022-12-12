@@ -1084,4 +1084,4 @@ var capacitorBackgroundGeolocation = (function (core) {
 
     return BackgroundGeolocation;
 
-}(capacitorExports));
+})(capacitorExports);

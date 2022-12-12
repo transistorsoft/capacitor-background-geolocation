@@ -7,7 +7,7 @@ import {
   isPlatform
 } from '@ionic/angular';
 
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import { RegistrationPage } from './registration/registration.page';
 
@@ -65,8 +65,8 @@ export class HomePage {
 
     registerTransistorAuthorizationListener(this.router);
 
-    this.orgname = (await Storage.get({key: 'orgname'})).value;
-    this.username = (await Storage.get({key: 'username'})).value;
+    this.orgname = (await Preferences.get({key: 'orgname'})).value;
+    this.username = (await Preferences.get({key: 'username'})).value;
 
     this.url = environment.TRACKER_HOST;
     if (this.isValid(this.orgname)) {
@@ -116,7 +116,7 @@ export class HomePage {
     }
 
     // Persist the selected page.
-    await Storage.set({key: 'page', value: app});
+    await Preferences.set({key: 'page', value: app});
 
     this.router.navigate(['/' + app]);
   }
@@ -140,7 +140,7 @@ export class HomePage {
         // Will disclose for iOS devices?  NO!
         return resolve(false);
       }
-      const hasDisclosedBackgroundPermission = (await Storage.get({key: 'hasDisclosedBackgroundPermission'})).value === 'true';
+      const hasDisclosedBackgroundPermission = (await Preferences.get({key: 'hasDisclosedBackgroundPermission'})).value === 'true';
       resolve(!hasDisclosedBackgroundPermission);
       // If we've already disclosed, we're done here.
       if (hasDisclosedBackgroundPermission) { return; }
@@ -152,7 +152,7 @@ export class HomePage {
           text: 'Close',
           handler: (e) => {
             // Now set a flag that we've disclosed to the user so this alert never gets shown again.
-            Storage.set({key: 'hasDisclosedBackgroundPermission', value: 'true'});
+            Preferences.set({key: 'hasDisclosedBackgroundPermission', value: 'true'});
             // And continue along with routing to the desired Page...
             this.onClickNavigate(page);
           }
@@ -167,7 +167,7 @@ export class HomePage {
 
   /*
   private async willDiscloseBackgroundPermission(routeName):Promise<boolean> {
-    const hasDisclosedBackgroundPermission = (await Storage.get({key: 'hasDisclosedBackgroundPermission'})).value;
+    const hasDisclosedBackgroundPermission = (await Preferences.get({key: 'hasDisclosedBackgroundPermission'})).value;
 
     if (!hasDisclosedBackgroundPermission) {
       this.alertCtrl.create({
@@ -179,7 +179,7 @@ export class HomePage {
       }).then(async (alert:any) => {
         alert.present();
         alert.onDidDismiss().then(async () => {
-          await Storage.set({key: 'hasDisclosedBackgroundPermission', value: 'true'});
+          await Preferences.set({key: 'hasDisclosedBackgroundPermission', value: 'true'});
           this.onClickNavigate(routeName);
         });
       });

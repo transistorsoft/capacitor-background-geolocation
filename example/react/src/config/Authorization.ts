@@ -1,4 +1,4 @@
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import BackgroundGeolocation, {
   TransistorAuthorizationToken,
@@ -16,8 +16,8 @@ async function register(navigation:any):Promise<TransistorAuthorizationToken> {
   console.log('[TransistorAuth] this device requires reqistration');
   await BackgroundGeolocation.destroyTransistorAuthorizationToken(ENV.TRACKER_HOST);
 
-  let orgname = (await Storage.get({key: "orgname"})).value;
-  let username = (await Storage.get({key: "username"})).value;
+  let orgname = (await Preferences.get({key: "orgname"})).value;
+  let username = (await Preferences.get({key: "username"})).value;
   if (orgname == null || username == null) {
     // TODO
     //Util.navigateHome(navigation);
@@ -49,7 +49,7 @@ async function goHome(navigation:any) {
   // Our authorization token doesn't seem to be valid anymore.  Re-register this device by removing username
   // and forcing user to the HomeScreen.
   console.log('[TransistorAuth] It seems this device has been destroyed from tracker.transistorsoft.com.  The authentication token is no longer valid.  Redirecting to Home page.');
-  await Storage.remove({key: 'username'});
+  await Preferences.remove({key: 'username'});
   navigation.goBack();
 }
 

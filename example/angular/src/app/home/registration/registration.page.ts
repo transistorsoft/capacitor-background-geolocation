@@ -6,7 +6,7 @@ import {
 	Platform
 } from '@ionic/angular';
 
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import BackgroundGeolocation from "../../capacitor-background-geolocation";
 
@@ -72,8 +72,8 @@ export class RegistrationPage implements OnInit {
       transistorAuthorizationToken: token
     });
 
-    await Storage.set({key: 'orgname', value: this.orgname});
-    await Storage.set({key: 'username', value: this.username});
+    await Preferences.set({key: 'orgname', value: this.orgname});
+    await Preferences.set({key: 'username', value: this.username});
 
     this.modalController.dismiss({
     	orgname: this.orgname,

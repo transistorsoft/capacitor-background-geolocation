@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { LoadingController } from '@ionic/angular';
 import { PreloadAllModules, RouterModule, Routes, Router, NavigationEnd } from '@angular/router';
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import {environment} from "../environments/environment";
 
@@ -37,7 +37,7 @@ export class AppRoutingModule {
       if (!(event instanceof NavigationEnd)) return;
       const root = event.url.substring(1, event.url.length);
       if (root.length > 0) {
-        await Storage.set({key: 'page', value: root});
+        await Preferences.set({key: 'page', value: root});
       }
     });
   }
@@ -45,9 +45,9 @@ export class AppRoutingModule {
   async init(router:Router, loadingCtrl:LoadingController) {
     await this.loadGoogleMaps(loadingCtrl);
     // Navigate to current App (or /home).
-    const page = (await Storage.get({key: 'page'})).value;
-    const orgname = (await Storage.get({key: 'orgname'})).value;
-    const username = (await Storage.get({key: 'username'})).value;
+    const page = (await Preferences.get({key: 'page'})).value;
+    const orgname = (await Preferences.get({key: 'orgname'})).value;
+    const username = (await Preferences.get({key: 'username'})).value;
     const isRegistered = ((orgname !== null) && (username !== null));
     if (page && isRegistered) {
       router.navigate(['/' + page]);
