@@ -4,11 +4,10 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.1'
-        classpath 'com.google.gms:google-services:4.3.5'
+        classpath 'com.android.tools.build:gradle:7.2.1'
+        classpath 'com.google.gms:google-services:4.3.13'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -21,7 +20,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
         // capacitor-background-geolocation
         maven {
             url("${project(':transistorsoft-capacitor-background-geolocation').projectDir}/libs")
@@ -36,3 +34,4 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+

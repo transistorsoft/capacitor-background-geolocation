@@ -9,7 +9,7 @@
 
 import React from 'react'
 
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import BackgroundGeolocation, {
   State,
@@ -359,7 +359,7 @@ export default class SettingsService {
 
   /**
   * Application settings change handler method used in SettingsView.  This method buffers change-events by 500ms.
-  * When the buffer timer expires, the change will be persisted in AsyncStorage.
+  * When the buffer timer expires, the change will be persisted in AsyncPreferences.
   * NOTE:  This is only for "application" settings -- not BackgroundGeolocation settings.
   * @param {Object} setting
   * @param {Mixed} value
@@ -889,8 +889,8 @@ export default class SettingsService {
     await BackgroundGeolocation.addGeofences(geofences);
     await BackgroundGeolocation.resetOdometer();
 
-    const orgname = (await Storage.get({key: 'orgname'})).value;
-    const username = (await Storage.get({key: 'username'})).value;
+    const orgname = (await Preferences.get({key: 'orgname'})).value;
+    const username = (await Preferences.get({key: 'username'})).value;
 
     if ((username === null) || (orgname === null)) {
       throw "Attempt to create transistorAuthorizationToken with null orgname or username";
@@ -973,7 +973,7 @@ export default class SettingsService {
   * @param {Function} callback
   */
   _loadApplicationState(callback?:Function) {
-    Storage.get({key: "settings"}).then((result) => {
+    Preferences.get({key: "settings"}).then((result) => {
       if (result.value) {
         this.applicationState = JSON.parse(result.value);
       } else {
@@ -990,6 +990,6 @@ export default class SettingsService {
   * Persist the application settings to AsyncStorage
   */
   _saveState() {
-    Storage.set({key: "settings", value: JSON.stringify(this.applicationState, null)});
+    Preferences.set({key: "settings", value: JSON.stringify(this.applicationState, null)});
   }
 }

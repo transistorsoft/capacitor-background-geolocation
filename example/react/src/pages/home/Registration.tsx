@@ -16,7 +16,7 @@ import {
 
 import React from "react";
 import { personAddOutline } from "ionicons/icons";
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 
 import BackgroundGeolocation, {
   Subscription,
@@ -74,8 +74,8 @@ const Registration: React.FC = (props:any) => {
     });
 
     // Persist our credentials.
-    Storage.set({key: 'orgname', value: orgname});
-    Storage.set({key: 'username', value: username});
+    Preferences.set({key: 'orgname', value: orgname});
+    Preferences.set({key: 'username', value: username});
 
     // Back to /home
     props.onRegister({
