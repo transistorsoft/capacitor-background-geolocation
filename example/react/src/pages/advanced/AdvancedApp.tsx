@@ -61,6 +61,13 @@ const AdvancedApp: React.FC = () => {
   const [clickBufferTimeout, setClickBufferTimeout] = React.useState<any>(0);
 
   React.useEffect(() => {
+    BackgroundGeolocation.onActivityChange((event) => {
+      console.log('*** [onActivityChange] ', event, event.activity);
+    });
+    BackgroundGeolocation.onLocation((location) => {
+      console.log("*** [onLocation] ", location.activity, location.activity.type);
+    });
+
     registerTransistorAuthorizationListener(history);
     initBackgroundGeolocation();
     return () => {
