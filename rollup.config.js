@@ -23,7 +23,8 @@ export default {
     copy({
       targets: [
         { src: 'src/index.d.ts', dest: 'dist' },
-        { src: 'src/declarations/**/*', dest: 'dist/declarations'}
+        //{ src: 'src/declarations/**/*', dest: 'dist/declarations'}
+        { src: 'src/declarations', dest: 'dist'}
       ]
     })
   ],
