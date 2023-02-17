@@ -37,7 +37,8 @@ A number of other **`ext`** variables are available but should generally not nee
 
 | Option             | Default     | Description |
 |--------------------|------------|--------------|
-|`googlePlayServicesLocationVersion`  | `19.0.1` | `com.google.android.gms:play-services-location` |
+|`googlePlayServicesLocationVersion`  | `20.0.0` | `com.google.android.gms:play-services-location` |
+|`hmsLocationVersion`  | `6.0.0.302` | `com.huawei.hms:location` (When running on Huawei HMS devices)|
 |`okHttpVersion`     | `4.9.1`    | *BackgroundGeolocation* uses the excellent [okhttp](https://square.github.io/okhttp/) framework for its HTTP Service |
 |`localBroadcastManagerVersion`  | `1.0.0` | `androidx.localbroadcastmanager:localbroadcastmanager` |
 
@@ -121,6 +122,27 @@ If you've **not** [purchased a license](https://www.transistorsoft.com/shop/prod
     .
   </application>
 </manifest>
-
 ```
+
+### Huawei Mobile Services (HMS) Support
+
+If you've [purchased an *HMS Background Geolocation* License](https://shop.transistorsoft.com/collections/frontpage/products/huawei-background-geolocation) for installing the plugin on _Huawei_ devices without *Google Play Services* installed, add your *HMS Background Geolocation* license key:
+
+```diff
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.your.package.id">
+
+  <application>
+    <!-- capacitor-background-geolocation licence key -->
+    <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="YOUR_LICENCE_KEY_HERE" />
+    <!-- HMS Background Geolocation licence -->
++   <meta-data android:name="com.transistorsoft.locationmanager.hms.license" android:value="YOUR_HMS_LICENCE_KEY_HERE" />
+    .
+    .
+    .
+  </application>
+</manifest>
+```
+:warning: Huawei HMS support requires `capacitor-background-geolocation >= 3.11.0`.
+
 
