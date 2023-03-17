@@ -19,6 +19,7 @@ import com.transistorsoft.locationmanager.adapter.TSConfig;
 import com.transistorsoft.locationmanager.adapter.callback.TSActivityChangeCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSBackgroundTaskCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSCallback;
+import com.transistorsoft.locationmanager.adapter.callback.TSAuthorizationCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSConnectivityChangeCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSEmailLogCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSEnabledChangeCallback;
@@ -48,6 +49,7 @@ import com.transistorsoft.locationmanager.data.SQLQuery;
 import com.transistorsoft.locationmanager.device.DeviceInfo;
 import com.transistorsoft.locationmanager.device.DeviceSettingsRequest;
 import com.transistorsoft.locationmanager.event.ActivityChangeEvent;
+import com.transistorsoft.locationmanager.event.AuthorizationEvent;
 import com.transistorsoft.locationmanager.event.ConnectivityChangeEvent;
 import com.transistorsoft.locationmanager.event.GeofenceEvent;
 import com.transistorsoft.locationmanager.event.GeofencesChangeEvent;
@@ -56,6 +58,7 @@ import com.transistorsoft.locationmanager.event.LocationProviderChangeEvent;
 import com.transistorsoft.locationmanager.event.TerminateEvent;
 import com.transistorsoft.locationmanager.geofence.TSGeofence;
 import com.transistorsoft.locationmanager.http.HttpResponse;
+import com.transistorsoft.locationmanager.http.HttpService;
 import com.transistorsoft.locationmanager.location.TSCurrentPositionRequest;
 import com.transistorsoft.locationmanager.location.TSLocation;
 import com.transistorsoft.locationmanager.location.TSWatchPositionRequest;
@@ -1093,11 +1096,17 @@ public class BackgroundGeolocationPlugin extends Plugin {
             }
         });
 
-
         bgGeo.onSchedule(new TSScheduleCallback() {
             @Override
             public void onSchedule(ScheduleEvent event) {
                 handleEvent(BackgroundGeolocation.EVENT_SCHEDULE, event.getState());
+            }
+        });
+
+        HttpService.getInstance(getContext()).onAuthorization(new TSAuthorizationCallback() {
+            @Override
+            public void onResponse(AuthorizationEvent event) {
+                handleEvent(BackgroundGeolocation.EVENT_AUTHORIZATION, event.toJson());
             }
         });
     }
