@@ -84,6 +84,10 @@ const AdvancedApp: React.FC = () => {
       setIsMoving(location.isMoving);
     }));
 
+    subscribe(BackgroundGeolocation.onAuthorization((event) => {
+      console.log("[onAuthorization]", event);
+    }));
+
     subscribe(BackgroundGeolocation.onActivityChange(setMotionActivityEvent));
 
     // Fetch registered orgname / username from Storage so we can fetch an Auth token from the demo server
@@ -99,7 +103,7 @@ const AdvancedApp: React.FC = () => {
 
     BackgroundGeolocation.ready({
       // Debugging.
-      reset: false,
+      reset: false,  // <-- !! DO NOT USE THIS IN YOUR OWN APP UNLESS YOUR REALLY KNOW WHAT THIS DOES !!
       debug: true,
       logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
       transistorAuthorizationToken: token,
