@@ -1,5 +1,8 @@
 # Change Log
 
+## 4.10.1 &mdash; 2023-03-17
+* [Fixed][Android] Android plugin was missing implementation for onAuthorization event handler.
+
 ## 4.10.0 &mdash; 2023-02-01
 * [Fixed][Android] Implement support for `play-services-location v21` (`ext.playServicesLocationVersion` in your `android/build.gradle`).  The plugin can now work with either `<= v20` or `>= v21`.
 
