@@ -2,6 +2,8 @@
 
 ## 4.11.0 &mdash; 2023-03-27
 * [Android] Introduce __Huawei HMS Support__.  Requires a separate license key [purchased here](https://shop.transistorsoft.com/collections/frontpage/products/huawei-background-geolocation).
+* [iOS] Fix for iOS 16.4.  iOS 16.4 introduces changes to CoreLocation behaviour when using Config.showsBackgroundLocationIndi
+cator: false.
 
 ## 4.10.1 &mdash; 2023-03-17
 * [Fixed][Android] Android plugin was missing implementation for onAuthorization event handler.
