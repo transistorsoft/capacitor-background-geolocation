@@ -13,7 +13,7 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
-import com.google.android.gms.common.GoogleApiAvailability;
+import com.transistorsoft.xms.g.common.ExtensionApiAvailability;
 import com.transistorsoft.locationmanager.adapter.BackgroundGeolocation;
 import com.transistorsoft.locationmanager.adapter.TSConfig;
 import com.transistorsoft.locationmanager.adapter.callback.TSActivityChangeCallback;
@@ -103,7 +103,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     private void handlePlayServicesConnectError(Integer errorCode) {
         Activity activity = getActivity();
-        GoogleApiAvailability.getInstance().getErrorDialog(activity, errorCode, 1001).show();
+        ExtensionApiAvailability.getInstance().getErrorDialog(activity, errorCode, 1001).show();
     }
 
     @PluginMethod()
