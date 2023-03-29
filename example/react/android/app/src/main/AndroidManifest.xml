@@ -28,7 +28,7 @@
         </activity>
 
         <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="96453dbb4ab9365552809eb60147876b07d54aa0eb61a8b7be01095782897336" />
-
+        <meta-data android:name="com.transistorsoft.locationmanager.hms.license" android:value="d10b4994830af3b62aabb6577b60f6e9bb3aa7357155b7c6f83082d8a47fe890" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
