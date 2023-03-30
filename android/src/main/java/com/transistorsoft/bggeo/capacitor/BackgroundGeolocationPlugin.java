@@ -988,7 +988,11 @@ public class BackgroundGeolocationPlugin extends Plugin {
         bgGeo.onLocation(new TSLocationCallback() {
             @Override
             public void onLocation(TSLocation tsLocation) {
-                handleEvent(BackgroundGeolocation.EVENT_LOCATION, tsLocation.toJson());
+                try {
+                    handleEvent(BackgroundGeolocation.EVENT_LOCATION, tsLocation.toJson());
+                } catch (JSONException e) {
+                    TSLog.logger.error(e.getMessage(), e);
+                }
             }
 
             @Override
@@ -1005,8 +1009,12 @@ public class BackgroundGeolocationPlugin extends Plugin {
                 if (!hasListeners(BackgroundGeolocation.EVENT_MOTIONCHANGE)) return;
                 JSObject params = new JSObject();
                 params.put("isMoving", location.getIsMoving());
-                params.put("location", location.toJson());
-                notifyListeners(BackgroundGeolocation.EVENT_MOTIONCHANGE, params);
+                try {
+                    params.put("location", location.toJson());
+                    notifyListeners(BackgroundGeolocation.EVENT_MOTIONCHANGE, params);
+                } catch (JSONException e) {
+                    TSLog.logger.error(e.getMessage(), e);
+                }
             }
             @Override public void onError(Integer integer) {
                 if (!hasListeners(BackgroundGeolocation.EVENT_MOTIONCHANGE)) return;
