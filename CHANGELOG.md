@@ -1,5 +1,8 @@
 # Change Log
 
+## 4.11.2 &mdash; 2023-04-05
+* [iOS] Fix bug in TSScheduler.  When schedule was cleared via .setConfig, only the State.schedulerEnabled property was set to false, but the TSScheduler singleton contained an internal 'enabled' property which was not reset to false.  Solution was to simply call stop() method upon TSScheduler singleton.
+
 ## 4.11.1 &mdash; 2023-03-30
 * [Android] Bump default `hmsLocationVersion = 6.9.0.300`.  There are reports of Google rejecting apps due to older huawei HMS dependenc
 ies.
