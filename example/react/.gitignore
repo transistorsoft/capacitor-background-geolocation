@@ -29,3 +29,6 @@ yarn-error.log*
 
 transistor_logback.db
 /tmp/*
+
+# Ignore release keystore
+android/app/release.keystore
