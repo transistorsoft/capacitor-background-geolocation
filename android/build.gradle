@@ -40,6 +40,8 @@ def DEFAULT_EVENTBUS_VERSION                        = "3.3.1"
 def DEFAULT_LOCAL_BROADCAST_MANAGER_VERSION         = "1.0.0"
 def DEFAULT_LIFE_CYCLE_RUNTIME_VERSION              = "2.4.1"
 def DEFAULT_LIFE_CYCLE_EXTENSIONS_VERSION           = "2.2.0"
+def DEFAULT_LOGBACK_VERSION                         = "3.0.0"
+def DEFAULT_SLF4J_VERSION                           = "2.0.7"
 
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
@@ -86,6 +88,8 @@ dependencies {
 
     def lifeCycleRuntimeVersion = safeExtGet('lifeCycleRuntimeVersion', DEFAULT_LIFE_CYCLE_RUNTIME_VERSION)
     def lifeCycleExtensionsVersion = safeExtGet('lifeCycleExtensionsVersion', DEFAULT_LIFE_CYCLE_EXTENSIONS_VERSION)
+    def logbackVersion = safeExtGet('logbackVersion', DEFAULT_LOGBACK_VERSION);
+    def slf4jVersion = safeExtGet('slf4jVersion', DEFAULT_SLF4J_VERSION);
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':capacitor-android')
@@ -110,8 +114,11 @@ dependencies {
 
     api "org.greenrobot:eventbus:$eventBusVersion"
     api "com.squareup.okhttp3:okhttp:$okHttpVersion"
-    implementation 'org.slf4j:slf4j-api:1.7.36'
-    implementation 'com.github.tony19:logback-android:2.0.1'
+    
+    // logback-android
+    implementation "com.github.tony19:logback-android:$logbackVersion"
+    implementation "org.slf4j:slf4j-api:$slf4jVersion"
+
     implementation "io.github.nishkarsh:android-permissions:$androidPermissionsVersion"
     // LifeCycleObserver
     implementation "androidx.lifecycle:lifecycle-runtime:$lifeCycleRuntimeVersion"
