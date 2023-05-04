@@ -48,6 +48,10 @@ def safeExtGet(prop, fallback) {
 }
 
 android {
+    if (project.android.hasProperty("namespace")) {
+        namespace("com.transistorsoft.bggeo.capacitor")
+    }
+
     compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
     defaultConfig {
         minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 21
