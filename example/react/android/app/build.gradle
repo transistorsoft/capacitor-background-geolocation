@@ -3,10 +3,8 @@ apply plugin: 'com.android.application'
 Project background_geolocation = project(':transistorsoft-capacitor-background-geolocation')
 apply from: "${background_geolocation.projectDir}/app.gradle"
 
-
-println("************* CAPACITOR_DEMO_RELEASE_STORE_FILE? ${project.hasProperty('CAPACITOR_DEMO_RELEASE_STORE_FILE')}");
-
 android {
+    namespace "com.transistorsoft.backgroundgeolocation.capacitor"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.transistorsoft.backgroundgeolocation.capacitor"

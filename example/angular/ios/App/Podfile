@@ -12,7 +12,7 @@ def capacitor_pods
   pod 'CapacitorApp', :path => '../../node_modules/@capacitor/app'
   pod 'CapacitorHaptics', :path => '../../node_modules/@capacitor/haptics'
   pod 'CapacitorKeyboard', :path => '../../node_modules/@capacitor/keyboard'
-  pod 'CapacitorStorage', :path => '../../node_modules/@capacitor/storage'
+  pod 'CapacitorPreferences', :path => '../../node_modules/@capacitor/preferences'
   pod 'TransistorsoftCapacitorBackgroundFetch', :path => '../../node_modules/@transistorsoft/capacitor-background-fetch'
   pod 'TransistorsoftCapacitorBackgroundGeolocation', :path => '../../../..'
 end
