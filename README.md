@@ -28,6 +28,10 @@ The **[Android module](http://www.transistorsoft.com/shop/products/capacitor-bac
 ![Home](https://dl.dropboxusercontent.com/s/wa43w1n3xhkjn0i/home-framed-350.png?dl=1)
 ![Settings](https://dl.dropboxusercontent.com/s/8oad228siog49kt/settings-framed-350.png?dl=1)
 
+> ### :rotating_light: This plugin requires Capacitor 5 :rotating_light:
+>
+> For Capacitor 4, use the 4.x version of the plugin.
+
 # Contents
 - ### 😫 [Help!](../../wiki/Help)
 - ### :books: [API Documentation](https://transistorsoft.github.io/capacitor-background-geolocation)
