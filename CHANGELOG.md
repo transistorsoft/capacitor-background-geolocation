@@ -1,5 +1,8 @@
 # Change Log
 
+## 5.0.0 &mdash; 2023-05-12
+* Capacitor 5 support.  For Capacitor 4, you must use `v4.x`
+
 ## 4.12.0 &mdash; 2023-05-04
 * [Android] Gradle v8 now requires `namespace` attribute in gradle files.
 * [iOS] iOS 16.4 made a major change to location-services, exposed only when `Config.showsBackgroundLocationIndicator` is `false` (the default).  As a result of this change, `Config.showsBackgroundLocationIndicator` will now default to `true`.

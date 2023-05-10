@@ -5,6 +5,7 @@ apply from: "${background_geolocation.projectDir}/app.gradle"
 
 
 android {
+    namespace "com.transistorsoft.backgroundgeolocation.capacitor"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.transistorsoft.backgroundgeolocation.capacitor"
