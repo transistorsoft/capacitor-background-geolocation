@@ -2,22 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.transistorsoft.customtask</string>
 		<string>com.transistorsoft.fetch</string>
 	</array>
-	<key>NSMotionUsageDescription</key>
-	<string>Motion permission helps detect when device in in-motion</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Location required when app is in use</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Location required in background</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -38,9 +27,19 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Location required in background</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location required when app is in use</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Motion permission helps detect when device in in-motion</string>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>audio</string>
 		<string>fetch</string>
 		<string>location</string>
 		<string>processing</string>
