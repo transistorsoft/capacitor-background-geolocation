@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    >
-
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -43,4 +41,7 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Added for background-geolocation for SDK >= 34:  Allows scheduling of exact alarms with AlarmManager -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" android:minSdkVersion="34"/>
+
 </manifest>
