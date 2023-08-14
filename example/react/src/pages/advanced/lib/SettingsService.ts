@@ -596,7 +596,7 @@ export default class SettingsService {
   */
   async applyTestConfig() {
     let geofences = [{
-      "identifier": "[RN] Home",
+      "identifier": "[CAP] Home",
       "radius": 200.0,
       "latitude": 45.51872221233045,
       "longitude": -73.60041976465013,
@@ -612,7 +612,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Parc Outremont",
+      "identifier": "[CAP] Parc Outremont",
       "radius": 200.0,
       "latitude": 45.51791915253888,
       "longitude": -73.60480434117284,
@@ -628,7 +628,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] 5 Saison",
+      "identifier": "[CAP] 5 Saison",
       "radius": 200.0,
       "latitude": 45.52193435702239,
       "longitude": -73.60793815706307,
@@ -644,7 +644,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Laj",
+      "identifier": "[CAP] Laj",
       "radius": 200.0,
       "latitude": 45.52011166353691,
       "longitude": -73.61188565687189,
@@ -660,7 +660,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Park Beaubien",
+      "identifier": "[CAP] Park Beaubien",
       "radius": 200.0,
       "latitude": 45.51536622906458,
       "longitude": -73.60916110960558,
@@ -676,7 +676,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Parc & Fairmount",
+      "identifier": "[CAP] Parc & Fairmount",
       "radius": 200.0,
       "latitude": 45.5204308608878,
       "longitude": -73.59730225310089,
@@ -692,7 +692,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Parc Couches Tard",
+      "identifier": "[CAP] Parc Couches Tard",
       "radius": 200.0,
       "latitude": 45.51744539760233,
       "longitude": -73.5908963928221,
@@ -708,7 +708,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Laurier & Côtes Saint Catherines",
+      "identifier": "[CAP] Laurier & Côtes Saint Catherines",
       "radius": 200.0,
       "latitude": 45.51602235252262,
       "longitude": -73.59890979915006,
@@ -724,7 +724,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Mountain 1",
+      "identifier": "[CAP] Mountain 1",
       "radius": 200.0,
       "latitude": 45.51339446482965,
       "longitude": -73.5890430151955,
@@ -740,7 +740,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Mountain 2",
+      "identifier": "[CAP] Mountain 2",
       "radius": 200.0,
       "latitude": 45.511936585973096,
       "longitude": -73.59662309075495,
@@ -756,7 +756,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Mountain 3",
+      "identifier": "[CAP] Mountain 3",
       "radius": 200.0,
       "latitude": 45.50873361477508,
       "longitude": -73.59089814860727,
@@ -772,7 +772,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Mountain 4",
+      "identifier": "[CAP] Mountain 4",
       "radius": 200.0,
       "latitude": 45.50414694296492,
       "longitude": -73.5916710539562,
@@ -788,7 +788,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Mountain 5",
+      "identifier": "[CAP] Mountain 5",
       "radius": 200.0,
       "latitude": 45.50491473767328,
       "longitude": -73.58654527405864,
@@ -804,7 +804,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Mountain Lake",
+      "identifier": "[CAP] Mountain Lake",
       "radius": 200.0,
       "latitude": 45.49860916086097,
       "longitude": -73.59621565704647,
@@ -820,7 +820,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Park JFK",
+      "identifier": "[CAP] Park JFK",
       "radius": 200.0,
       "latitude": 45.52135522992923,
       "longitude": -73.61568446341691,
@@ -836,7 +836,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Rope Park",
+      "identifier": "[CAP] Rope Park",
       "radius": 200.0,
       "latitude": 45.51335215591131,
       "longitude": -73.58016477295465,
@@ -852,7 +852,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Cafe Union",
+      "identifier": "[CAP] Cafe Union",
       "radius": 200.0,
       "latitude": 45.5332674993574,
       "longitude": -73.61939297593483,
@@ -868,7 +868,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[RN] Park Laurier",
+      "identifier": "[CAP] Park Laurier",
       "radius": 200.0,
       "latitude": 45.53237479609443,
       "longitude": -73.58741778627864,
