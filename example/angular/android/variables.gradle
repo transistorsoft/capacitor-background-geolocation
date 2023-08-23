@@ -11,4 +11,8 @@ ext {
     androidxJunitVersion = '1.1.5'
     androidxEspressoCoreVersion = '3.5.1'
     cordovaAndroidVersion = '10.1.1'
+    playServicesLocationVersion = '21.0.1'
+    hmsLocationVersion = "6.9.0.300"
+    coreSplashScreenVersion = '1.0.0'
+    androidxWebkitVersion = '1.6.1'
 }

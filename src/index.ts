@@ -220,7 +220,8 @@ export default class BackgroundGeolocation {
     });
   }
 
-  static getCurrentPosition(options:any) {
+  static getCurrentPosition(options:Object) {
+    options = options || {};
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.getCurrentPosition({options: options}).then((result:Location) => {
         resolve(result);

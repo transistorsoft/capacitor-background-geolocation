@@ -1,6 +1,6 @@
 {
   "name": "@transistorsoft/capacitor-background-geolocation",
-  "version": "5.0.0",
+  "version": "5.1.1",
   "description": "The most sophisticated cross platform Capacitor background location tracking & geofencing module with battery-conscious motion-detection intelligence",
   "main": "dist/plugin.cjs.js",
   "module": "dist/index.js",
@@ -54,7 +54,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@transistorsoft/capacitor-background-fetch": "^5.0.0"
+    "@transistorsoft/capacitor-background-fetch": "^5.1.1"
   },
   "devDependencies": {
     "@transistorsoft/typedoc-theme": "^2.0.9",

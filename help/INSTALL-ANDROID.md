@@ -29,7 +29,7 @@ ext {
     .
 +   compileSdkVersion = 31  // Or higher
 +   // capacitor-background-geolocation variables
-+   googlePlayServicesLocationVersion = '20.0.0'
++   playServicesLocationVersion = '20.0.0'
 }
 ```
 
@@ -37,7 +37,7 @@ A number of other **`ext`** variables are available but should generally not nee
 
 | Option             | Default     | Description |
 |--------------------|------------|--------------|
-|`googlePlayServicesLocationVersion`  | `20.0.0` | `com.google.android.gms:play-services-location` |
+|`playServicesLocationVersion`  | `20.0.0` | `com.google.android.gms:play-services-location` |
 |`hmsLocationVersion`  | `6.0.0.302` | `com.huawei.hms:location` (When running on Huawei HMS devices)|
 |`okHttpVersion`     | `4.9.1`    | *BackgroundGeolocation* uses the excellent [okhttp](https://square.github.io/okhttp/) framework for its HTTP Service |
 |`localBroadcastManagerVersion`  | `1.0.0` | `androidx.localbroadcastmanager:localbroadcastmanager` |
@@ -62,13 +62,10 @@ allprojects {
         mavenCentral()
 
 +       // capacitor-background-geolocation
-+       maven {
-+         url("${project(':transistorsoft-capacitor-background-geolocation').projectDir}/libs")
-+       }
++       maven { url("${project(':transistorsoft-capacitor-background-geolocation').projectDir}/libs") }
++       maven { url 'https://developer.huawei.com/repo/' }
 +       // capacitor-background-fetch
-+       maven {
-+         url("${project(':transistorsoft-capacitor-background-fetch').projectDir}/libs")
-+       }
++       maven { url("${project(':transistorsoft-capacitor-background-fetch').projectDir}/libs") }
     }
 }
 ```
@@ -144,5 +141,22 @@ If you've [purchased an *HMS Background Geolocation* License](https://shop.trans
 </manifest>
 ```
 :warning: Huawei HMS support requires `capacitor-background-geolocation >= 3.11.0`.
+
+## `AlarmManager` "Exact Alarms" (optional)
+
+The plugin uses __`AlarmManager`__ "exact alarms" for precise scheduling of events (eg: __`Config.stopTimeout`__, __`Config.motionTriggerDelay`__, __`Config.schedule`__).  *Android 14 (SDK 34)*, has restricted usage of ["`AlarmManager` exact alarms"](https://developer.android.com/about/versions/14/changes/schedule-exact-alarms).  To continue using precise timing of events with *Android 14*, you can manually add this permission to your __`AndroidManifest`__.  Otherwise, the plugin will gracefully fall-back to "*in-exact* `AlarmManager` scheduling".  For more information about Android's __`AlarmManager`__, see the [Android API Docs](https://developer.android.com/training/scheduling/alarms).
+
+:open_file_folder: In your __`AndroidManifest`__, add the following permission (**exactly as-shown**):
+
+```xml
+  <manifest>
+      <uses-permission android:minSdkVersion="34" android:name="android.permission.USE_EXACT_ALARM" />
+      .
+      .
+      .
+  </manifest>
+```
+:warning: It has been announced that *Google Play Store* [has plans to impose greater scrutiny](https://support.google.com/googleplay/android-developer/answer/13161072?sjid=3640341614632608469-NA) over usage of this permission (which is why the plugin does not automatically add it).
+
 
 
