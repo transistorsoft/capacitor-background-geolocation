@@ -22,6 +22,8 @@ import BackgroundGeolocation, {
   Subscription
 } from "@transistorsoft/capacitor-background-geolocation";
 
+import {BackgroundFetch} from "@transistorsoft/capacitor-background-fetch";
+
 import {ENV} from "../../config/ENV";
 import {registerTransistorAuthorizationListener} from '../../config/Authorization';
 
@@ -63,6 +65,7 @@ const AdvancedApp: React.FC = () => {
   React.useEffect(() => {
     registerTransistorAuthorizationListener(history);
     initBackgroundGeolocation();
+    initBackgroundFetch();
     return () => {
       unsubscribe();
     }
@@ -130,6 +133,36 @@ const AdvancedApp: React.FC = () => {
       setIsMoving(state.isMoving!);
       setOdometer(state.odometer);
       setReady(true);
+    });
+  }
+
+  const initBackgroundFetch = () => {
+    BackgroundFetch.configure({
+      minimumFetchInterval: 15, // <-- default is 15
+      // Android config
+      stopOnTerminate: false,
+      startOnBoot: true,
+      enableHeadless: true,
+      requiresCharging: false,
+      requiresDeviceIdle: false,
+      requiresBatteryNotLow: false,
+      requiresStorageNotLow: false,
+      requiredNetworkType: BackgroundFetch.NETWORK_TYPE_NONE
+    }, async (taskId) => {
+      console.log('[BackgroundFetch] - Received event:', taskId);
+
+      const location = await BackgroundGeolocation.getCurrentPosition({
+        samples: 2,
+        maximumAge: 1000 * 10,
+        timeout: 30,
+        desiredAccuracy: 40,
+        extras: {event: "background-fetch", headless: false}
+      });
+      console.log('[BackgroundFetch getCurrentPosition] location', location);
+      BackgroundFetch.finish(taskId);
+    }, (taskId) => {
+      console.warn('[BackgroundFetch] TIMEOUT: ', taskId);
+      BackgroundFetch.finish(taskId);
     });
   }
 

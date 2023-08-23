@@ -706,6 +706,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
                 result.put("taskId", taskId);
                 call.resolve(result);
             }
+            @Override public void onCancel(int taskId) { } // NO IMPLEMENTATION
         });
     }
 
