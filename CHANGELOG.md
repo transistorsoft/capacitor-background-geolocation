@@ -1,12 +1,20 @@
 # Change Log
 
+## 5.1.3 &mdash; 2023-09-05
+* [Android] Performance enhancements and error-checking.
+* [Typescript] Add missing `LocationError` value `3`;
+
 ## 5.1.2 &mdash; 2023-08-24
 
 * [Android] Fix memory-leak in `.startBackgroundTask`:  If a `Task` timed-out and is "FORCE KILLED", it was never removed from a `List<Task>`.
 * [Android] Fix `Exception NullPointerException:at com.transistorsoft.locationmanager.util.BackgroundTaskWorker.onStopped`
 
 ## 5.1.1 &mdash; 2023-08-23
-
+* [Android] :warning: If you have the following elements defined in your __`AndroidManifest.xml`__, __DELETE__ them:
+```diff
+-       <service android:name="com.transistorsoft.locationmanager.service.TrackingService" android:foregroundServiceType="location" />
+-       <service android:name="com.transistorsoft.locationmanager.service.LocationRequestService" android:foregroundServiceType="location" />
+```
 * [Android] Modify Foreground-service management to use `stopSelfResult(startId)` instead of `stopSelf()`.  This could improve reports of Android ANR
 `Context.startForeground`.
 * [Android] Re-factor getCurrentPosition to prefer more recent location vs more accuracy (within limits)
