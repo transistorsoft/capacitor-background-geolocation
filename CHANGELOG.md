@@ -10,7 +10,11 @@
 * [Android] Fix `Exception NullPointerException:at com.transistorsoft.locationmanager.util.BackgroundTaskWorker.onStopped`
 
 ## 5.1.1 &mdash; 2023-08-23
-
+* [Android] :warning: If you have the following elements defined in your __`AndroidManifest.xml`__, __DELETE__ them:
+```diff
+-       <service android:name="com.transistorsoft.locationmanager.service.TrackingService" android:foregroundServiceType="location" />
+-       <service android:name="com.transistorsoft.locationmanager.service.LocationRequestService" android:foregroundServiceType="location" />
+```
 * [Android] Modify Foreground-service management to use `stopSelfResult(startId)` instead of `stopSelf()`.  This could improve reports of Android ANR
 `Context.startForeground`.
 * [Android] Re-factor getCurrentPosition to prefer more recent location vs more accuracy (within limits)
