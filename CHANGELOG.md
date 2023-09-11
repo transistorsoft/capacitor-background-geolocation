@@ -1,5 +1,8 @@
 # Change Log
 
+## 5.1.4 &mdash; 2023-09-11
+* [Android] Add proguar-rule for compilation of the android library to prevent from obfuscating the `BuildConfig` class to `a.a.class`, conflicting with other libraries.
+
 ## 5.1.3 &mdash; 2023-09-05
 * [Android] Performance enhancements and error-checking.
 * [Typescript] Add missing `LocationError` value `3`;
