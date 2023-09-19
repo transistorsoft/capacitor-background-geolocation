@@ -1,17 +1,6 @@
 import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonRouterOutlet } from '@ionic/react';
+import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { Preferences } from '@capacitor/preferences';
-import React from "react";
-
-import { useIonAlert, useIonToast } from '@ionic/react';
-
-import Home from './pages/home/Home';
-import HelloWorld from './pages/hello-world/HelloWorld';
-import AdvancedApp from './pages/advanced/AdvancedApp';
-import SettingsService from "./pages/advanced/lib/SettingsService";
-
-import "./App.css"
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -32,7 +21,20 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
+/// Begin My Stuff.
+import { useIonAlert, useIonToast } from '@ionic/react';
+
+import Home from './pages/home/Home';
+import HelloWorld from './pages/hello-world/HelloWorld';
+import AdvancedApp from './pages/advanced/AdvancedApp';
+import SettingsService from "./pages/advanced/lib/SettingsService";
+
+import "./App.css"
+
+setupIonicReact();
+
 const App: React.FC = () => {
+  
   /// Provide some UI assets to SettingsService so it can use its methods.
   /// WARNING:  I found I had to disable animations due to timing issues showing
   /// alerts simultaneously, where the second would get hidden from the first's
