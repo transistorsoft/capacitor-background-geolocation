@@ -4,6 +4,10 @@
 		"classpath": "com.capacitorjs.plugins.app.AppPlugin"
 	},
 	{
+		"pkg": "@capacitor/google-maps",
+		"classpath": "com.capacitorjs.plugins.googlemaps.CapacitorGoogleMapsPlugin"
+	},
+	{
 		"pkg": "@capacitor/haptics",
 		"classpath": "com.capacitorjs.plugins.haptics.HapticsPlugin"
 	},
@@ -14,6 +18,10 @@
 	{
 		"pkg": "@capacitor/preferences",
 		"classpath": "com.capacitorjs.plugins.preferences.PreferencesPlugin"
+	},
+	{
+		"pkg": "@capacitor/status-bar",
+		"classpath": "com.capacitorjs.plugins.statusbar.StatusBarPlugin"
 	},
 	{
 		"pkg": "@transistorsoft/capacitor-background-fetch",

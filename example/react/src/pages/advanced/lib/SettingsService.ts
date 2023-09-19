@@ -885,7 +885,7 @@ export default class SettingsService {
       }
     }];
 
-    //await BackgroundGeolocation.removeGeofences();
+    await BackgroundGeolocation.removeGeofences();
     await BackgroundGeolocation.addGeofences(geofences);
     await BackgroundGeolocation.resetOdometer();
 
@@ -898,7 +898,7 @@ export default class SettingsService {
 
     const token = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(orgname, username, ENV.TRACKER_HOST);
 
-    await BackgroundGeolocation.reset({
+    const state = await BackgroundGeolocation.reset({
       transistorAuthorizationToken: token,
       disableProviderChangeRecord: true,
       debug: true,
@@ -916,9 +916,7 @@ export default class SettingsService {
         positiveAction: 'Change to "{backgroundPermissionOptionLabel}"',
         negativeAction: 'Cancel'
       },
-      schedule: [
-        //'2-6 09:00-17:00'
-      ],
+      schedule: [],
       scheduleUseAlarmManager: true,
       maxDaysToPersist: 14,
       geofenceModeHighAccuracy: true,
@@ -927,6 +925,10 @@ export default class SettingsService {
       enableHeadless: true,
       heartbeatInterval: -1
     });
+
+    if (state.schedule!.length > 0) {
+      BackgroundGeolocation.startSchedule();
+    }
   }
 
   /**

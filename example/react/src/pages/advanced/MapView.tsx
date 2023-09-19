@@ -234,7 +234,6 @@ const MapView: React.FC<ContainerProps> = () => {
   React.useEffect(() => {
     if (geofencesChangeEvent === null) { return; }
     if (map === null) { return; }
-
     // All geofences off
     if (!geofencesChangeEvent.on.length && !geofencesChangeEvent.off.length) {
       geofenceMarkers.forEach((circle:any) => {

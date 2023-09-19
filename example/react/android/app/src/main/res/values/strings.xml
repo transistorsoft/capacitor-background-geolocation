@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">BGGeolocation</string>
-    <string name="title_activity_main">BGGeolocation</string>
+    <string name="app_name">foo</string>
+    <string name="title_activity_main">foo</string>
     <string name="package_name">com.transistorsoft.backgroundgeolocation.capacitor</string>
     <string name="custom_url_scheme">com.transistorsoft.backgroundgeolocation.capacitor</string>
 </resources>
