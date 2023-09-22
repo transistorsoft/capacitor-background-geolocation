@@ -6,6 +6,7 @@ export const COLORS = {
   light_blue: "#3366cc",
   polyline_color: "#00B3FD",
   green: "#16BE42",
+  geofence_red: '#be162d',
   dark_purple: "#2A0A73",
   grey: "#404040",
   red: "#FE381E",

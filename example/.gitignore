@@ -1,2 +1,4 @@
 # I don't know why Capacitor generates these backup of AndroidManifest
 AndroidManifest.xml.orig
+
+./BGGeo

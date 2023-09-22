@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.transistorsoft.backgroundgeolocation.capacitor',
-  appName: 'foo',
+  appName: 'BG Geo',
   webDir: 'dist',
   server: {
     androidScheme: 'https'

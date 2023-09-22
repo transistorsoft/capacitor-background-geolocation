@@ -31,9 +31,12 @@ import SettingsService from "./pages/advanced/lib/SettingsService";
 
 import "./App.css"
 
+
 setupIonicReact();
 
-const App: React.FC = () => {
+const App: React.FC<{page?: string}> = (props) => {
+  const page = props.page;
+
   
   /// Provide some UI assets to SettingsService so it can use its methods.
   /// WARNING:  I found I had to disable animations due to timing issues showing
@@ -55,6 +58,7 @@ const App: React.FC = () => {
     toast: toast
   });
 
+
   return (
     <IonApp>
       <IonReactRouter>
@@ -69,7 +73,7 @@ const App: React.FC = () => {
             <AdvancedApp />
           </Route>
           <Route exact path="/">
-            <Redirect to="/home" />
+            <Redirect to={page} />
           </Route>
         </IonRouterOutlet>
       </IonReactRouter>

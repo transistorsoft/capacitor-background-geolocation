@@ -11,10 +11,13 @@ import {
   IonFooter,
 } from '@ionic/react';
 
+import './styles.css';
+
 import React from "react";
 import { trash, navigate, home, play, pause } from "ionicons/icons";
 import { Preferences } from '@capacitor/preferences';
 import { useHistory } from 'react-router-dom';
+import { useIonRouter } from '@ionic/react';
 
 import BackgroundGeolocation, {
   Location,
@@ -50,6 +53,7 @@ const unsubscribe = () => {
 }
 
 const AdvancedApp: React.FC = () => {
+  const router = useIonRouter();
   const history = useHistory();
   const settingsService = SettingsService.getInstance();
 
@@ -91,8 +95,12 @@ const AdvancedApp: React.FC = () => {
       console.log("[onAuthorization]", event);
     }));
 
-    subscribe(BackgroundGeolocation.onActivityChange(setMotionActivityEvent));
+    subscribe(BackgroundGeolocation.onActivityChange(setMotionActivityEvent));    
+  
+  }
 
+  const onMapReady = async (isReady:boolean) => {
+    if (!isReady) return;
     // Fetch registered orgname / username from Storage so we can fetch an Auth token from the demo server
     const org = (await Preferences.get({key: 'orgname'})).value;
     const username = (await Preferences.get({key: 'username'})).value;
@@ -206,8 +214,9 @@ const AdvancedApp: React.FC = () => {
   }, [enabled]);
 
   /// [Home] button handler
-  const onClickHome = () => {
-    history.goBack();
+  const onClickHome = () => {    
+    setEnabled(false);
+    history.push('/home', 'root', 'replace'); 
   }
 
   /// Get Current Position button handler.
@@ -249,7 +258,7 @@ const AdvancedApp: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <MapView />
+        <MapView onReady={onMapReady} />
         <FABMenu />
       </IonContent>
       <IonFooter>

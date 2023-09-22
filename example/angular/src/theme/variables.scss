@@ -153,8 +153,8 @@
    */
 
   .ios body {
-    --ion-background-color: #000000;
-    --ion-background-color-rgb: 0,0,0;
+    --ion-background-color: transparent;
+    --ion-background-color-rgb: transparent
 
     --ion-text-color: #ffffff;
     --ion-text-color-rgb: 255,255,255;
@@ -197,8 +197,10 @@
    */
 
   .md body {
-    --ion-background-color: #121212;
-    --ion-background-color-rgb: 18,18,18;
+    //--ion-background-color: #121212;
+    //--ion-background-color-rgb: 18,18,18;
+    --ion-background-color: transparent;
+    --ion-background-color-rgb: transparent;
 
     --ion-text-color: #ffffff;
     --ion-text-color-rgb: 255,255,255;
