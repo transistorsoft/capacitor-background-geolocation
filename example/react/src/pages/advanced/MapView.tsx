@@ -160,6 +160,9 @@ const MapView: React.FC<MapViewProps> = (props) => {
     } else {
       showStationaryCircle(motionChangeEvent.location);
     }
+    map.setCamera({      
+      zoom: 16
+    });
   }, [motionChangeEvent]);
 
   /// isCreatingPolygon
@@ -234,8 +237,7 @@ const MapView: React.FC<MapViewProps> = (props) => {
       coordinate: {
         lat: location.coords.latitude,
         lng: location.coords.longitude
-      },
-      zoom: 16
+      }
     });    
   }
 
@@ -489,10 +491,10 @@ const MapView: React.FC<MapViewProps> = (props) => {
       apiKey: ENV.GOOGLE_MAPS_API_KEY,
       config: {
         center: {
-          lat: 33.6,
-          lng: -117.9
+          lat: 45.508888,
+          lng: -73.561668
         },
-        zoom: 8
+        zoom: 11,
       }
     });
 
