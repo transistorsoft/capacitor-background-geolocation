@@ -442,8 +442,8 @@ export class SettingsService {
       }
     }];
 
-    await BackgroundGeolocation.removeGeofences();
-    await BackgroundGeolocation.addGeofences(geofences);
+    await BackgroundGeolocation.removeGeofences();    
+    await BackgroundGeolocation.addGeofences(geofences);      
     await BackgroundGeolocation.resetOdometer();
 
     const orgname = (await Preferences.get({key: 'orgname'})).value;
@@ -454,7 +454,7 @@ export class SettingsService {
       environment.TRACKER_HOST
     );
 
-    await BackgroundGeolocation.reset({
+    const state = await BackgroundGeolocation.reset({
       debug: true,
       logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
       desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,

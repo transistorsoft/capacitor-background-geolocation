@@ -45,7 +45,7 @@ export class RegistrationPage implements OnInit {
   ngOnInit() {}
 
   async onClickRegister() {
-  	let errors = [];
+  	const errors = [];
 
     if (!this.isValid(this.orgname)) errors.push('Organization name');
     if (!this.isValid(this.username)) errors.push('Username');
@@ -61,7 +61,7 @@ export class RegistrationPage implements OnInit {
       });
       toast.present();
 
-      return false;
+      return;
     }
     // Destroy existing cached token.
     await BackgroundGeolocation.destroyTransistorAuthorizationToken(environment.TRACKER_HOST);

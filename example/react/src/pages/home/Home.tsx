@@ -4,6 +4,7 @@
 /// This is really just boiler-plate stuff in support of the demo app.  There's nothing
 /// special to see here with-respect-to BackgroundGeolocation implementation.
 ///
+
 import {
   IonContent,
   IonHeader,
@@ -65,6 +66,7 @@ const Home: React.FC = () => {
 
   /// Shields up
   React.useEffect(() => {
+    setDefaultRoute('/home');
     init();
   }, []);
 
@@ -84,17 +86,11 @@ const Home: React.FC = () => {
     if (defaultRoute === undefined) { return; }
 
     Preferences.set({key: 'page', value: defaultRoute});
-
-    if (defaultRoute !== '/home') {
-      // Navigating somewhere else...
-      history.push(defaultRoute);
-    } else {
-      // If we're already here at home, no need to mess with history.
-      // Just un-hide the view and reset BackgroundGeolocation.
-      setHidden(false);
-      BackgroundGeolocation.removeListeners();
-      BackgroundGeolocation.stop();
-    }
+    
+    // If we're already here at home, no need to mess with history.
+    // Just un-hide the view and reset BackgroundGeolocation.
+    setHidden(false);    
+    BackgroundGeolocation.stop();    
   }, [defaultRoute]);
 
   /// Load Auth credentials orgname and username.
@@ -133,7 +129,7 @@ const Home: React.FC = () => {
     presentRegistration();
   }
 
-  const onClickNavigate = async (page:string) => {
+  const onClickNavigate = async (page:string) => {    
     if (!isRegistered()) {
       return presentRegistration();
     }
@@ -141,6 +137,7 @@ const Home: React.FC = () => {
       return;
     }
     setDefaultRoute(page);
+    history.push(page);
   }
 
   const isRegistered = () => {

@@ -11,26 +11,27 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [ngStyle]="{'border-left':state.containerBorder, 'border-right':state.containerBorder}">
-	<ion-fab slot="fixed" vertical="bottom" horizontal="end" #fab>
-   		<ion-fab-button color="tertiary" (click)="onClickMainMenu()">
+<ion-content id="advanced-app" fullscreen [ngStyle]="{'border-left':state.containerBorder, 'border-right':state.containerBorder}">	
+  <map-view (onReady)="onMapReady()" (onAddGeofence)="onAddGeofence($event)" [zone]="this.zone" />
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end" #fab>
+      <ion-fab-button color="tertiary" (click)="onClickMainMenu()">
         <ion-icon color="dark" name="add"></ion-icon>
       </ion-fab-button>
-   		<ion-fab-list side="top">
-     		<ion-fab-button (click)="onClickSettings()" color="tertiary">
-     			<ion-icon name="cog"></ion-icon>
-     		</ion-fab-button>
+      <ion-fab-list side="top">
+        <ion-fab-button (click)="onClickSettings()" color="tertiary">
+          <ion-icon name="cog"></ion-icon>
+        </ion-fab-button>
         <ion-fab-button (click)="onClickRequestPermission()" color="tertiary">
           <ion-icon name="lock-open-outline"></ion-icon>
         </ion-fab-button>
-     		<ion-fab-button (click)="onClickResetOdometer()" color="tertiary">
-     			<ion-spinner [hidden]="!isResettingOdometer" name="circles" color="dark"></ion-spinner>
-     			<ion-icon [hidden]="isResettingOdometer" name="speedometer"></ion-icon>
-     		</ion-fab-button>
-     		<ion-fab-button (click)="onClickEmailLogs()" color="tertiary">
+        <ion-fab-button (click)="onClickResetOdometer()" color="tertiary">
+          <ion-spinner [hidden]="!isResettingOdometer" name="circles" color="dark"></ion-spinner>
+          <ion-icon [hidden]="isResettingOdometer" name="speedometer"></ion-icon>
+        </ion-fab-button>
+        <ion-fab-button (click)="onClickEmailLogs()" color="tertiary">
           <ion-spinner [hidden]="!isEmailingLog" name="circles" color="dark"></ion-spinner>
-     			<ion-icon [hidden]="isEmailingLog" name="mail"></ion-icon>
-     		</ion-fab-button>
+          <ion-icon [hidden]="isEmailingLog" name="mail"></ion-icon>
+        </ion-fab-button>
         <ion-fab-button (click)="onClickSync()" color="tertiary">
           <ion-spinner [hidden]="!isSyncing" name="circles" color="dark"></ion-spinner>
           <ion-icon [hidden]="isSyncing" name="cloud-upload"></ion-icon>
@@ -39,19 +40,8 @@
           <ion-spinner [hidden]="!isDestroyingLocations" name="circles" color="dark"></ion-spinner>
           <ion-icon [hidden]="isDestroyingLocations" name="trash"></ion-icon>
         </ion-fab-button>
-   		</ion-fab-list>
- 	</ion-fab>
-
-	<div #map id="map" style="height:100%;width:100%">
-    <div [hidden]="isGoogleMapsSdkLoaded">
-      <div style="padding:10px">
-        <p><strong>Failed to load Google Maps SDK</strong></p>
-        <p>Do you have an internet connection?</p>
-        <pre><code style="font-size:10px">{{state.locationJson}}</code></pre>
-      </div>
-    </div>
-  </div>
-
+      </ion-fab-list>
+  </ion-fab>
 </ion-content>
 
 <ion-footer>

@@ -12,6 +12,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@capacitor/action-sheet": "^5.0.6",
     "@capacitor/android": "5.4.0",
     "@capacitor/app": "5.0.6",
     "@capacitor/core": "5.4.0",
@@ -27,7 +28,9 @@
     "@transistorsoft/capacitor-background-geolocation": "file:../..",
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
+    "install": "^0.13.0",
     "ionicons": "^7.0.0",
+    "npm": "^10.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router": "^5.3.4",

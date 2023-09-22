@@ -10,7 +10,7 @@
   		<ion-buttons slot="start">
  			<ion-button ion-button (click)="onClickCancel()">Cancel</ion-button>
  		</ion-buttons>
- 		<ion-title mode="ios">Geofence</ion-title>
+ 		<ion-title mode="ios">Add Geofence</ion-title>
 		<ion-buttons slot="end">
     		<ion-button fill="outline" (click)="onClickSubmit()" ion-text color="dark">
     			Save
@@ -25,7 +25,7 @@
 			<ion-label color="primary">Identifier</ion-label>
 	  		<ion-input [(ngModel)]="identifier" placeholder="Geofence identifier"></ion-input>
 	  	</ion-item>
-	  	<ion-item>
+	  	<ion-item [hidden]="isPolygon">
 	    	<ion-label color="primary">radius</ion-label>
 	    	<ion-select [(ngModel)]="radius" multiple="false">
 	    		<ion-select-option *ngFor="let option of radiusOptions" value="{{option}}" selected="200">
