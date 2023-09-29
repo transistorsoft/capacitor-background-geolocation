@@ -208,18 +208,22 @@ const Home: React.FC = () => {
         </IonGrid>
       </IonContent>
 
-      <IonFooter hidden={hidden} style={{backgroundColor: '#fff', padding:10}}>
+      <IonFooter hidden={hidden} style={{backgroundColor: '#fff', color: '#000', padding:10}}>
         <p>
           These apps will post locations to Transistor Software's demo server.  You can view your tracking in the browser by visiting:
         </p>
         <p style={{textAlign: 'center', fontWeight: 'bold', fontSize:14}}>{`${ENV.TRACKER_HOST}/${org}`}</p>
         <IonItem>
-          <IonLabel color="primary" style={{width:75, textAlign:'right'}}>Org: </IonLabel>
-          <IonInput readonly={true} value={org} />
+          <IonInput readonly={true} 
+            label="Organization:"
+            labelPlacement="stacked"
+            value={org}
+          />
         </IonItem>
-        <IonItem>
-          <IonLabel color="primary" style={{width:75, textAlign: 'right'}} >Device ID</IonLabel>
-          <IonInput readonly={true} value={deviceModel + '-' + username} />
+        <IonItem>          
+          <IonInput readonly={true} 
+            value={deviceModel + '-' + username} 
+          />
         </IonItem>
         <IonRow style={{justifyContent: 'center'}}>
             <IonButton color="danger" size="default" onClick={onClickRegister} style={{width:150}}>Edit</IonButton>

@@ -58,7 +58,6 @@ const App: React.FC<{page?: string}> = (props) => {
     toast: toast
   });
 
-
   return (
     <IonApp>
       <IonReactRouter>

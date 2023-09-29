@@ -4,5 +4,9 @@
 	"webDir": "dist",
 	"server": {
 		"androidScheme": "https"
+	},
+	"loggingBehavior": "debug",
+	"android": {
+		"useLegacyBridge": true
 	}
 }

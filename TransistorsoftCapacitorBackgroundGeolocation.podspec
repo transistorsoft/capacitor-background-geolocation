@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target  = '12.0'
   s.dependency 'Capacitor'
   s.dependency 'CocoaLumberjack', '~> 3.7.2'
-  s.libraries           = 'sqlite3', 'z'
+  s.libraries           = 'sqlite3', 'z', 'stdc++'
   s.vendored_frameworks = ['ios/TSLocationManager.xcframework']
   s.static_framework = true
   s.swift_version = '5.1'
