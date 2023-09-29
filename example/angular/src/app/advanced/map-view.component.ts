@@ -13,6 +13,8 @@ import {
 import { GoogleMap } from '@capacitor/google-maps';
 import { ActionSheet, ActionSheetButtonStyle } from '@capacitor/action-sheet';
 
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+
 import BackgroundGeolocation, {
 	Subscription,
 	Geofence,
@@ -20,6 +22,7 @@ import BackgroundGeolocation, {
 } from "@transistorsoft/capacitor-background-geolocation";
 
 import {COLORS} from '../lib/colors';
+import {BGService} from "./lib/BGService";
 
 import {
   toRad,
@@ -40,9 +43,10 @@ const MARKERS = {
   activePolygons: null,
   geofenceEventMarkers: [],
   geofenceEventPolylines: [],
-  geofenceEventCircles: [],
   addGeofenceCursor: [],
-  addGeofencePolygonCursor: null
+  addGeofencePolygonCursor: null,
+  motionChangeCircles: [],
+  motionChangePolylines: []
 }
 
 /// Active Geofence Map, keyed by Geofence.identifier
@@ -54,14 +58,14 @@ let POLYGON_GEOFENCE_VERTICES = [];
 	selector: 'map-view',
   template: `
   	<div id="MapView-container">	 
-  		<ion-toolbar [hidden]="!isCreatingPolygon" mode="ios" color="danger" className="polygon-geofence-menu">
+  		<ion-toolbar [hidden]="!isCreatingPolygon" mode="ios" color="secondary" className="polygon-geofence-menu">
         <ion-title color="light" size="small">Click map to add points</ion-title>
         <ion-buttons slot="start">
-          <ion-button (click)="onClickCancelPolygon()">Cancel</ion-button>
-          <ion-button (click)="onClickUndoPolygon()"><ion-icon name="arrow-undo-outline"/></ion-button>
+          <ion-button (click)="onClickCancelPolygon()" color="danger">Cancel</ion-button>
+          <ion-button (click)="onClickUndoPolygon()" color="primary"><ion-icon name="arrow-undo-outline"/></ion-button>
         </ion-buttons>
         <ion-buttons slot="end">
-          <ion-button (click)="onClickAddPolygon()">Continue</ion-button>
+          <ion-button (click)="onClickAddPolygon()" color="primary">Continue</ion-button>
         </ion-buttons>                        
       </ion-toolbar>
       <div id="geofence-prompt" [hidden]="isCreatingPolygon">Click map to add a Geofence</div>
@@ -72,14 +76,25 @@ let POLYGON_GEOFENCE_VERTICES = [];
   	`  		
       capacitor-google-map {
         display: inline-block;
-        height: 300px;
-        width: 300px;
+        height: 1px;
+        width: 1px;
       }
       #geofence-prompt {
       	color: #000; 	
-      	background-color: #efefef;
+      	
+        background-color: #fff1a5;
+        color: #000000;
+        border-bottom-width: 1;
+        border-bottom-color: #ccc;
+
       	font-size: 16px;
       	text-align: center;        
+      }
+      ion-toolbar {
+        background-color: var(--ion-color-secondary);
+      }      
+      ion-toolbar ion-title {
+        color: #000;
       }
     `
   ]
@@ -96,15 +111,18 @@ export class MapView implements OnInit, OnDestroy {
   subscriptions: Array<Subscription>;
   // GoogleMap instance from @capacitor/google-maps 
   map: GoogleMap;
+  // Ref to stationaryLocation provided by onMotionChange
+  stationaryLocation:Location;
   // Flag when user is creating a polygon on map.
   isCreatingPolygon:boolean;
   // from BackgroundGeolocation.getState().enabled.
   enabled: boolean;
 
-  constructor() {
+  constructor(private bgService: BGService) {
   	this.subscriptions = [];
   	this.enabled = false;
   	this.isCreatingPolygon = false;
+    this.stationaryLocation = null;
   }
 
 	ngOnInit() {
@@ -149,6 +167,8 @@ export class MapView implements OnInit, OnDestroy {
     if (ionContent != null) {      
       const mapEl:HTMLElement = document.querySelector('capacitor-google-map'); 
 
+      console.log('- createmap', this.map);
+
     	this.map = await GoogleMap.create({
 	      id: 'google-map',
 	      element: mapEl,	// <-- render map onto <ion-content/> element for auto full-screen.
@@ -173,20 +193,25 @@ export class MapView implements OnInit, OnDestroy {
 
   /// @event 
   onEnabledChange(enabled) {
+    this.enabled = enabled;
   	if (!enabled) {
   		this.clearMarkers();
   	}
   }
 
   /// @event
-  onLocation(location) {
-  	this.setCenter(location);
+  async onLocation(location) {
+  	await this.updateCurrentLocationMarker(location);    
   }
   /// @event
-  onMotionChange(event) {
+  async onMotionChange(event) {
   	if (event.isMoving) {
+      if (!this.stationaryLocation) this.stationaryLocation = event.location;
+      MARKERS.motionChangeCircles = MARKERS.motionChangeCircles.concat(await this.map.addCircles([this.buildMotionChangeCircle(this.stationaryLocation)]));
+      MARKERS.motionChangePolylines = MARKERS.motionChangePolylines.concat(await this.map.addPolylines([this.buildMotionChangePolyline(this.stationaryLocation, event.location)]));
       this.hideStationaryCircle();
     } else {
+      this.stationaryLocation = event.location;
       this.showStationaryCircle(event.location);
     }
     this.map.setCamera({      
@@ -195,8 +220,6 @@ export class MapView implements OnInit, OnDestroy {
   }
   /// @event
   async onGeofence(event) {
-  	const isEnter = event.action == 'ENTER';
-
     const geofence = await BackgroundGeolocation.getGeofence(event.identifier);
     const location = event.location;
     const center = {
@@ -205,36 +228,68 @@ export class MapView implements OnInit, OnDestroy {
     };
     const radius = geofence.radius;
 
+    POLYLINE_PATH.push({
+      lat: location.coords.latitude,
+      lng: location.coords.longitude
+    });        
+    
+
+    let color, iconColor;
+    if (event.action === 'ENTER') {
+      color = COLORS.green;
+      iconColor = 'green';
+    } else if (event.action === 'DWELL') {
+      color = COLORS.gold;
+      iconColor = 'amber';
+    } else {
+      color = COLORS.red
+      iconColor = 'red';
+    }
+
+    let iconIndex = (location.coords.heading >= 0) ? Math.round(location.coords.heading / 10) : 0;
+    if (iconIndex > 36) iconIndex = 0;
+
     MARKERS.geofenceEventMarkers.push(await this.map.addMarker({
+      zIndex: 100,
       coordinate: {
         lat: location.coords.latitude,
         lng: location.coords.longitude
       },
+      iconUrl: `assets/imgs/markers/location-arrow-${iconColor}-${iconIndex}.png`,
       iconSize: {
-        width: 32,
-        height: 32
+        width: 20,
+        height: 20
       },
-      iconUrl: (event.action === 'ENTER') ? 'assets/imgs/geofence-enter.png' : 'assets/imgs/geofence-exit.png'
+      iconAnchor: {
+        x: 10,
+        y: 10
+      }      
     }));
     
     const bearing = getBearing(center, location.coords);
     const edgeCoordinate = computeOffsetCoordinate(center, radius, bearing);
 
     MARKERS.geofenceEventMarkers.push(await this.map.addMarker({
+      zIndex: 500,
       coordinate: {
         lat: edgeCoordinate.latitude,
         lng: edgeCoordinate.longitude
       },
+      isFlat: true,
+      iconUrl: `assets/imgs/markers/geofence-event-edge-circle-${event.action.toLowerCase()}.png`,
       iconSize: {
-        width: 32,
-        height: 48
+        width: 10,
+        height: 10
       },
-      iconUrl: (isEnter) ? 'assets/imgs/geofence-enter.png' : 'assets/imgs/geofence-exit.png'
+      iconAnchor: {
+        x: 5,
+        y: 5
+      }
     }));
     MARKERS.geofenceEventPolylines = MARKERS.geofenceEventPolylines.concat(await this.map.addPolylines([{
       geodesic: true,
-      zIndex: 500,
-      strokeColor: (isEnter) ? COLORS.green : COLORS.geofence_red,//'#000000',
+      zIndex: 99,
+      strokeColor: COLORS.black,
       strokeOpacity: 1.0,
       strokeWeight: 2,
       path: [{
@@ -244,19 +299,7 @@ export class MapView implements OnInit, OnDestroy {
         lat: edgeCoordinate.latitude,
         lng: edgeCoordinate.longitude
       }]
-    }]));    
-    MARKERS.geofenceEventCircles = MARKERS.geofenceEventCircles.concat(await this.map.addCircles([{
-      zIndex: 100,
-      fillColor: '#ffffff',
-      fillOpacity: 0,
-      strokeColor: (isEnter) ? COLORS.green : COLORS.geofence_red,//'#000000',
-      strokeWeight: 3,      
-      radius: radius,
-      center: {
-        lat: center.latitude, 
-        lng: center.longitude
-      }
-    }]));
+    }]));        
   }
   /// @event
   async onGeofencesChange(event) {
@@ -265,6 +308,11 @@ export class MapView implements OnInit, OnDestroy {
     }
     if (MARKERS.activePolygons) {
       await this.map.removePolygons(MARKERS.activePolygons);
+    }
+    if ((event.on.length === 0) && (event.off.length === 0)) {
+      MARKERS.activeGeofences = null;
+      MARKERS.activePolygons = null;
+      return;
     }
     event.off.forEach((identifier) => {
       delete ACTIVE_GEOFENCES[identifier];
@@ -282,7 +330,6 @@ export class MapView implements OnInit, OnDestroy {
         polygons.push(this.buildGeofencePolygon(geofence));
       } 
     }
-
     if (circles.length > 0) {
       this.map.addCircles(circles).then((result) => {
       	MARKERS.activeGeofences = result;
@@ -298,8 +345,7 @@ export class MapView implements OnInit, OnDestroy {
   /// Build red stationary geofence marker.
   async showStationaryCircle(location:Location) {
     await this.hideStationaryCircle();
-    await this.setCenter(location);
-
+    
     const state = await BackgroundGeolocation.getState();
     const radius = (state.trackingMode == 1) ? 200 : (state.geofenceProximityRadius! / 2);
 
@@ -317,6 +363,38 @@ export class MapView implements OnInit, OnDestroy {
     }]);
   }
 
+  buildMotionChangePolyline(from:Location, to:Location) {
+    return {
+      zIndex: 8,
+      geodesic: true,
+      strokeColor: '#00ff00',
+      strokeOpacity: 0.7,
+      strokeWeight: 10,
+      path: [{
+        lat: from.coords.latitude,
+        lng: from.coords.longitude
+      }, {
+        lat: to.coords.latitude,
+        lng: to.coords.longitude
+      }]
+    };
+  }
+
+  buildMotionChangeCircle(location:Location) {
+    return {
+      center: {
+        lat: location.coords.latitude,
+        lng: location.coords.longitude
+      },
+      fillColor: COLORS.red,
+      strokeColor: COLORS.red,
+      zIndex: 8,
+      fillOpacity: 0.3,
+      strokeOpacity: 0.7,
+      radius: 25
+    };
+  }
+
   /// Hide the red stationary geofence Map Marker.
   async hideStationaryCircle() {
     if (MARKERS.stationaryCircle) {
@@ -329,11 +407,11 @@ export class MapView implements OnInit, OnDestroy {
   buildGeofenceCircle(geofence:Geofence) {
     return {
       identifier: geofence.identifier,
-      zIndex: 100,
+      zIndex: 1,
       fillColor: COLORS.green,
       fillOpacity: 0.2,
       strokeColor: COLORS.green,
-      strokeWeight: 1,
+      strokeWeight: 2,
       strokeOpacity: 0.7,
       params: geofence,
       radius: geofence.radius,
@@ -347,10 +425,12 @@ export class MapView implements OnInit, OnDestroy {
   /// Build a Polygon Geofence Marker.
   buildGeofencePolygon(geofence) {
     return {
+      zIndex: 2,
       strokeColor: COLORS.blue,
       strokeWeight: 5,
-      fillColor: COLORS.green,
-      fillOpacity: 0.2,
+      strokeOpacity: 0.6,
+      fillColor: COLORS.polygon_fill_color,
+      fillOpacity: 0.4,
       geodesic: true,
       clickable: false,
       title: geofence.identifier,
@@ -361,13 +441,9 @@ export class MapView implements OnInit, OnDestroy {
   }
 
   /// Re-center the map with provided Location.
-  setCenter(location:Location) {
-    console.log('- setCenter: ', location);
-
+  async setCenter(location:Location) {    
     if (location.sample) { return; }
-          
-    this.updateCurrentLocationMarker(location);    
-
+              
     this.map.setCamera({
       coordinate: {
         lat: location.coords.latitude,
@@ -378,71 +454,90 @@ export class MapView implements OnInit, OnDestroy {
 
   /// Update current-location Map Marker.
   async updateCurrentLocationMarker(location:Location) {
-    // Push a new point onto our Polygon path List.
-    POLYLINE_PATH.push({
-      lat: location.coords.latitude,
-      lng: location.coords.longitude
-    });
+    return new Promise(async (resolve, reject) => {
+      this.setCenter(location);
 
-    console.log('* MARKERS: ', MARKERS);
-    if (MARKERS.currentLocation) {
-      this.map.removeMarker(MARKERS.currentLocation);
-    }
-    // Current location "bluedot"
-    MARKERS.currentLocation = await this.map.addMarker({
-      coordinate: {
+      if (MARKERS.currentLocation) {
+        try {
+          await this.map.removeMarker(MARKERS.currentLocation);
+        } catch(e) {
+          console.warn(e);
+        }
+        MARKERS.currentLocation = null;
+      }
+      // Current location "bluedot"
+      MARKERS.currentLocation = await this.map.addMarker({
+        coordinate: {
+          lat: location.coords.latitude,
+          lng: location.coords.longitude
+        },
+        zIndex: 100,
+        isFlat: true,
+        iconUrl: 'assets/imgs/markers/bluedot.png',
+        iconSize: {        
+          height: 24,
+          width: 24
+        },      
+        iconAnchor: {
+          x: 12,
+          y: 12
+        }
+      });
+
+      // Add a breadcrumb.
+      let iconIndex = (location.coords.heading >= 0) ? Math.round(location.coords.heading / 10) : 0;
+      if (iconIndex > 36) iconIndex = 0;
+
+      MARKERS.locationMarkers.push(await this.map.addMarker({
+        coordinate: {
+          lat: location.coords.latitude,
+          lng: location.coords.longitude
+        },
+        isFlat: true,
+        zIndex: 10,
+        iconUrl: `assets/imgs/markers/location-arrow-${iconIndex}.png`,
+        iconSize: {        
+          height: 16,
+          width: 16
+        },
+        iconAnchor: {
+          x: 8,
+          y: 8
+        }
+      }));
+
+      if (!this.enabled) return;
+      
+      // Push a new point onto our Polygon path List.    
+      POLYLINE_PATH.push({
         lat: location.coords.latitude,
         lng: location.coords.longitude
-      },
-      zIndex: 1000,
-      iconUrl: 'assets/imgs/bluedot.png',
-      iconSize: {        
-        height: 24,
-        width: 24
-      },      
-      iconAnchor: {
-        x: 12,
-        y: 12
-      }
-    });
+      });
 
-    // Add a breadcrumb.
-    MARKERS.locationMarkers.push(await this.map.addMarker({
-      coordinate: {
-        lat: location.coords.latitude,
-        lng: location.coords.longitude
-      },
-      zIndex: 999,
-      iconUrl: 'assets/imgs/bluedot.png',
-      iconSize: {        
-        height: 16,
-        width: 16
-      },
-      iconAnchor: {
-        x: 8,
-        y: 8
+      // Polyline.
+      if (MARKERS.polyline) {
+        try {
+          this.map.removePolylines(MARKERS.polyline);
+        } catch(e) {
+          console.warn(e);
+        }          
       }
-    }));
-
-    // Polyline.
-    if (MARKERS.polyline) {
-      this.map.removePolylines(MARKERS.polyline);
-    }
-    
-    MARKERS.polyline = await this.map.addPolylines([{
-      zIndex: 1,
-      geodesic: true,
-      strokeColor: COLORS.polyline_color,
-      strokeOpacity: 0.7,
-      strokeWeight: 7,
-      path: POLYLINE_PATH
-    }]);    
+      
+      MARKERS.polyline = await this.map.addPolylines([{
+        zIndex: 9,
+        geodesic: true,
+        strokeColor: COLORS.polyline_color,
+        strokeOpacity: 0.6,
+        strokeWeight: 10,
+        path: POLYLINE_PATH
+      }]);
+      resolve(true);
+    })
   }
 
   /// Clear all Map Markers.
   async clearMarkers() {
-    if (!this.map) return;
-        
+    if (!this.map) return;    
     if (MARKERS.stationaryCircle) {
       this.map.removeCircles(MARKERS.stationaryCircle);
       MARKERS.stationaryCircle = null;
@@ -467,19 +562,25 @@ export class MapView implements OnInit, OnDestroy {
     if (MARKERS.geofenceEventMarkers.length > 0) {
       this.map.removeMarkers(MARKERS.geofenceEventMarkers);
       MARKERS.geofenceEventMarkers = [];
-    }
-    if (MARKERS.geofenceEventCircles.length > 0) {
-      this.map.removeCircles(MARKERS.geofenceEventCircles);
-      MARKERS.geofenceEventCircles = [];
-    }
+    }    
     if (MARKERS.geofenceEventPolylines.length > 0) {      
       this.map.removePolylines(MARKERS.geofenceEventPolylines);
       MARKERS.geofenceEventPolylines = [];
-    }    
+    }
+    if (MARKERS.motionChangePolylines.length > 0) {
+      this.map.removePolylines(MARKERS.motionChangePolylines);
+      MARKERS.motionChangePolylines = [];
+    }
+    if (MARKERS.motionChangeCircles.length > 0) {
+      this.map.removeCircles(MARKERS.motionChangeCircles);
+      MARKERS.motionChangeCircles = [];
+    }
   }
 
-  async onMapClick(coords) {
+  async onMapClick(coords) {    
   	if (this.isCreatingPolygon) {
+      this.bgService.playSound('TEST_MODE_CLICK');
+      Haptics.impact({ style: ImpactStyle.Heavy });
       POLYGON_GEOFENCE_VERTICES.push([coords.latitude, coords.longitude]); 
       this.renderPolygonGeofenceCursor()
     } else {
@@ -504,6 +605,9 @@ export class MapView implements OnInit, OnDestroy {
   }
 
   async onClickAddGeofence(coords) {
+    this.bgService.playSound('LONG_PRESS_ACTIVATE');
+    Haptics.impact({ style: ImpactStyle.Heavy });
+
   	const result = await ActionSheet.showActions({
       title: 'Add Geofence',
       message: 'Circular or Polygon',
@@ -522,6 +626,10 @@ export class MapView implements OnInit, OnDestroy {
     });
 
     this.isCreatingPolygon = false;
+    // Play sound and haptics.
+    this.bgService.playSound('TEST_MODE_CLICK');
+    Haptics.impact({ style: ImpactStyle.Heavy });
+
     switch (result.index) {
       case 0:        
         this.onAddGeofence.emit(coords);
@@ -559,6 +667,7 @@ export class MapView implements OnInit, OnDestroy {
   }
 
   async renderPolygonGeofenceCursor() {
+    // Play sound and haptics.
   	if (MARKERS.addGeofencePolygonCursor) {
       await this.map.removePolygons(MARKERS.addGeofencePolygonCursor);
     }
@@ -567,9 +676,9 @@ export class MapView implements OnInit, OnDestroy {
     }
     MARKERS.addGeofencePolygonCursor = await this.map.addPolygons([{
       strokeColor: COLORS.blue,
-      strokeWeight: 10,
-      fillColor: COLORS.green,
-      fillOpacity: 0.2,
+      strokeWeight: 5,
+      fillColor: COLORS.polygon_fill_color,
+      fillOpacity: 0.4,
       geodesic: true,
       clickable: false,
       paths: POLYGON_GEOFENCE_VERTICES.map((vertex => {
@@ -583,6 +692,10 @@ export class MapView implements OnInit, OnDestroy {
     const vertices = POLYGON_GEOFENCE_VERTICES.map((coord) => { return coord; });
     //setGeofenceVertices(vertices);
 
+    // Play sound and haptics.
+    this.bgService.playSound('TEST_MODE_CLICK');
+    Haptics.impact({ style: ImpactStyle.Heavy });      
+
     this.zone.run(() => {
     	this.isCreatingPolygon = false;
   	});
@@ -594,13 +707,17 @@ export class MapView implements OnInit, OnDestroy {
 
   /// User clicks [Cancel] Polygon Geofence.
   async onClickCancelPolygon() {
-  	this.stopCreatingPolygonGeofence();
-    
+    this.bgService.playSound('TEST_MODE_CLICK');
+    Haptics.impact({ style: ImpactStyle.Heavy });
+  	this.stopCreatingPolygonGeofence();    
   }
 
   /// User clicks [UNDO] button to delete a Polygon vertex
   async onClickUndoPolygon() {
-    POLYGON_GEOFENCE_VERTICES.pop();    
+    this.bgService.playSound('TEST_MODE_CLICK');
+    Haptics.impact({ style: ImpactStyle.Heavy });
+
+    POLYGON_GEOFENCE_VERTICES.pop();
     const markerId = MARKERS.addGeofenceCursor.pop();
     if (markerId) {
       this.map.removeMarker(markerId);

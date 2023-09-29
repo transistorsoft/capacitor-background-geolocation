@@ -26,18 +26,26 @@
 </ion-content>
 
 <ion-footer>
-  <p style="padding:10px">
-    These apps will post locations to Transistor Software's demo server.  You can view your tracking in the browser by visiting:</p>
-  <p style="text-align:center"><i [innerHTML]="url">/<strong [innerHTML]="orgname"></strong></i></p>
+  <section>
+    <p class="description">
+      These apps will post locations to Transistor Software's demo server.  You can view your tracking in the browser by visiting:</p>
+    <p class="tracker-url"><i [innerHTML]="url">/<strong [innerHTML]="orgname"></strong></i></p>
+  </section>
 
   <ion-item>
-    <ion-label color="primary" position="fixed">Organization:</ion-label>
-    <ion-input [(ngModel)]="orgname" readonly="true"></ion-input>
+    <ion-input [(ngModel)]="orgname"
+      label="Organization:"
+      labelPlacement="stacked"
+      readonly="true">
+    </ion-input>
   </ion-item>
 
   <ion-item>
-    <ion-label position="fixed" color="primary">Device ID:</ion-label>
-    <ion-input [(ngModel)]="deviceIdentifier" readonly="true"></ion-input>
+    <ion-input [(ngModel)]="deviceIdentifier" 
+      readonly="true"
+      labelPlacement="stacked"
+      label="Device ID:">
+    </ion-input>
   </ion-item>
 
   <ion-row>

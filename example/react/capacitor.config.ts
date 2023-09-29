@@ -6,6 +6,11 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https'
+  },
+  // 'none' | 'debug' | 'production'
+  loggingBehavior: 'debug',
+  android: {
+    useLegacyBridge: true
   }
 };
 

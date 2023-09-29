@@ -67,10 +67,12 @@ import com.transistorsoft.locationmanager.scheduler.ScheduleEvent;
 import com.transistorsoft.locationmanager.scheduler.TSScheduleManager;
 import com.transistorsoft.locationmanager.util.Sensors;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @CapacitorPlugin(name = "BackgroundGeolocation")
@@ -511,6 +513,18 @@ public class BackgroundGeolocationPlugin extends Plugin {
         if (config.has("notifyOnDwell"))    { builder.setNotifyOnDwell(config.getBoolean("notifyOnDwell")); }
         if (config.has("loiteringDelay"))   { builder.setLoiteringDelay(config.getInt("loiteringDelay")); }
         if (config.has("extras"))           { builder.setExtras(config.getJSONObject("extras")); }
+
+        if (config.has("vertices")) {
+            JSONArray json = config.getJSONArray("vertices");
+            List<List<Double>> vertices = new ArrayList<>();
+            for (int i=0; i < json.length(); i++) {
+                JSONArray jVertex = json.getJSONArray(i);
+                vertices.add(Arrays.asList(jVertex.getDouble(0), jVertex.getDouble(1)));
+            }
+            builder.setVertices(vertices);
+        }
+
+
         return builder.build();
     }
 

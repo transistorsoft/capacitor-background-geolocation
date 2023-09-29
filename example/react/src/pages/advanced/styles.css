@@ -1,9 +1,7 @@
 ion-content {
 	--background: transparent;
 }
-ion-content{
-    
-}
+
 
 ion-content #background-content {
 	
@@ -22,4 +20,12 @@ ion-content #background-content {
 
 .polygon-geofence-menu {
 	
+}
+
+#geofence-prompt {
+	background-color: #fff1a5;
+	text-align: center;
+	padding: 2px;
+	font-size: 14px;
+	border-bottom: 1px solid #fedd1e;
 }

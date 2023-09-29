@@ -27,6 +27,8 @@ import BackgroundGeolocation, {
   MotionChangeEvent,
 } from "@transistorsoft/capacitor-background-geolocation";
 
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+
 import { GoogleMap, Marker } from '@capacitor/google-maps';
 import { useRef } from 'react';
 
@@ -59,9 +61,10 @@ const MARKERS = {
   activePolygons: null,
   geofenceEventMarkers: [],
   geofenceEventPolylines: [],
-  geofenceEventCircles: [],
   addGeofenceCursor: [],
-  addGeofencePolygonCursor: null
+  addGeofencePolygonCursor: null,
+  motionChangeCircles: [],
+  motionChangePolylines: []
 }
 
 /// Active Geofence Map, keyed by Geofence.identifier
@@ -79,6 +82,8 @@ const unsubscribe = () => {
 
 // Global GoogleMap reference.
 let map: GoogleMap = null;
+
+let stationaryLocation:Location = null;
 
 interface MapViewProps extends ContainerProps {
   // Callback fired back to containing Component when google-map is rendered
@@ -132,10 +137,10 @@ const MapView: React.FC<MapViewProps> = (props) => {
   }, [mapReady]);
 
   /// onLocation Effect.
-  React.useEffect(() => {
+  React.useEffect(() => {    
     if (location === null) { return; }
-    setCenter(location);
-    
+    BackgroundGeolocation.logger.debug("👍👍👍 [onLocation] " + JSON.stringify(location));
+    updateCurrentLocationMarker(location);
   }, [location]);
 
   /// onEnabledChange Effect
@@ -155,10 +160,19 @@ const MapView: React.FC<MapViewProps> = (props) => {
     if (motionChangeEvent === null) { return; }
     if (map === null) { return; }
 
+    const location = motionChangeEvent.location;
     if (motionChangeEvent.isMoving) {
+      if (!stationaryLocation) stationaryLocation = location;      
+      map.addCircles([buildMotionChangeCircle(stationaryLocation)]).then((result) => {
+        MARKERS.motionChangeCircles = MARKERS.motionChangeCircles.concat(result);
+      });
+      map.addPolylines([buildMotionChangePolyline(stationaryLocation, location)]).then((result) => {
+        MARKERS.motionChangePolylines = MARKERS.motionChangePolylines.concat(result);
+      });
       hideStationaryCircle();
     } else {
-      showStationaryCircle(motionChangeEvent.location);
+      stationaryLocation = location;
+      showStationaryCircle(location);
     }
     map.setCamera({      
       zoom: 16
@@ -202,6 +216,12 @@ const MapView: React.FC<MapViewProps> = (props) => {
     if (MARKERS.activePolygons) {
       await map.removePolygons(MARKERS.activePolygons);
     }
+    if ((event.on.length === 0) && (event.off.length === 0)) {
+      MARKERS.activeGeofences = null;
+      MARKERS.activePolygons = null;
+      return;
+    }
+
     event.off.forEach((identifier) => {
       delete ACTIVE_GEOFENCES[identifier];
     });
@@ -231,8 +251,6 @@ const MapView: React.FC<MapViewProps> = (props) => {
   const setCenter = async (location:Location) => {
     if (!map || location.sample) { return; }
           
-    updateCurrentLocationMarker(location);
-
     await map.setCamera({
       coordinate: {
         lat: location.coords.latitude,
@@ -243,14 +261,13 @@ const MapView: React.FC<MapViewProps> = (props) => {
 
   /// Update current-location Map Marker.
   const updateCurrentLocationMarker = async (location:Location) => {
-    // Push a new point onto our Polygon path List.
-    POLYLINE_PATH.push({
-      lat: location.coords.latitude,
-      lng: location.coords.longitude
-    });
-
+    setCenter(location);  
     if (MARKERS.currentLocation) {
-      await map.removeMarker(MARKERS.currentLocation);
+      try {
+        await map.removeMarker(MARKERS.currentLocation);
+      } catch(e) {
+        console.warn(e);
+      }        
     }
     // Current location "bluedot"
     MARKERS.currentLocation = await map.addMarker({
@@ -258,8 +275,9 @@ const MapView: React.FC<MapViewProps> = (props) => {
         lat: location.coords.latitude,
         lng: location.coords.longitude
       },
-      zIndex: 1000,
-      iconUrl: 'bluedot.png',
+      zIndex: 100,
+      isFlat: true,
+      iconUrl: 'markers/bluedot.png',
       iconSize: {        
         height: 24,
         width: 24
@@ -269,15 +287,18 @@ const MapView: React.FC<MapViewProps> = (props) => {
         y: 12
       }
     });
-
-    // Add a breadcrumb.
+    // Add a breadcrumb.    
+    let iconIndex = (location.coords.heading >= 0) ? Math.round(location.coords.heading / 10) : 0;
+    if (iconIndex > 36) iconIndex = 0;
+    
     MARKERS.locationMarkers.push(await map.addMarker({
       coordinate: {
         lat: location.coords.latitude,
         lng: location.coords.longitude
       },
-      zIndex: 999,
-      iconUrl: 'bluedot.png',
+      isFlat: true,
+      zIndex: 10,
+      iconUrl: `markers/location-arrow-${iconIndex}.png`,
       iconSize: {        
         height: 16,
         width: 16
@@ -285,20 +306,31 @@ const MapView: React.FC<MapViewProps> = (props) => {
       iconAnchor: {
         x: 8,
         y: 8
-      }
+      }      
     }));
 
-    // Polyline.
-    if (MARKERS.polyline) {
-      map.removePolylines(MARKERS.polyline);
-    }
+    if (!enabled) return;
     
+    // Push a new point onto our Polygon path List.
+    POLYLINE_PATH.push({
+      lat: location.coords.latitude,
+      lng: location.coords.longitude
+    });
+
+    if (MARKERS.polyline) {
+      try {
+        map.removePolylines(MARKERS.polyline);
+      } catch(e) {
+        console.warn(e);
+      }
+    }
+
     MARKERS.polyline = await map.addPolylines([{
-      zIndex: 1,
+      zIndex: 9,
       geodesic: true,
       strokeColor: COLORS.polyline_color,
-      strokeOpacity: 0.7,
-      strokeWeight: 7,
+      strokeOpacity: 0.6,
+      strokeWeight: 10,
       path: POLYLINE_PATH
     }]);    
   }
@@ -308,16 +340,48 @@ const MapView: React.FC<MapViewProps> = (props) => {
     
   }
 
+  const buildMotionChangeCircle = (location:Location) => {
+    return {
+      center: {
+        lat: location.coords.latitude,
+        lng: location.coords.longitude
+      },
+      fillColor: COLORS.red,
+      strokeColor: COLORS.red,
+      zIndex: 8,
+      fillOpacity: 0.3,
+      strokeOpacity: 0.7,
+      radius: 25
+    };
+  }
+
+  const buildMotionChangePolyline = (from:Location, to:Location) => {
+    return {
+      zIndex: 8,
+      geodesic: true,
+      strokeColor: '#00ff00',
+      strokeOpacity: 0.7,
+      strokeWeight: 10,
+      path: [{
+        lat: from.coords.latitude,
+        lng: from.coords.longitude
+      }, {
+        lat: to.coords.latitude,
+        lng: to.coords.longitude
+      }]
+    };
+  }
+
   /// Build a Geofence Map Circle Marker
   const buildGeofenceCircle = (geofence:Geofence) => {
     return {
       identifier: geofence.identifier,
-      zIndex: 100,
+      zIndex: 1,
       fillColor: COLORS.green,
       fillOpacity: 0.2,
       strokeColor: COLORS.green,
-      strokeWeight: 1,
-      strokeOpacity: 0.7,
+      strokeWeight: 2,
+      strokeOpacity: 1.0,
       params: geofence,
       radius: geofence.radius,
       center: {
@@ -330,10 +394,12 @@ const MapView: React.FC<MapViewProps> = (props) => {
   /// Build a Polygon Geofence Marker.
   const buildGeofencePolygon = (geofence) => {
     return {
+      zIndex: 2,
       strokeColor: COLORS.blue,
       strokeWeight: 5,
-      fillColor: COLORS.green,
-      fillOpacity: 0.2,
+      strokeOpacity: 0.7,
+      fillColor: COLORS.polygon_fill_color,
+      fillOpacity: 0.4,
       geodesic: true,
       clickable: false,
       title: geofence.identifier,
@@ -346,12 +412,12 @@ const MapView: React.FC<MapViewProps> = (props) => {
   /// Build red stationary geofence marker.
   const showStationaryCircle = async (location:Location) => {
     await hideStationaryCircle();
-    await setCenter(location);
-
+    
     const state = await BackgroundGeolocation.getState();
     const radius = (state.trackingMode == 1) ? 200 : (state.geofenceProximityRadius! / 2);
 
     MARKERS.stationaryCircle = await map.addCircles([{
+      zIndex: 1,
       center: {
         lat: location.coords.latitude,
         lng: location.coords.longitude
@@ -401,21 +467,23 @@ const MapView: React.FC<MapViewProps> = (props) => {
     if (MARKERS.geofenceEventMarkers.length > 0) {
       map.removeMarkers(MARKERS.geofenceEventMarkers);
       MARKERS.geofenceEventMarkers = [];
-    }
-    if (MARKERS.geofenceEventCircles.length > 0) {
-      map.removeCircles(MARKERS.geofenceEventCircles);
-      MARKERS.geofenceEventCircles = [];
-    }
+    }    
     if (MARKERS.geofenceEventPolylines.length > 0) {      
       map.removePolylines(MARKERS.geofenceEventPolylines);
       MARKERS.geofenceEventPolylines = [];
-    }    
+    }
+    if (MARKERS.motionChangePolylines.length > 0) {
+      map.removePolylines(MARKERS.motionChangePolylines);
+      MARKERS.motionChangePolylines = [];
+    }
+    if (MARKERS.motionChangeCircles.length > 0) {
+      map.removeCircles(MARKERS.motionChangeCircles);
+      MARKERS.motionChangeCircles = [];
+    }
   }
 
   /// Render markers when an onGeofence event fires.
   const handleGeofenceEvent = async (event) => {
-    const isEnter = event.action == 'ENTER';
-
     const geofence = await BackgroundGeolocation.getGeofence(event.identifier);
     const location = event.location;
     const center = {
@@ -424,36 +492,68 @@ const MapView: React.FC<MapViewProps> = (props) => {
     };
     const radius = geofence.radius;
 
+    POLYLINE_PATH.push({
+      lat: location.coords.latitude,
+      lng: location.coords.longitude
+    });
+    
+
+    let color, iconColor;
+    if (event.action === 'ENTER') {
+      color = COLORS.green;
+      iconColor = 'green';
+    } else if (event.action === 'DWELL') {
+      color = COLORS.gold;
+      iconColor = 'amber';
+    } else {
+      color = COLORS.red;
+      iconColor = 'red';
+    }
+
+    let iconIndex = (location.coords.heading >= 0) ? Math.round(location.coords.heading / 10) : 0;
+    if (iconIndex > 36) iconIndex = 0;
+        
     MARKERS.geofenceEventMarkers.push(await map.addMarker({
+      zIndex: 100,
       coordinate: {
         lat: location.coords.latitude,
         lng: location.coords.longitude
       },
+      iconUrl: `markers/location-arrow-${iconColor}-${iconIndex}.png`,
       iconSize: {
-        width: 32,
-        height: 32
+        width: 20,
+        height: 20
       },
-      iconUrl: (event.action === 'ENTER') ? 'geofence-enter.png' : 'geofence-exit.png'
+      iconAnchor: {
+        x: 10,
+        y: 10
+      }      
     }));
     
     const bearing = getBearing(center, location.coords);
     const edgeCoordinate = computeOffsetCoordinate(center, radius, bearing);
 
     MARKERS.geofenceEventMarkers.push(await map.addMarker({
+      zIndex: 500,
       coordinate: {
         lat: edgeCoordinate.latitude,
         lng: edgeCoordinate.longitude
       },
+      iconUrl: `markers/geofence-event-edge-circle-${event.action.toLowerCase()}.png`,
       iconSize: {
-        width: 32,
-        height: 48
+        width: 10,
+        height: 10
       },
-      iconUrl: (isEnter) ? 'geofence-enter.png' : 'geofence-exit.png'
+      iconAnchor: {
+        x: 5,
+        y: 5
+      }
     }));
+    
     MARKERS.geofenceEventPolylines = MARKERS.geofenceEventPolylines.concat(await map.addPolylines([{
       geodesic: true,
-      zIndex: 500,
-      strokeColor: (isEnter) ? COLORS.green : COLORS.geofence_red,//'#000000',
+      zIndex: 99,
+      strokeColor: COLORS.black,
       strokeOpacity: 1.0,
       strokeWeight: 2,
       path: [{
@@ -464,18 +564,6 @@ const MapView: React.FC<MapViewProps> = (props) => {
         lng: edgeCoordinate.longitude
       }]
     }]));    
-    MARKERS.geofenceEventCircles = MARKERS.geofenceEventCircles.concat(await map.addCircles([{
-      zIndex: 100,
-      fillColor: '#ffffff',
-      fillOpacity: 0,
-      strokeColor: (isEnter) ? COLORS.green : COLORS.geofence_red,//'#000000',
-      strokeWeight: 3,      
-      radius: radius,
-      center: {
-        lat: center.latitude, 
-        lng: center.longitude
-      }
-    }]));
   }
     
   /// Create the @capacitor/google-maps instance.
@@ -500,17 +588,21 @@ const MapView: React.FC<MapViewProps> = (props) => {
 
     map.setOnMapClickListener(onMapClick);  
 
-    const ionContent:HTMLElement = document.querySelector('.AdvancedApp ion-content');  
-    if (ionContent != null) {      
-      setMapHeight(ionContent.offsetHeight);
+    const ionContent:HTMLElement = document.querySelector('.AdvancedApp ion-content');    
+    if (ionContent != null) {
+      const geofencePrompt:HTMLElement = document.querySelector('#geofence-prompt');
+      setMapHeight(ionContent.offsetHeight - geofencePrompt.offsetHeight);
       setMapWidth(ionContent.offsetWidth);
     }    
     setMapReady(true);
   };
 
   /// @capacitor/google-maps Map-click listener.
-  const onMapClick = React.useCallback(async (coords) => {            
+  const onMapClick = React.useCallback(async (coords) => {
+    
     if (IS_CREATING_POLYGON) {
+      SettingsService.getInstance().playSound('TEST_MODE_CLICK');
+      Haptics.impact({ style: ImpactStyle.Heavy });
       POLYGON_GEOFENCE_VERTICES.push([coords.latitude, coords.longitude]); 
       renderPolygonGeofenceCursor()
     } else {
@@ -525,7 +617,7 @@ const MapView: React.FC<MapViewProps> = (props) => {
         longitude: coords.longitude
       });
     }
-    MARKERS.addGeofenceCursor.push(await map.addMarker({      
+    MARKERS.addGeofenceCursor.push(await map.addMarker({
       coordinate: {
         lat: coords.latitude,
         lng: coords.longitude
@@ -542,8 +634,12 @@ const MapView: React.FC<MapViewProps> = (props) => {
     }
   });
 
-  const onClickAddGeofence = async (coords) => {
+  const onClickAddGeofence = async (coords) => {    
     setGeofenceCoordinate(coords);
+    // Play sound and haptics.
+    SettingsService.getInstance().playSound('LONG_PRESS_ACTIVATE');
+    Haptics.impact({ style: ImpactStyle.Heavy });      
+
     const result = await ActionSheet.showActions({
       title: 'Add Geofence',
       message: 'Circular or Polygon',
@@ -559,7 +655,9 @@ const MapView: React.FC<MapViewProps> = (props) => {
           style: ActionSheetButtonStyle.Destructive,
         },
       ]
-    });    
+    });
+    SettingsService.getInstance().playSound('TEST_MODE_CLICK');
+    Haptics.impact({ style: ImpactStyle.Heavy });      
     switch (result.index) {
       case 0:
         IS_CREATING_POLYGON = false;
@@ -582,32 +680,34 @@ const MapView: React.FC<MapViewProps> = (props) => {
 
   /// When user clicks the map, a "Create Geofence" menu appears.  When they select "Polygon", this menu appears.
   const polygonGeofenceMenu = () => {
-    return (isCreatingPolygon) ?  (<IonToolbar mode="ios" color="dark" className="polygon-geofence-menu">
-        <IonTitle color="light" size="small">Create Polygon</IonTitle>
+    return (isCreatingPolygon) ?  (
+      <IonToolbar mode="ios" color="secondary" className="polygon-geofence-menu">
+        <IonTitle color="dark" size="small">Click map to add polygon points</IonTitle>
         <IonButtons slot="start">
-          <IonButton onClick={() => {onClickCancelPolygon()}}>Cancel</IonButton>
-          <IonButton onClick={() => {onClickUndoPolygon()}}><IonIcon icon={iconUndo}/></IonButton>
+          <IonButton onClick={() => {onClickCancelPolygon()}} color="primary">Cancel</IonButton>
+          <IonButton onClick={() => {onClickUndoPolygon()}} color="primary"><IonIcon icon={iconUndo}/></IonButton>
         </IonButtons>
         <IonButtons slot="end">
-          <IonButton onClick={() => {onClickAddPolygon()}}>Continue</IonButton>
+          <IonButton onClick={() => {onClickAddPolygon()}} color="primary">Continue</IonButton>
         </IonButtons>                        
       </IonToolbar>
     ) : null;  
   }
 
   /// Renders the current Polygon Geofence under construction.
-  const renderPolygonGeofenceCursor = async () => {
+  const renderPolygonGeofenceCursor = async () => {    
     if (MARKERS.addGeofencePolygonCursor) {
       await map.removePolygons(MARKERS.addGeofencePolygonCursor);
     }
     if (POLYGON_GEOFENCE_VERTICES.length == 0) {
       return;
     }
-    MARKERS.addGeofencePolygonCursor = await map.addPolygons([{
+    MARKERS.addGeofencePolygonCursor = await map.addPolygons([{      
       strokeColor: COLORS.blue,
-      strokeWeight: 10,
-      fillColor: COLORS.green,
-      fillOpacity: 0.2,
+      strokeWeight: 5,
+      strokeOpacity: 0.6,
+      fillColor: COLORS.polygon_fill_color,
+      fillOpacity: 0.4,
       geodesic: true,
       clickable: false,
       paths: POLYGON_GEOFENCE_VERTICES.map((vertex => {
@@ -622,10 +722,16 @@ const MapView: React.FC<MapViewProps> = (props) => {
     setGeofenceVertices(vertices);
     setIsCreatingPolygon(false);
     presentGeofenceView();
+    // Play sound and haptics.
+    SettingsService.getInstance().playSound('TEST_MODE_CLICK');
+    Haptics.impact({ style: ImpactStyle.Heavy });      
   }
   /// User clicks [Cancel] Polygon Geofence.
   const onClickCancelPolygon = () => {
-    setIsCreatingPolygon(false);    
+    setIsCreatingPolygon(false);
+    // Play sound and haptics.
+    SettingsService.getInstance().playSound('TEST_MODE_CLICK');
+    Haptics.impact({ style: ImpactStyle.Heavy });      
   }
   /// User clicks [UNDO] button to delete a Polygon vertex
   const onClickUndoPolygon = () => {
@@ -634,12 +740,20 @@ const MapView: React.FC<MapViewProps> = (props) => {
     if (markerId) {
       map.removeMarker(markerId);
     }    
-    renderPolygonGeofenceCursor();    
+    renderPolygonGeofenceCursor();
+    // Play sound and haptics.
+    SettingsService.getInstance().playSound('TEST_MODE_CLICK');
+    Haptics.impact({ style: ImpactStyle.Heavy });          
+  }
+
+  const clickMapToAddGeofencesPrompt = () => {
+    return (!isCreatingPolygon) ? <div id="geofence-prompt">Click map to add geofences</div> : null;
   }
   /// Render the view.
   return (
     <div id="MapView-container">
       {polygonGeofenceMenu()}
+      {clickMapToAddGeofencesPrompt()}
       <capacitor-google-map ref={mapRef} style={{
         display: 'inline-block',
         width: mapWidth,

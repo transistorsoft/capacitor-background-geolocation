@@ -1,7 +1,17 @@
 # Change Log
 
+## 5.2.0 &mdash; 2023-09-29
+
+* **Polygon Geofencing**:  The Background Geolocation SDK now supports *Polygon Geofences* (Geofences of any shape).  For more information, see API docs [`Geofence.vertices`](https://transistorsoft.github.io/capacitor-background-geolocation/interfaces/geofence.html#vertices).  ℹ️ __*Polygon Geofencing*__ is [sold as a separate add-on](https://shop.transistorsoft.com/products/polygon-geofencing) (fully functional in *DEBUG* builds).
+
+![](https://dl.dropbox.com/scl/fi/sboshfvar0h41azmb4tyv/polygon-geofencing-parc-outremont-400.png?rlkey=d2s0n3zbzu72e7s2gch9kxd4a&dl=1)
+![](https://dl.dropbox.com/scl/fi/xz48myvjnpp8ko0l2tufg/polygon-geofencing-parc-lafontaine-400.png?rlkey=sf20ns959uj0a0fq0atmj55bz&dl=1)
+
+* Remove `backup_rules.xml` from `AndroidManifest.xml` &mdash; it's causing conflicts with other plugins.
+* [Android] Add proguard-rule for compilation of the android library to prevent from obfuscating the `BuildConfig` class to `a.a.class`, conflicting with other libraries.
+
 ## 5.1.4 &mdash; 2023-09-11
-* [Android] Add proguar-rule for compilation of the android library to prevent from obfuscating the `BuildConfig` class to `a.a.class`, conflicting with other libraries.
+* [Android] Add proguard-rule for compilation of the android library to prevent from obfuscating the `BuildConfig` class to `a.a.class`, conflicting with other libraries.
 
 ## 5.1.3 &mdash; 2023-09-05
 * [Android] Performance enhancements and error-checking.

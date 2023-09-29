@@ -14,7 +14,8 @@ import {ENV} from "./config/ENV";
 
 Preferences.get({key: 'page'}).then((result) => {
   let page = '/home';
-  if (result) {
+  
+  if (result.value) {
     page = result.value;
   }
   
