@@ -18,13 +18,22 @@
 			<span [innerHTML]="devicename"></span>
 		</ion-label>
 		<ion-item>
-			<ion-label color="primary" position="stacked">Organization name</ion-label>
-			<ion-input [(ngModel)]="orgname" type="url" placeholder="eg: Company name"></ion-input>
+			
+			<ion-input [(ngModel)]="orgname" 
+				label="Organization name"
+				labelPlacement="stacked" 
+				type="url" 				
+				placeholder="eg: Company name">
+			</ion-input>
 		</ion-item>
 
 		<ion-item>
-			<ion-label color="primary" position="stacked">Username</ion-label>
-			<ion-input [(ngModel)]="username"type="url" placeholder="eg: Github username or initials"></ion-input>
+			<ion-input [(ngModel)]="username"
+				type="url" 
+				label="Username"
+				labelPlacement="stacked"
+				placeholder="eg: Github username or initials">					
+			</ion-input>
 		</ion-item>
 		<ion-card>
 			<ion-item text-wrap>

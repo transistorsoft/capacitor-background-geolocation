@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.VIBRATE" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -12,7 +13,7 @@
 
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
-            android:name="com.transistorsoft.backgroundgeolocation.capacitor.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:exported="true"
@@ -24,7 +25,7 @@
             </intent-filter>
 
         </activity>
-
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDXTDr2C3iU9jgwpNVpZjeWzOc-DyCgkt8"/>
         <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="96453dbb4ab9365552809eb60147876b07d54aa0eb61a8b7be01095782897336" />
         <meta-data android:name="com.transistorsoft.locationmanager.hms.license" android:value="d10b4994830af3b62aabb6577b60f6e9bb3aa7357155b7c6f83082d8a47fe890" />
         <provider

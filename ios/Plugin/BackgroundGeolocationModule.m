@@ -666,18 +666,21 @@ static NSString *const EVENT_AUTHORIZATION      = @"authorization";
 }
 
 -(TSGeofence*) buildGeofence:(NSDictionary*)params {
-    if (!params[@"identifier"] || !params[@"radius"] || !params[@"latitude"] || !params[@"longitude"]) {
+                
+    if (!params[@"identifier"] || (!params[@"vertices"] && (!params[@"radius"] || !params[@"latitude"] || !params[@"longitude"]))) {
         return nil;
     }
+    
     return [[TSGeofence alloc] initWithIdentifier: params[@"identifier"]
-                                           radius: [params[@"radius"] doubleValue]
-                                         latitude: [params[@"latitude"] doubleValue]
-                                        longitude: [params[@"longitude"] doubleValue]
-                                    notifyOnEntry: (params[@"notifyOnEntry"]) ? [params[@"notifyOnEntry"] boolValue]  : NO
-                                     notifyOnExit: (params[@"notifyOnExit"])  ? [params[@"notifyOnExit"] boolValue] : NO
-                                    notifyOnDwell: (params[@"notifyOnDwell"]) ? [params[@"notifyOnDwell"] boolValue] : NO
-                                   loiteringDelay: (params[@"loiteringDelay"]) ? [params[@"loiteringDelay"] doubleValue] : 0
-                                           extras: params[@"extras"]];
+                                            radius: (params[@"radius"]) ? [params[@"radius"] doubleValue] : 0
+                                          latitude: (params[@"latitude"]) ? [params[@"latitude"] doubleValue] : 0
+                                         longitude: (params[@"longitude"]) ? [params[@"longitude"] doubleValue] : 0
+                                     notifyOnEntry: (params[@"notifyOnEntry"]) ? [params[@"notifyOnEntry"] boolValue]  : NO
+                                      notifyOnExit: (params[@"notifyOnExit"])  ? [params[@"notifyOnExit"] boolValue] : NO
+                                     notifyOnDwell: (params[@"notifyOnDwell"]) ? [params[@"notifyOnDwell"] boolValue] : NO
+                                    loiteringDelay: (params[@"loiteringDelay"]) ? [params[@"loiteringDelay"] doubleValue] : 0
+                                            extras: params[@"extras"]
+                                          vertices: params[@"vertices"]];
 }
 
 - (void)dealloc

@@ -106,8 +106,13 @@ const Registration: React.FC = (props:any) => {
         </IonItem>
 
         <IonItem>
-          <IonLabel position="stacked" color="primary">Organization Name:</IonLabel>
-          <IonInput value={orgname} onIonChange={(e) => { setOrgname(e.detail.value!)}} placeholder="Eg. company-name"/>
+          <IonLabel position="stacked" color="primary"></IonLabel>
+          <IonInput value={orgname} 
+            label="Organization Name:"
+            labelPlacement="stacked"
+            onIonChange={(e) => { setOrgname(e.detail.value!)}} 
+            placeholder="Eg. company-name"
+          />
         </IonItem>
 
         <IonItem>

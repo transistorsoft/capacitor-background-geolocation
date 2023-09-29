@@ -20,6 +20,8 @@ import {
   LoadingController
 } from '@ionic/angular';
 
+import { MapView } from './map-view.component'
+
 import BackgroundGeolocation, {
   State,
   Location,
@@ -47,8 +49,6 @@ import {registerTransistorAuthorizationListener} from "../lib/authorization";
 import { SettingsPage } from './modals/settings/settings.page';
 import { GeofencePage} from "./modals/geofence/geofence.page";
 
-declare var google;
-
 const CONTAINER_BORDER_POWER_SAVE_OFF = 'none';
 const CONTAINER_BORDER_POWER_SAVE_ON = '7px solid red';
 
@@ -69,17 +69,9 @@ const MESSAGE = {
   templateUrl: './advanced.page.html',
   styleUrls: ['./advanced.page.scss'],
 })
-export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
-  @ViewChild('map', {static: true}) private mapElement: ElementRef;
-	/**
-  * @property {google.Map} Reference to Google Map instance
-  */
-  map: any;
 
-  /**
-  * @property {boolean} true if google maps sdk loaded
-  */
-  isGoogleMapsSdkLoaded:boolean;
+export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
+  @ViewChild('map', {static: true}) private mapElement: ElementRef;	
   /**
   * @property {Object} state
   */
@@ -96,19 +88,8 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   * @property {Object} map of icons
   */
   iconMap: any;
-
-  currentLocationMarker: any;
-  locationAccuracyCircle:  any;
-  geofenceHitMarkers: any;
-  polyline: any;
-  stationaryRadiusCircle: any;
-  geofenceCursor: any;
-  locationMarkers: any;
-  geofenceMarkers: any;
+  
   lastDirectionChangeLocation: any;
-
-  // Geofence Hits
-  geofenceHits: any;
 
   // FAB Menu
   isMainMenuOpen: boolean;
@@ -124,7 +105,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   testModeTimer: any;
 
   // Event subscriptions
-  subscriptions: any;
+  subscriptions: Array<Subscription>;
 
   constructor(
     private navCtrl:NavController,
@@ -134,10 +115,9 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
     private loadingCtrl: LoadingController,
     private bgService: BGService,
     private settingsService: SettingsService,
-    private zone: NgZone,
+    public zone: NgZone,
     private platform:Platform) {
-
-    this.isGoogleMapsSdkLoaded = (typeof(google) === 'object');
+      
     // Event subscriptions
     this.subscriptions = [];
 
@@ -147,15 +127,9 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
     this.isSyncing = false;
     this.isResettingOdometer = false;
     this.isEmailingLog = false;
-
     this.isWatchingPosition = false;
-
     this.testModeClicks = 0;
-
     this.iconMap = ICON_MAP;
-
-    this.geofenceHits = [];
-
 
     // Initial state
     this.state = {
@@ -172,35 +146,34 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
         enabled: true,
         status: -1
       },
-      containerBorder: 'none',
-      locationJson: ''
+      containerBorder: 'none'
     };
 
-
-    /// Listen to PAUSE/RESUME events for fun.
+    // Listen to PAUSE/RESUME events for fun.
     this.platform.pause.subscribe(() => {
-      console.log('************************** PAUSE');
+      // pause
     });
     this.platform.resume.subscribe(() => {
-      console.log('************************** RESUME');
-    })
+      // resume
+    });
   }
-
+  getZone() {
+    return this.zone;
+  }
+  onMapReady() {
+    // Configure the plugin.
+    this.configureBackgroundGeolocation();
+  }
+  
   async ionViewWillEnter() {
     console.log('⚙️ ionViewWillEnter');
   }
 
   async ngAfterContentInit()  {
     console.log('⚙️ ngAfterContentInit');
-
-    // Setup the GoogleMap
-    await this.configureMap();
-
+    
     // Re-register Transistor Demo Server Authorization listener.
-    registerTransistorAuthorizationListener(this.router);
-
-    // Configure the plugin.
-    this.configureBackgroundGeolocation();
+    registerTransistorAuthorizationListener(this.router);  
   }
 
   ngOnInit() {}
@@ -248,7 +221,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
     const username = (await Preferences.get({key: 'username'})).value;
 
     let token:TransistorAuthorizationToken = await
-      BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(orgname, username,environment.TRACKER_HOST);
+      BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(orgname, username, environment.TRACKER_HOST);
 
     // With the plugin's #ready method, the supplied config object will only be applied with the first
     // boot of your application.  The plugin persists the configuration you apply to it.  Each boot thereafter,
@@ -256,7 +229,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
 
     BackgroundGeolocation.ready({
       transistorAuthorizationToken: token,
-      reset: false,
+      reset: false, // <-- !!WARNING!!  DO NOT USE THIS IN YOUR OWN CODE UNLESS YOU REALLY KNOW WHAT IT DOES
       debug: true,
       locationAuthorizationRequest: 'Always',
       logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
@@ -290,121 +263,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
       console.warn('- BackgroundGeolocation configuration error: ', error);
     });
   }
-
-
-  /**
-  * Configure Google Maps
-  */
-  configureMap() {
-    return new Promise((resolve:Function) => {
-      // Handle case where app booted without network accesss (google maps lib fails to load)
-      if (!this.isGoogleMapsSdkLoaded) {
-        console.warn('- map not loaded');
-        return;
-      }
-      this.locationMarkers = [];
-      this.geofenceMarkers = [];
-      this.geofenceHitMarkers = [];
-
-      let latLng = new google.maps.LatLng(-34.9290, 138.6010);
-
-      let mapOptions = {
-        center: latLng,
-        zoom: 15,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        zoomControl: false,
-        mapTypeControl: false,
-        panControl: false,
-        rotateControl: false,
-        scaleControl: false,
-        streetViewControl: false,
-        disableDefaultUI: true
-      };
-      this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
-
-      // Create LongPress event-handler
-      new LongPress(this.map, 500);
-
-      // Tap&hold detected.  Play a sound a draw a circular cursor.
-      google.maps.event.addListener(this.map, 'longpresshold', this.onLongPressStart.bind(this));
-      // Longpress cancelled.  Get rid of the circle cursor.
-      google.maps.event.addListener(this.map, 'longpresscancel', this.onLongPressCancel.bind(this));
-      // Longpress initiated, add the geofence
-      google.maps.event.addListener(this.map, 'longpress', this.onLongPress.bind(this));
-
-      // Blue current location marker
-      this.currentLocationMarker = new google.maps.Marker({
-        zIndex: 10,
-        map: this.map,
-        title: 'Current Location',
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 12,
-          fillColor: COLORS.blue,
-          fillOpacity: 1,
-          strokeColor: COLORS.white,
-          strokeOpacity: 1,
-          strokeWeight: 6
-        }
-      });
-      // Light blue location accuracy circle
-      this.locationAccuracyCircle = new google.maps.Circle({
-        map: this.map,
-        zIndex: 9,
-        fillColor: COLORS.light_blue,
-        fillOpacity: 0.4,
-        strokeOpacity: 0
-      });
-      // Stationary Geofence
-      this.stationaryRadiusCircle = new google.maps.Circle({
-        zIndex: 0,
-        fillColor: COLORS.red,
-        strokeColor: COLORS.red,
-        strokeWeight: 1,
-        fillOpacity: 0.3,
-        strokeOpacity: 0.7,
-        map: this.map
-      });
-      // Route polyline
-      let seq = {
-        repeat: '30px',
-        icon: {
-          path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
-          scale: 1,
-          fillOpacity: 0,
-          strokeColor: COLORS.white,
-          strokeWeight: 1,
-          strokeOpacity: 1
-        }
-      };
-      this.polyline = new google.maps.Polyline({
-        map: this.map,
-        zIndex: 1,
-        geodesic: true,
-        strokeColor: COLORS.polyline_color,
-        strokeOpacity: 0.7,
-        strokeWeight: 7,
-        icons: [seq]
-      });
-      // Popup geofence cursor for adding geofences via LongPress
-      this.geofenceCursor = new google.maps.Marker({
-        clickable: false,
-        zIndex: 100,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 100,
-          fillColor: COLORS.green,
-          fillOpacity: 0.2,
-          strokeColor: COLORS.green,
-          strokeWeight: 1,
-          strokeOpacity: 0.7
-        }
-      });
-      resolve();
-    });
-
-  }
-
+  
   ////
   // UI event handlers
   //
@@ -511,7 +370,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
       this.isDestroyingLocations = false;
     };
 
-    let count = await BackgroundGeolocation.getCount();
+    const count = await BackgroundGeolocation.getCount();
     if (!count) {
       this.settingsService.toast('Locations database is empty');
       return;
@@ -532,7 +391,6 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
 
   async onClickEmailLogs() {
     this.bgService.playSound('BUTTON_CLICK');
-
 
     const email = (await Preferences.get({key: 'settings:email'})).value;
     if (!email) {
@@ -591,7 +449,6 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
     this.state.odometer = '0.0';
     this.bgService.playSound('BUTTON_CLICK');
     this.isResettingOdometer = true;
-    this.resetMarkers();
 
     let settingsService = this.settingsService;
 
@@ -637,7 +494,6 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
     } else {
       await BackgroundGeolocation.stop();
       this.state.isMoving = false;
-      this.clearMarkers();
     }
   }
 
@@ -666,7 +522,7 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
       persist: true,
       timeout: 30,
       extras: {
-        foo: 'bar'
+        event: 'getCurrentPosition'
       }
     }).then(location => {
       console.log('[js] getCurrentPosition: ', location);
@@ -707,6 +563,24 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
     BackgroundGeolocation.changePace(this.state.isMoving).then(onComplete).catch(onComplete);
   }
 
+  /// Listener from MapView
+  async onAddGeofence(coords) {
+    let props:any = {bgService: this.bgService};
+    if (Array.isArray(coords)) {
+      props.vertices = coords;
+    } else {
+      props.latitude = coords.latitude;
+      props.longitude = coords.longitude;
+    }
+    const modal = await this.modalController.create({
+      component: GeofencePage,
+      cssClass: 'ios',
+      animated: true,
+      componentProps: props
+    });
+    await modal.present();  
+  }
+
   ////
   // Background Geolocation event-listeners
   //
@@ -718,18 +592,8 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
     console.log('[location] -', JSON.stringify(location, null, 2));
     // Print a log message to SDK's logger to prove this executed, even in the background.
     BackgroundGeolocation.logger.debug("👍 [onLocation] received location in Javascript: " + location.uuid);
-
-    if (!this.isGoogleMapsSdkLoaded) {
-      this.zone.run(() => {
-        this.state.locationJson = JSON.stringify(location, null, 2);
-      });
-
-      return;
-    }
-
+    
     this.zone.run(() => {
-      this.setCenter(location);
-
       if (!location.sample) {
         // Convert meters -> km -> round nearest hundredth -> fix float xxx.x
         this.state.odometer = parseFloat((Math.round((location.odometer/1000)*10)/10).toString()).toFixed(1);
@@ -747,14 +611,8 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   */
   onMotionChange(event:MotionChangeEvent) {
     console.log('[motionchange] -', event.isMoving, event.location);
-    if (!this.isGoogleMapsSdkLoaded) { return; }
 
-    this.zone.run(() => {
-      if (event.isMoving) {
-        this.hideStationaryCircle();
-      } else {
-        this.showStationaryCircle(event.location);
-      }
+    this.zone.run(() => {      
       this.state.enabled = true;
       this.state.isChangingPace = false;
       this.state.isMoving = event.isMoving;
@@ -772,7 +630,6 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   */
   onActivityChange(event:MotionActivityEvent) {
     console.log('[activitychange] -', event.activity, event.confidence);
-    if (!this.isGoogleMapsSdkLoaded) { return; }
 
     this.zone.run(() => {
       this.state.activityName = event.activity;
@@ -816,141 +673,14 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
   * @event geofenceschange
   */
   onGeofencesChange(event:GeofencesChangeEvent) {
-    console.log('[geofenceschange] -', event);
-    if (!this.isGoogleMapsSdkLoaded) { return; }
-
-    // All geofences off
-    if (!event.on.length && !event.off.length) {
-      this.geofenceMarkers.forEach((circle) => {
-        circle.setMap(null);
-      });
-      this.geofenceMarkers = [];
-      return;
-    }
-
-    // Filter out all "off" geofences.
-    this.geofenceMarkers = this.geofenceMarkers.filter((circle) => {
-      if (event.off.indexOf(circle.identifier) < 0) {
-        return true;
-      } else {
-        circle.setMap(null);
-        return false;
-      }
-    });
-
-    // Add new "on" geofences.
-    event.on.forEach((geofence:Geofence) => {
-      var circle = this.geofenceMarkers.find((marker) => { return marker.identifier === geofence.identifier;});
-      // Already added?
-      if (circle) { return; }
-      this.geofenceMarkers.push(this.buildGeofenceMarker(geofence));
-    });
+    console.log('[geofenceschange] -', event);    
   }
 
   /**
   * @event geofence
   */
   async onGeofence(event:GeofenceEvent) {
-    console.log('[geofence] -', event);
-    if (!this.isGoogleMapsSdkLoaded) { return; }
-
-    var circle = this.geofenceMarkers.find((marker) => {
-      return marker.identifier === event.identifier;
-    });
-
-    if (!circle) { return; }
-    var map = this.map;
-
-    let location = event.location;
-    let geofenceMarker = this.geofenceHits[event.identifier];
-    if (!geofenceMarker) {
-      geofenceMarker = {
-        circle: new google.maps.Circle({
-          zIndex: 100,
-          fillOpacity: 0,
-          strokeColor: COLORS.black,
-          strokeWeight: 1,
-          strokeOpacity: 1,
-          radius: circle.getRadius()+1,
-          center: circle.getCenter(),
-          map: map
-        }),
-        events: []
-      };
-      this.geofenceHits[event.identifier] = geofenceMarker;
-      this.geofenceHitMarkers.push(geofenceMarker.circle);
-    }
-
-    var color;
-    if (event.action === 'ENTER') {
-      color = COLORS.green;
-    } else if (event.action === 'DWELL') {
-      color = COLORS.gold;
-    } else {
-      color = COLORS.red;
-    }
-
-    let circleLatLng = geofenceMarker.circle.getCenter();
-    let locationLatLng = new google.maps.LatLng(location.coords.latitude, location.coords.longitude);
-    let distance = google.maps.geometry.spherical.computeDistanceBetween (circleLatLng, locationLatLng);
-
-    // Push event
-    geofenceMarker.events.push({
-      action: event.action,
-      location: event.location,
-      distance: distance
-    });
-
-    let heading = google.maps.geometry.spherical.computeHeading(circleLatLng, locationLatLng);
-    let circleEdgeLatLng = google.maps.geometry.spherical.computeOffset(circleLatLng, geofenceMarker.circle.getRadius(), heading);
-
-    geofenceMarker.events.push({
-      location: event.location,
-      action: event.action,
-      distance: distance
-    });
-
-    var geofenceEdgeMarker = new google.maps.Marker({
-      zIndex: 1000,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 5,
-        fillColor: color,
-        fillOpacity: 0.7,
-        strokeColor: COLORS.black,
-        strokeWeight: 1,
-        strokeOpacity: 1
-      },
-      map: map,
-      position: circleEdgeLatLng
-    });
-    this.geofenceHitMarkers.push(geofenceEdgeMarker);
-
-    var locationMarker = this.buildLocationMarker(location, {
-      showHeading: true
-    });
-    locationMarker.setMap(map);
-    this.geofenceHitMarkers.push(locationMarker);
-
-    var polyline = new google.maps.Polyline({
-      map: map,
-      zIndex: 1000,
-      geodesic: true,
-      strokeColor: COLORS.black,
-      strokeOpacity: 1,
-      strokeWeight: 1,
-      path: [circleEdgeLatLng, locationMarker.getPosition()]
-    });
-    this.geofenceHitMarkers.push(polyline);
-
-    // Change the color of activated geofence to light-grey.
-    circle.activated = true;
-    circle.setOptions({
-      fillColor: COLORS.grey,
-      fillOpacity: 0.2,
-      strokeColor: COLORS.grey,
-      strokeOpacity: 0.4
-    });
+    console.log('[geofence] -', event);    
   }
   /**
   * @event http
@@ -1013,210 +743,5 @@ export class AdvancedPage implements OnInit, OnDestroy, AfterContentInit {
       case 'notificaitonButtonBar':
         break;
     }
-  }
-
-  ////
-  // Google map methods
-  //
-  //
-  //
-  private setCenter(location:Location) {
-    if (!this.isGoogleMapsSdkLoaded) { return; }
-    this.updateCurrentLocationMarker(location);
-    setTimeout(function() {
-      this.map.setCenter(new google.maps.LatLng(location.coords.latitude, location.coords.longitude));
-    }.bind(this));
-  }
-
-  private updateCurrentLocationMarker(location:Location) {
-    var latlng = new google.maps.LatLng(location.coords.latitude, location.coords.longitude);
-    this.currentLocationMarker.setPosition(latlng);
-    this.locationAccuracyCircle.setCenter(latlng);
-    this.locationAccuracyCircle.setRadius(location.coords.accuracy);
-
-    if (location.sample === true) {
-      return;
-    }
-    if (this.lastLocation) {
-      this.locationMarkers.push(this.buildLocationMarker(location));
-    }
-    // Add breadcrumb to current Polyline path.
-    this.polyline.getPath().push(latlng);
-    if (!this.state.mapHidePolyline) {
-      this.polyline.setMap(this.map);
-    }
-    this.lastLocation = location;
-  }
-
-  // Build a bread-crumb location marker.
-  private buildLocationMarker(location:Location, options?) {
-    options = options || {};
-    var icon = google.maps.SymbolPath.CIRCLE;
-    var scale = 3;
-    var zIndex = 1;
-    var anchor;
-    var strokeWeight = 1;
-
-    if (!this.lastDirectionChangeLocation) {
-      this.lastDirectionChangeLocation = location;
-    }
-
-    // Render an arrow marker if heading changes by 10 degrees or every 5 points.
-    var deltaHeading = Math.abs(location.coords.heading - this.lastDirectionChangeLocation.coords.heading);
-    if ((deltaHeading >= 15) || !(this.locationMarkers.length % 5) || options.showHeading) {
-      icon = google.maps.SymbolPath.FORWARD_CLOSED_ARROW;
-      scale = 2;
-      strokeWeight = 1;
-      anchor = new google.maps.Point(0, 2.6);
-      this.lastDirectionChangeLocation = location;
-    }
-
-    return new google.maps.Marker({
-      zIndex: zIndex,
-      icon: {
-        path: icon,
-        rotation: location.coords.heading,
-        scale: scale,
-        anchor: anchor,
-        fillColor: COLORS.polyline_color,
-        fillOpacity: 1,
-        strokeColor: COLORS.black,
-        strokeWeight: strokeWeight,
-        strokeOpacity: 1
-      },
-      map: this.map,
-      position: new google.maps.LatLng(location.coords.latitude, location.coords.longitude)
-    });
-  }
-
-  buildGeofenceMarker(geofence:Geofence) {
-    // Add longpress event for adding GeoFence of hard-coded radius 200m.
-    var circle = new google.maps.Circle({
-      identifier: geofence.identifier,
-      zIndex: 100,
-      fillColor: COLORS.green,
-      fillOpacity: 0.2,
-      strokeColor: COLORS.green,
-      strokeWeight: 1,
-      strokeOpacity: 0.7,
-      params: geofence,
-      radius: geofence.radius,
-      center: new google.maps.LatLng(geofence.latitude, geofence.longitude),
-      map: this.map
-    });
-    // Add 'click' listener to geofence so we can edit it.
-    google.maps.event.addListener(geofence, 'click', () => {
-      this.settingsService.toast('Click geofence ' + geofence.identifier, null, 1000);
-    });
-    return circle;
-  }
-
-  buildStopZoneMarker(latlng:any) {
-    return new google.maps.Marker({
-      zIndex: 1,
-      map: this.map,
-      position: latlng,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 12,
-        fillColor: COLORS.red,
-        fillOpacity: 0.3,
-        strokeColor: COLORS.red,
-        strokeWeight: 1,
-        strokeOpacity: 0.7
-      }
-    });
-  }
-
-  showStationaryCircle(location:Location) {
-    var coords = location.coords;
-    var radius = (this.state.trackingMode == 1) ? 200 : (this.state.geofenceProximityRadius / 2);
-    var center = new google.maps.LatLng(coords.latitude, coords.longitude);
-
-    this.stationaryRadiusCircle.setRadius(radius);
-    this.stationaryRadiusCircle.setCenter(center);
-    this.stationaryRadiusCircle.setMap(this.map);
-    this.map.setCenter(center);
-  }
-
-  hideStationaryCircle() {
-    // Create a little red breadcrumb circle of our last stop-position
-    var latlng = this.stationaryRadiusCircle.getCenter();
-    var stopZone = this.buildStopZoneMarker(latlng);
-    var lastMarker = this.locationMarkers.pop();
-    if (lastMarker) {
-      lastMarker.setMap(null);
-    }
-    this.locationMarkers.push(stopZone);
-    this.stationaryRadiusCircle.setMap(null);
-  }
-
-  resetMarkers() {
-    if (!this.isGoogleMapsSdkLoaded) { return; }
-
-    // Clear location-markers.
-    this.locationMarkers.forEach((marker) => {
-      marker.setMap(null);
-    });
-    this.locationMarkers = [];
-
-    // Clear geofence hit markers
-    this.geofenceHitMarkers.forEach((marker) => {
-      marker.setMap(null);
-    })
-
-    this.polyline.setPath([]);
-  }
-
-  clearMarkers() {
-    if (!this.isGoogleMapsSdkLoaded) { return; }
-    this.resetMarkers();
-
-    this.geofenceMarkers.forEach((marker) => {
-      marker.setMap(null);
-    });
-    this.geofenceMarkers = [];
-
-    // Clear red stationaryRadius marker
-    this.stationaryRadiusCircle.setMap(null);
-
-    // Clear blue route PolyLine
-    this.polyline.setMap(null);
-    this.polyline.setPath([]);
-  }
-
-  alert(title, message) {
-
-  }
-
-  ////
-  // Map events
-  //
-  onLongPressStart(e) {
-    this.bgService.playSound('LONG_PRESS_ACTIVATE');
-    this.geofenceCursor.setPosition(e.latLng);
-    this.geofenceCursor.setMap(this.map);
-  }
-
-  onLongPressCancel(e) {
-    this.bgService.playSound('LONG_PRESS_CANCEL');
-    this.geofenceCursor.setMap(null);
-  }
-
-  async onLongPress(e) {
-    var latlng = e.latLng;
-    this.geofenceCursor.setMap(null);
-
-    const modal = await this.modalController.create({
-      component: GeofencePage,
-      cssClass: 'my-custom-class',
-      animated: true,
-      componentProps: {
-        bgService: this.bgService,
-        'latitude': latlng.lat(),
-        'longitude': latlng.lng()
-      }
-    });
-    await modal.present();
-  }
+  }      
 }

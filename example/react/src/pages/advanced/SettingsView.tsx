@@ -24,6 +24,7 @@ import {
 import React from "react";
 import {
   navigate,
+  close,
   walk,
   cloudUpload,
   cog,
@@ -293,7 +294,7 @@ const SettingsView: React.FC = (props:any) => {
       <IonHeader>
         <IonToolbar color="tertiary">
           <IonButtons slot="start">
-            <IonButton onClick={onClickClose}><IonIcon name="close" /></IonButton>
+            <IonButton onClick={onClickClose}><IonIcon icon={close} /></IonButton>
           </IonButtons>
           <IonTitle>Settings</IonTitle>
         </IonToolbar>

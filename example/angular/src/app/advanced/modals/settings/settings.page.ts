@@ -484,6 +484,7 @@ export class SettingsPage implements OnInit {
         break;
       case 'VERBOSE':
         value = 5;
+        break;
       default:
         value = 5;
     }

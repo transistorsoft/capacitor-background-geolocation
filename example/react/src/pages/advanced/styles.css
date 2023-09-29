@@ -1,3 +1,13 @@
+ion-content {
+	--background: transparent;
+}
+
+
+ion-content #background-content {
+	
+	background: none !important;
+	
+}
 /**
  * SettingsView
  */
@@ -6,4 +16,16 @@
 }
 .SettingsView ion-label[position=stacked] {
 	font-size:  23px;
+}
+
+.polygon-geofence-menu {
+	
+}
+
+#geofence-prompt {
+	background-color: #fff1a5;
+	text-align: center;
+	padding: 2px;
+	font-size: 14px;
+	border-bottom: 1px solid #fedd1e;
 }

@@ -1,6 +1,12 @@
 {
 	"appId": "com.transistorsoft.backgroundgeolocation.capacitor",
-	"appName": "BGGeolocation",
-	"webDir": "build",
-	"bundledWebRuntime": false
+	"appName": "BG Geo",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	},
+	"loggingBehavior": "debug",
+	"android": {
+		"useLegacyBridge": true
+	}
 }

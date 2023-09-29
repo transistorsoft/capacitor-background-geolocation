@@ -1,6 +1,7 @@
 /// View for adding a custom Geofence.
 /// This view is activated by long-pressing on the Map.
 ///
+
 import {
   IonPage,
   IonHeader,
@@ -20,7 +21,10 @@ import {
 
 import React from "react";
 
-import { add } from "ionicons/icons";
+import { 
+  add as iconAdd,
+  close as iconClose
+} from "ionicons/icons";
 
 import BackgroundGeolocation from "@transistorsoft/capacitor-background-geolocation";
 import SettingsService from "./lib/SettingsService";
@@ -40,6 +44,13 @@ const GeofenceView: React.FC = (props:any) => {
   const [notifyOnExit, setNotifyOnExit] = React.useState(true);
   const [notifyOnDwell, setNotifyOnDwell] = React.useState(false);
   const [loiteringDelay, setLoiteringDelay] = React.useState('10000');
+  const [isPolygon, setIsPolygon] = React.useState(false);
+
+  React.useEffect(() => {
+    console.log('- props: ', props);
+    setIsPolygon(props.vertices.length > 0);
+  }, []);
+  
 
   /// [Add Geofence] button-handler.
   const onClickAdd = () => {
@@ -51,21 +62,52 @@ const GeofenceView: React.FC = (props:any) => {
       return;
     }
 
-    BackgroundGeolocation.addGeofence({
-      identifier: identifier,
-      latitude: props.coordinate.lat(),
-      longitude: props.coordinate.lng(),
-      radius: radius,
-      notifyOnEntry: notifyOnEntry,
-      notifyOnExit: notifyOnExit,
-      notifyOnDwell: notifyOnDwell,
-      loiteringDelay: parseInt(loiteringDelay, 10)
-    }).then((result) => {
-      settingsService.playSound('ADD_GEOFENCE');
-      props.onDismiss();
-    }).catch((error) => {
-      settingsService.alert('Add Geofence Error', error);
-    })
+    if (isPolygon) {
+      // 1.  Polygon Geofence
+      BackgroundGeolocation.addGeofence({
+        identifier: identifier,
+        vertices: props.vertices,
+        notifyOnEntry: notifyOnEntry,
+        notifyOnExit: notifyOnExit        
+      }).then((result) => {
+        settingsService.playSound('ADD_GEOFENCE');
+        props.onDismiss();
+      }).catch((error) => {
+        settingsService.alert('Add Geofence Error', error);
+      })
+    } else {
+      // 2. Circular Geofence.
+      BackgroundGeolocation.addGeofence({
+        identifier: identifier,
+        latitude: props.coordinate.latitude,
+        longitude: props.coordinate.longitude,
+        radius: radius,
+        notifyOnEntry: notifyOnEntry,
+        notifyOnExit: notifyOnExit,
+        notifyOnDwell: notifyOnDwell,
+        loiteringDelay: parseInt(loiteringDelay, 10)
+      }).then((result) => {
+        settingsService.playSound('ADD_GEOFENCE');
+        props.onDismiss();
+      }).catch((error) => {
+        settingsService.alert('Add Geofence Error', error);
+      })  
+    }    
+  }
+
+  const renderRadiusField = () => {
+    return (!isPolygon) ? (<IonItem>
+      <IonLabel position="stacked" color="primary">Radius:</IonLabel>
+      <IonSelect value={radius} onIonChange={(e) => setRadius(e.detail.value)}>
+        <IonSelectOption value={150}>150</IonSelectOption>
+        <IonSelectOption value={200}>200</IonSelectOption>
+        <IonSelectOption value={500}>500</IonSelectOption>
+        <IonSelectOption value={1000}>1000</IonSelectOption>
+        <IonSelectOption value={2000}>2000</IonSelectOption>
+        <IonSelectOption value={5000}>5000</IonSelectOption>
+        <IonSelectOption value={10000}>10000</IonSelectOption>
+      </IonSelect>
+    </IonItem>) : null;
   }
 
   return (
@@ -73,14 +115,12 @@ const GeofenceView: React.FC = (props:any) => {
       <IonHeader>
         <IonToolbar color="tertiary">
           <IonButtons slot="start">
-            <IonButton onClick={props.onDismiss}><IonIcon name="close" /></IonButton>
+            <IonButton onClick={props.onDismiss}><IonIcon icon={iconClose} /></IonButton>
           </IonButtons>
           <IonTitle>Add Geofence</IonTitle>
 
           <IonButtons slot="end">
-            <IonButton color="primary" fill="solid" size="large" onClick={onClickAdd}>
-            <IonIcon icon={add} />Add Geofence
-          </IonButton>
+            <IonButton color="primary" fill="solid" onClick={onClickAdd}>Save</IonButton>                    
           </IonButtons>
         </IonToolbar>
       </IonHeader>
@@ -91,18 +131,7 @@ const GeofenceView: React.FC = (props:any) => {
           <IonInput value={identifier} placeholder="Unique geofence identifier" onIonChange={(e:any) => setIdentifier(e.detail.value)}/>
         </IonItem>
 
-        <IonItem>
-          <IonLabel position="stacked" color="primary">Radius:</IonLabel>
-          <IonSelect value={radius} onIonChange={(e) => setRadius(e.detail.value)}>
-            <IonSelectOption value={150}>150</IonSelectOption>
-            <IonSelectOption value={200}>200</IonSelectOption>
-            <IonSelectOption value={500}>500</IonSelectOption>
-            <IonSelectOption value={1000}>1000</IonSelectOption>
-            <IonSelectOption value={2000}>2000</IonSelectOption>
-            <IonSelectOption value={5000}>5000</IonSelectOption>
-            <IonSelectOption value={10000}>10000</IonSelectOption>
-          </IonSelect>
-        </IonItem>
+        {renderRadiusField()}
 
         <IonItem>
           <IonLabel color="primary">notifyOnEntry:</IonLabel>
