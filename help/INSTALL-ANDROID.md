@@ -23,13 +23,13 @@ The plugin is aware of a number of Gradle **`ext`** variables (See your app's **
 ```diff
 ext {
     minSdkVersion = 21
-    targetSdkVersion = 30   // Or higher
+    targetSdkVersion = 33   // Or higher
     .
     .
     .
-+   compileSdkVersion = 31  // Or higher
++   compileSdkVersion = 33  // Or higher
 +   // capacitor-background-geolocation variables
-+   playServicesLocationVersion = '20.0.0'
++   playServicesLocationVersion = '21.0.1'
 }
 ```
 
@@ -37,7 +37,7 @@ A number of other **`ext`** variables are available but should generally not nee
 
 | Option             | Default     | Description |
 |--------------------|------------|--------------|
-|`playServicesLocationVersion`  | `20.0.0` | `com.google.android.gms:play-services-location` |
+|`playServicesLocationVersion`  | `21.0.1` | `com.google.android.gms:play-services-location` |
 |`hmsLocationVersion`  | `6.0.0.302` | `com.huawei.hms:location` (When running on Huawei HMS devices)|
 |`okHttpVersion`     | `4.9.1`    | *BackgroundGeolocation* uses the excellent [okhttp](https://square.github.io/okhttp/) framework for its HTTP Service |
 |`localBroadcastManagerVersion`  | `1.0.0` | `androidx.localbroadcastmanager:localbroadcastmanager` |
@@ -56,7 +56,7 @@ Custom `maven url` for both `background-geolocation` and `background-fetch` are 
 .
 apply from: "variables.gradle"
 
-allprojects {
+allprojects {	// <-- IMPORTANT:  allprojects
     repositories {
         google()
         mavenCentral()

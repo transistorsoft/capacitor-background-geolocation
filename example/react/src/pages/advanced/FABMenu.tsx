@@ -53,6 +53,7 @@ const FABMenu: React.FC<ContainerProps> = (props:any) => {
   }
 
   const requestPermission = async () => {
+
     setOpen(false);
     const providerState = await BackgroundGeolocation.getProviderState();
     settingsService.alert("Request Location Permission", `Current authorization status: ${providerState.status}`, [
@@ -62,6 +63,13 @@ const FABMenu: React.FC<ContainerProps> = (props:any) => {
   }
 
   const doRequestPermission = async (request:any) => {
+    if (request === 'WhenInUse') {
+      BackgroundGeolocation.stopWatchPosition();
+    } else {
+      BackgroundGeolocation.watchPosition((location) => {
+        console.log('*** [watchPosition]', location);
+      })
+    }
     await BackgroundGeolocation.setConfig({locationAuthorizationRequest: request});
     const status = await BackgroundGeolocation.requestPermission();
     console.log(`[requestPermission] status: ${status}`);
@@ -102,6 +110,10 @@ const FABMenu: React.FC<ContainerProps> = (props:any) => {
 
   const sync = async () => {
     setOpen(false);
+
+    const geofences = await BackgroundGeolocation.getGeofences();
+    console.log('******* geofences: ', JSON.stringify(geofences));
+
     const count = await BackgroundGeolocation.getCount();
     if (!count) {
       settingsService.toast('Locations database is empty', 1000);
