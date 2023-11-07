@@ -96,7 +96,10 @@ const AdvancedApp: React.FC = () => {
     }));
 
     subscribe(BackgroundGeolocation.onActivityChange(setMotionActivityEvent));    
-  
+    
+    subscribe(BackgroundGeolocation.onPowerSaveChange((value) => {
+      console.log("******* Capacitor onPowerSaveChange: ", value);
+    }));
   }
 
   const onMapReady = async (isReady:boolean) => {

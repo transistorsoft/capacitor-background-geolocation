@@ -16,7 +16,7 @@
     "@capacitor/android": "5.4.0",
     "@capacitor/app": "5.0.6",
     "@capacitor/core": "5.4.0",
-    "@capacitor/google-maps": "^5.3.2",
+    "@capacitor/google-maps": "^5.3.3",
     "@capacitor/haptics": "5.0.6",
     "@capacitor/ios": "5.4.0",
     "@capacitor/keyboard": "5.0.6",
