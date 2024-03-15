@@ -1,9 +1,13 @@
 # Change Log
 
-# 5.3.0 &mdash; 2024-02-27
+## 5.3.1 &mdash; 2024-03-15
+* [iOS] Fix bug in polygon-geofencing:  monitoredIdentifiers not being cleared when `.removeGeofences()` is called, can result in null-pointer exception.
+* [Android] Change `foregroundServiceType` of the SDK's `GeofencingService` definition in its `AndroidManifest` from `shortService` -> `location`.
+
+## 5.3.0 &mdash; 2024-02-27
 * [iOS] Modify behaviour of stop-detection system to NOT turn off location-services but merely adjust desiredAccuracy as high as possible.  There were problems reported using `locationAuthorizationRequest: 'WhenInUse'` with recent versions of iOS where the stop-detection system could put the app to sleep during tracking if the motion API reported the device became momentarily stationary.
 
-# 5.2.4  &mdash; 2023-11-16
+## 5.2.4  &mdash; 2023-11-16
 * [Android] Fix problem with polygon-geofencing license-validation not working in DEBUG builds when configured with pro
 duct flavors.
 
