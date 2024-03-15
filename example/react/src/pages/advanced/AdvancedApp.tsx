@@ -219,7 +219,7 @@ const AdvancedApp: React.FC = () => {
   /// [Home] button handler
   const onClickHome = () => {    
     setEnabled(false);
-    history.push('/home', 'root', 'replace'); 
+    history.push('/home', 'root'); 
   }
 
   /// Get Current Position button handler.
