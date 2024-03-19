@@ -1,5 +1,8 @@
 # Change Log
 
+## 5.3.2 &mdash; 2024-03-19
+* [iOS] Fix bug in iOS scheduler, triggering ON incorrectly.  For example, given a `schedule: ['1 00:00-23:59'], the plugin was trigging on for `DAY 2`.
+
 ## 5.3.1 &mdash; 2024-03-15
 * [iOS] Fix bug in polygon-geofencing:  monitoredIdentifiers not being cleared when `.removeGeofences()` is called, can result in null-pointer exception.
 * [Android] Change `foregroundServiceType` of the SDK's `GeofencingService` definition in its `AndroidManifest` from `shortService` -> `location`.
