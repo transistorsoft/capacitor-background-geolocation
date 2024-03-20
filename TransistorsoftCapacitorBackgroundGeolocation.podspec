@@ -18,4 +18,5 @@ Pod::Spec.new do |s|
   s.vendored_frameworks = ['ios/TSLocationManager.xcframework']
   s.static_framework = true
   s.swift_version = '5.1'
+  s.resource_bundles = {'TSLocationManager' => ['ios/Resources/PrivacyInfo.xcprivacy']}
 end
