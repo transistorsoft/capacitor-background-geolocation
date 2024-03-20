@@ -24,7 +24,7 @@
     "@capacitor/status-bar": "5.0.6",
     "@ionic/react": "^7.0.0",
     "@ionic/react-router": "^7.0.0",
-    "@transistorsoft/capacitor-background-fetch": "^5.1.1",
+    "@transistorsoft/capacitor-background-fetch": "^5.2.2",
     "@transistorsoft/capacitor-background-geolocation": "file:../..",
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",

@@ -15,7 +15,7 @@ declare module "@transistorsoft/capacitor-background-geolocation" {
 	*/
 	interface AuthorizationEvent {
 		/**
-		 * HTTP Status returned from your [[Authorization.refreshURl]] (or `0` if the HTTP request failed).
+		 * HTTP Status returned from your [[Authorization.refreshUrl]] (or `0` if the HTTP request failed).
 		 */
 		status:number;
 		/**
