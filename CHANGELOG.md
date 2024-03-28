@@ -1,6 +1,6 @@
 # Change Log
 
-## 5.4.1 &mdash; 2024-03-23
+## 5.4.1 &mdash; 2024-03-28
 * [iOS] Add `PrivacyInfo` -> `TSLocationManager.xcframework`.
 * [iOS] codesign `TSLocationManager.xcframework`.
 
