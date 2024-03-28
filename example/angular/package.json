@@ -32,7 +32,7 @@
     "@capacitor/preferences": "^5.0.6",
     "@capacitor/status-bar": "5.0.6",
     "@ionic/angular": "^7.0.0",
-    "@transistorsoft/capacitor-background-fetch": "^5.0.0",
+    "@transistorsoft/capacitor-background-fetch": "^5.2.4",
     "@transistorsoft/capacitor-background-geolocation": "file:../..",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

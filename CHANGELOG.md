@@ -1,5 +1,9 @@
 # Change Log
 
+## 5.4.1 &mdash; 2024-03-23
+* [iOS] Add `PrivacyInfo` -> `TSLocationManager.xcframework`.
+* [iOS] codesign `TSLocationManager.xcframework`.
+
 ## 5.4.0 &mdash; 2024-03-19
 * [iOS] Implement new [iOS Privacy Manifest](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files?language=objc)
 * Add property `AuthorizationEvent.status`, provding the HTTP status code from the `refreshUrl`.

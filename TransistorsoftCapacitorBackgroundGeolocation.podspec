@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   s.dependency 'CocoaLumberjack', '~> 3.7.2'
   s.libraries           = 'sqlite3', 'z', 'stdc++'
   s.vendored_frameworks = ['ios/TSLocationManager.xcframework']
+  s.resource_bundles = {'TSLocationManagerPrivacy' => ['ios/Resources/PrivacyInfo.xcprivacy']}
   s.static_framework = true
   s.swift_version = '5.1'
-  s.resource_bundles = {'TSLocationManager' => ['ios/Resources/PrivacyInfo.xcprivacy']}
 end
