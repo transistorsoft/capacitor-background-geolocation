@@ -53,7 +53,7 @@ If your app does not yet have a *Privacy Manifest* (__`PrivacyInfo.xcprivacy`__)
 
 
 It's best to edit this file's XML manually.
-- :open_file_folder: `ios/PrivacyInfo.xcprivacy`
+- :open_file_folder: `ios/App/PrivacyInfo.xcprivacy`
 - Add the following __4 blocks__ within the `NSPrivacyAccessedAPITypes` `<array>` container:
 
 ```xml
