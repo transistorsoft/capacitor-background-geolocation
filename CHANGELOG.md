@@ -1,5 +1,8 @@
 # Change Log
 
+## 5.4.2 &mdash; 2024-04-22
+* [iOS] Code-sign `TSLocationManager.xcframework` with new Apple Organization (*9224-2932 Quebec Inc*) certificate.
+
 ## 5.4.1 &mdash; 2024-03-28
 * [iOS] Add `PrivacyInfo` -> `TSLocationManager.xcframework`.
 * [iOS] codesign `TSLocationManager.xcframework`.
