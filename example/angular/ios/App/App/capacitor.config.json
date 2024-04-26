@@ -1,1 +1,14 @@
-{}
+{
+	"packageClassList": [
+		"ActionSheetPlugin",
+		"AppPlugin",
+		"CapacitorGoogleMapsPlugin",
+		"CapacitorGoogleMapsPlugin",
+		"HapticsPlugin",
+		"KeyboardPlugin",
+		"PreferencesPlugin",
+		"StatusBarPlugin",
+		"BackgroundFetchModule",
+		"BackgroundGeolocationModule"
+	]
+}

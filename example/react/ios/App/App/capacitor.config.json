@@ -8,5 +8,17 @@
 	"loggingBehavior": "debug",
 	"android": {
 		"useLegacyBridge": true
-	}
+	},
+	"packageClassList": [
+		"ActionSheetPlugin",
+		"AppPlugin",
+		"CapacitorGoogleMapsPlugin",
+		"CapacitorGoogleMapsPlugin",
+		"HapticsPlugin",
+		"KeyboardPlugin",
+		"PreferencesPlugin",
+		"StatusBarPlugin",
+		"BackgroundFetchModule",
+		"BackgroundGeolocationModule"
+	]
 }
