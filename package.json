@@ -1,6 +1,6 @@
 {
   "name": "@transistorsoft/capacitor-background-geolocation",
-  "version": "5.4.2",
+  "version": "6.0.0",
   "description": "The most sophisticated cross platform Capacitor background location tracking & geofencing module with battery-conscious motion-detection intelligence",
   "main": "dist/plugin.cjs.js",
   "module": "dist/index.js",
@@ -55,12 +55,12 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@transistorsoft/capacitor-background-fetch": "^5.2.5"
+    "@transistorsoft/capacitor-background-fetch": "^6.0.0"
   },
   "devDependencies": {
-    "@capacitor/android": "^5.0.0",
-    "@capacitor/core": "^5.0.0",
-    "@capacitor/ios": "^5.0.0",
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/ios": "^6.0.0",
     "@ionic/eslint-config": "^0.3.0",
     "@ionic/prettier-config": "^1.0.1",
     "@ionic/swiftlint-config": "^1.1.2",
@@ -78,7 +78,7 @@
     "typescript": "~4.0.3"
   },
   "peerDependencies": {
-    "@capacitor/core": "^5.0.0"
+    "@capacitor/core": "^6.0.0"
   },
   "prettier": "@ionic/prettier-config",
   "swiftlint": "@ionic/swiftlint-config",
