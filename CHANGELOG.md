@@ -1,5 +1,8 @@
 # Change Log
 
+## [6.0.1]  &mdash; 2024-05-14
+* [Android] Fix bug in .getCurrentPosition not returning or throwing an error in a condition where Network OFF and GPS ON.
+
 ## [6.0.0] &mdash; 2024-04-26
 * Ugrade to Capacitor v6.
 
