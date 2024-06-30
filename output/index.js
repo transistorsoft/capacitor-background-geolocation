@@ -86,7 +86,7 @@ var capacitorBackgroundGeolocation = (function (core) {
         Logger.uploadLog = function (url, query) {
             query = validateQuery(query);
             return new Promise(function (resolve, reject) {
-                NativeModule$3.emailLog({ url: url, query: query }).then(function () {
+                NativeModule$3.uploadLog({ url: url, query: query }).then(function () {
                     resolve();
                 }).catch(function (error) {
                     reject(error.message);
