@@ -1,5 +1,8 @@
 # Change Log
 
+## [6.0.3] &mdash; 2024-06-30
+* Fix `uploadLog` method.  Javascript layer was mistakenly executing `emailLog` instead.
+
 ## [6.0.2] &mdash; 2024-06-12
 * [Android] Remove permission `FOREGROUND_SERVICE_HEALTH`.  It turns out that this permission is no longer required whe
 n the `ActivityRecognitionServivce` is defined with a `foregroundServiceType="shortservice"`, instead of `"health"`, which allows a background

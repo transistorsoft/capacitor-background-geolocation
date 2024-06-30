@@ -92,7 +92,7 @@ export default class Logger {
   static uploadLog(url:string, query?:any) {
     query = validateQuery(query);
     return new Promise((resolve:Function, reject:Function) => {
-      NativeModule.emailLog({url:url, query:query}).then(() => {
+      NativeModule.uploadLog({url:url, query:query}).then(() => {
         resolve();
       }).catch((error:PluginResultError) => {
         reject(error.message);
