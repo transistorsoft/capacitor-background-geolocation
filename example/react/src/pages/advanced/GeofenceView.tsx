@@ -68,7 +68,9 @@ const GeofenceView: React.FC = (props:any) => {
         identifier: identifier,
         vertices: props.vertices,
         notifyOnEntry: notifyOnEntry,
-        notifyOnExit: notifyOnExit        
+        notifyOnExit: notifyOnExit,
+        notifyOnDwell: notifyOnDwell,
+        loiteringDelay: parseInt(loiteringDelay, 10)
       }).then((result) => {
         settingsService.playSound('ADD_GEOFENCE');
         props.onDismiss();

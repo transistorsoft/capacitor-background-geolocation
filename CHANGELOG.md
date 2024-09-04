@@ -1,5 +1,9 @@
 # Change Log
 
+## [6.1.0] &mdash; 2024-09-04
+* [iOS] Fix bug in iOS *Polygon Geofencing* when running in geofences-only mode (`.startGeofences`).  iOS would mistakenly turn off location updates exactly 3 samples into the containing circular geofence of a polygon.
+* Implement `notifyOnDwell` for polygon-geofences.
+
 ## [6.0.3] &mdash; 2024-06-30
 * Fix `uploadLog` method.  Javascript layer was mistakenly executing `emailLog` instead.
 
