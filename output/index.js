@@ -342,6 +342,7 @@ var capacitorBackgroundGeolocation = (function (core) {
     var ACTIVITY_TYPE_AUTOMOTIVE_NAVIGATION = 2;
     var ACTIVITY_TYPE_FITNESS = 3;
     var ACTIVITY_TYPE_OTHER_NAVIGATION = 4;
+    var ACTIVITY_TYPE_AIRBORNE = 5;
     var LOCATION_AUTHORIZATION_ALWAYS = "Always";
     var LOCATION_AUTHORIZATION_WHEN_IN_USE = "WhenInUse";
     var LOCATION_AUTHORIZATION_ANY = "Any";
@@ -483,6 +484,11 @@ var capacitorBackgroundGeolocation = (function (core) {
         });
         Object.defineProperty(BackgroundGeolocation, "ACTIVITY_TYPE_OTHER_NAVIGATION", {
             get: function () { return ACTIVITY_TYPE_OTHER_NAVIGATION; },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(BackgroundGeolocation, "ACTIVITY_TYPE_AIRBORNE", {
+            get: function () { return ACTIVITY_TYPE_AIRBORNE; },
             enumerable: false,
             configurable: true
         });
