@@ -223,7 +223,7 @@ const AdvancedApp: React.FC = () => {
   }
 
   /// Get Current Position button handler.
-  const onClickGetCurrentPosition = () => {
+  const onClickGetCurrentPosition = async () => {
     BackgroundGeolocation.getCurrentPosition({
       persist: true,      // Persist this location and POST to server.
       timeout: 30,         // Wait up to 30s for a location

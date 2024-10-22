@@ -21,14 +21,14 @@ declare module "@transistorsoft/capacitor-background-geolocation" {
     /**
     * `true` when an authorization request to [[Authorization.refreshUrl]] was successful.
     */
-    success: boolean;
-    /**
-    * When [[success]] is `false`, this is the error message from [[Authorization.refreshUrl]].  Otherwise, `null`.
-    */
-    error: string;
-    /**
-    * when [[success]] is `true`, this is the decoded JSON response returned from [[Authorization.refreshUrl]].  Otherwise, `null`.
-    */
-    response:any;
-  }
+	  success: boolean;
+	  /**
+	  * When [[success]] is `false`, this is the error message from [[Authorization.refreshUrl]].  Otherwise, `null`.
+	  */
+	  error: string;
+	  /**
+	  * when [[success]] is `true`, this is the decoded JSON response returned from [[Authorization.refreshUrl]].  Otherwise, `null`.
+	  */
+	  response:any;
+	}
 }
