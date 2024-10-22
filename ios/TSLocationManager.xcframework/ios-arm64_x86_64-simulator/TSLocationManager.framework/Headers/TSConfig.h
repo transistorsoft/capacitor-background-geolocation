@@ -138,7 +138,7 @@ typedef enum TSPersistMode : NSInteger {
 /**
 The SDK's Configuration API.
  */
-@interface TSConfig : NSObject <NSCoding>
+@interface TSConfig : NSObject <NSCoding, NSSecureCoding>
 
 #pragma mark - Singleton
 
