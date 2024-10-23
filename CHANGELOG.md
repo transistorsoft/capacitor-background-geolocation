@@ -1,5 +1,8 @@
 # Change Log
 
+## [6.1.2] &mdash; 2024-10-23
+* [iOS] Fix bug with `triggerActivites` preventing motion-triggering in iOS simulator with simulated location.
+
 ## [6.1.1] &mdash; 2024-10-21
 * [Android] Implement `Service.onTimeout` to handle `foregroundServiceType="shortService"` timeouts.
 * [iOS] Add new `Config.activityType` `ACTIVITY_TYPE_AIRBORNE`.
