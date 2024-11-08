@@ -102,7 +102,7 @@ const AdvancedApp: React.FC = () => {
     }));
   }
 
-  const onMapReady = async (isReady:boolean) => {
+  const onMapReady = async (isReady:boolean) => {    
     if (!isReady) return;
     // Fetch registered orgname / username from Storage so we can fetch an Auth token from the demo server
     const org = (await Preferences.get({key: 'orgname'})).value;

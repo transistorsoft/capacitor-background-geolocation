@@ -1,4 +1,6 @@
 
+import { App } from '@capacitor/app';
+
 import React from "react";
 
 import {
@@ -90,7 +92,7 @@ interface MapViewProps extends ContainerProps {
   onReady: Function
 }
 
-const MapView: React.FC<MapViewProps> = (props) => {  
+const MapView: React.FC<MapViewProps> = (props) => {
   const settingsService = SettingsService.getInstance();
   const history = useHistory();
   
@@ -106,6 +108,7 @@ const MapView: React.FC<MapViewProps> = (props) => {
   const [mapHeight, setMapHeight] = React.useState(100);
   const [mapReady, setMapReady] = React.useState<boolean>(false);
   const [isCreatingPolygon, setIsCreatingPolygon] = React.useState(false);
+  const [appIsActive, setAppIsActive] = React.useState(false);
 
   /// The Main effect.
   React.useEffect(() => {
@@ -121,12 +124,29 @@ const MapView: React.FC<MapViewProps> = (props) => {
     BackgroundGeolocation.getState().then((state) => {
       setEnabled(state.enabled);
     })
-    createMap();
+    
+    App.getState().then((appState) => {
+      setAppIsActive(appState.isActive);      
+      // @capacitor/google-maps sucks!  It can't render if the app is launched in the background!
+      // Use react-native or Flutter instead!
+      if (appState.isActive) {
+        createMap();
+      } else {        
+        props.onReady(true);
+      }
+    })
+    const appStateChangeListener = App.addListener('appStateChange', ({ isActive }) => {
+      // @capacitor/google-maps has a bug when launched in the background.
+      if (isActive && (map == null)) {        
+        createMap();
+      }
+      setAppIsActive(isActive);
+    });
 
     return () => {
       // Cleanup when view is destroyed or refreshed.
       clearMarkers();
-      unsubscribe();
+      unsubscribe();      
     }
   }, []);
    
@@ -161,8 +181,9 @@ const MapView: React.FC<MapViewProps> = (props) => {
     if (map === null) { return; }
 
     const location = motionChangeEvent.location;
+
     if (motionChangeEvent.isMoving) {
-      if (!stationaryLocation) stationaryLocation = location;      
+      if (!stationaryLocation) stationaryLocation = location;
       map.addCircles([buildMotionChangeCircle(stationaryLocation)]).then((result) => {
         MARKERS.motionChangeCircles = MARKERS.motionChangeCircles.concat(result);
       });
@@ -174,9 +195,13 @@ const MapView: React.FC<MapViewProps> = (props) => {
       stationaryLocation = location;
       showStationaryCircle(location);
     }
-    map.setCamera({      
-      zoom: 16
-    });
+    
+    if (map) {      
+      map.setCamera({      
+        zoom: 16
+      });
+    }
+    
   }, [motionChangeEvent]);
 
   /// isCreatingPolygon
@@ -248,19 +273,24 @@ const MapView: React.FC<MapViewProps> = (props) => {
   }
   
   /// Re-center the map with provided Location.
-  const setCenter = async (location:Location) => {
+  const setCenter = async (location:Location) => {    
     if (!map || location.sample) { return; }
-          
-    await map.setCamera({
-      coordinate: {
-        lat: location.coords.latitude,
-        lng: location.coords.longitude
-      }
-    });    
+    
+    if (map) {      
+      map.setCamera({
+        coordinate: {
+          lat: location.coords.latitude,
+          lng: location.coords.longitude
+        }
+      });    
+    }
+    
   }
 
   /// Update current-location Map Marker.
   const updateCurrentLocationMarker = async (location:Location) => {
+    if (!map) { return }
+
     setCenter(location);  
     if (MARKERS.currentLocation) {
       try {
@@ -484,6 +514,8 @@ const MapView: React.FC<MapViewProps> = (props) => {
 
   /// Render markers when an onGeofence event fires.
   const handleGeofenceEvent = async (event) => {
+    if (!map) { return }
+
     const geofence = await BackgroundGeolocation.getGeofence(event.identifier);
     const location = event.location;
     const center = {
@@ -569,7 +601,7 @@ const MapView: React.FC<MapViewProps> = (props) => {
   /// Create the @capacitor/google-maps instance.
   const mapRef = useRef<HTMLElement>();
 
-  const createMap = async () => {
+  const createMap = async () => {        
     if (!mapRef.current) return;
     if (map) return;
 
@@ -577,17 +609,20 @@ const MapView: React.FC<MapViewProps> = (props) => {
       id: 'map',
       element: mapRef.current,
       apiKey: ENV.GOOGLE_MAPS_API_KEY,
+      forceCreate: true,
       config: {
         center: {
           lat: 45.508888,
           lng: -73.561668
         },
-        zoom: 11,
+        zoom: 16,
       }
     });
 
     map.setOnMapClickListener(onMapClick);  
-
+    map.setCamera({      
+      zoom: 16
+    });
     const ionContent:HTMLElement = document.querySelector('.AdvancedApp ion-content');    
     if (ionContent != null) {
       const geofencePrompt:HTMLElement = document.querySelector('#geofence-prompt');
