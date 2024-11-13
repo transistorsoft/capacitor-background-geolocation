@@ -38,7 +38,7 @@ A number of other **`ext`** variables are available but should generally not nee
 | Option             | Default     | Description |
 |--------------------|------------|--------------|
 |`playServicesLocationVersion`  | `21.0.1` | `com.google.android.gms:play-services-location` |
-|`hmsLocationVersion`  | `6.0.0.302` | `com.huawei.hms:location` (When running on Huawei HMS devices)|
+|`hmsLocationVersion`  | `6.9.0.300` | `com.huawei.hms:location` (When running on Huawei HMS devices)|
 |`okHttpVersion`     | `4.9.1`    | *BackgroundGeolocation* uses the excellent [okhttp](https://square.github.io/okhttp/) framework for its HTTP Service |
 |`localBroadcastManagerVersion`  | `1.0.0` | `androidx.localbroadcastmanager:localbroadcastmanager` |
 
