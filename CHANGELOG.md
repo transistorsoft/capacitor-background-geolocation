@@ -1,6 +1,9 @@
 # Change Log
 
-## 6.1.4 &mdash; 2024-11=12
+## 6.1.5 &mdash; 2024-12-03
+* [Android] Remove Android Setup Step for `proguard-rules.pro`.  The plugin is able to automatically apply its `proguard-rules`.
+
+## 6.1.4 &mdash; 2024-11-12
 * [Android] Remove enforcement of minimum Geofence radius `150`
 * [Android] Fix issue with `TSLocationManagerActivity` (responsible for showing location permission / authorization dialogs).  Minimizing the app with an active permission dialog would cause the app's `MainActivity` to terminate on some devices.
 

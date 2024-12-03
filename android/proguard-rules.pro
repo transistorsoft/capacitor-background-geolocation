@@ -1,3 +1,6 @@
+# preserve custom HeadlessTask
+-keep class **BackgroundGeolocationHeadlessTask { *; }
+
 -keepnames class com.transistorsoft.bggeo.capacitor.BackgroundGeolocationPlugin
 
 -keep class com.transistorsoft** { *; }
