@@ -7,9 +7,240 @@ import {
 
 const NativeModule:any = registerPlugin('BackgroundGeolocation');
 
-import Logger from "./Logger";
-import TransistorAuthorizationToken from "./TransistorAuthorizationToken";
-import DeviceSettings from "./DeviceSettings";
+/**
+ * Logger
+ */
+const LOGGER_LOG_LEVEL_DEBUG = "debug";
+const LOGGER_LOG_LEVEL_NOTICE = "notice";
+const LOGGER_LOG_LEVEL_INFO = "info";
+const LOGGER_LOG_LEVEL_WARN = "warn";
+const LOGGER_LOG_LEVEL_ERROR = "error";
+
+const ORDER_ASC = 1;
+const ORDER_DESC = -1;
+
+function log(level:string, msg:string) {
+  return NativeModule.log({
+    level: level,
+    message: msg
+  });
+}
+
+function validateQuery(query:any) {
+  if (typeof(query) !== 'object') return {};
+
+  if (query.hasOwnProperty('start') && isNaN(query.start)) {
+    throw new Error('Invalid SQLQuery.start.  Expected unix timestamp but received: ' + query.start);
+  }
+  if (query.hasOwnProperty('end') && isNaN(query.end)) {
+    throw new Error('Invalid SQLQuery.end.  Expected unix timestamp but received: ' + query.end);
+  }
+  return query;
+}
+
+class Logger {
+  static get ORDER_ASC() { return ORDER_ASC; }
+  static get ORDER_DESC() { return ORDER_DESC; }
+
+  static debug(msg:string) {
+    return log(LOGGER_LOG_LEVEL_DEBUG, msg);
+  }
+
+  static error(msg:string) {
+    return log(LOGGER_LOG_LEVEL_ERROR, msg);
+  }
+
+  static warn(msg:string) {
+    return log(LOGGER_LOG_LEVEL_WARN, msg);
+  }
+
+  static info(msg:string) {
+    return log(LOGGER_LOG_LEVEL_INFO, msg);
+  }
+
+  static notice(msg:string) {
+    return log(LOGGER_LOG_LEVEL_NOTICE, msg);
+  }
+
+  static getLog(query?:any) {
+    query = validateQuery(query);
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.getLog({options:query}).then((result:any) => {
+        resolve(result.log);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static destroyLog() {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.destroyLog().then(() => {
+        resolve();
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static emailLog(email:string, query?:any) {
+    query = validateQuery(query);
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.emailLog({email:email, query:query}).then((result:any) => {
+        resolve(result);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static uploadLog(url:string, query?:any) {
+    query = validateQuery(query);
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.uploadLog({url:url, query:query}).then(() => {
+        resolve();
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+}
+
+/**
+ * TransistorAuthorizationToken
+ */
+const DEFAULT_URL:string  = 'http://tracker.transistorsoft.com';
+
+const DUMMY_TOKEN:string  = 'DUMMY_TOKEN';
+
+const REFRESH_PAYLOAD:any = {
+  refresh_token: '{refreshToken}'
+}
+
+const LOCATIONS_PATH:string = '/api/locations';
+
+const REFRESH_TOKEN_PATH:string = '/api/refresh_token';
+
+class TransistorAuthorizationToken {
+  static findOrCreate(orgname:string, username:string, url:string=DEFAULT_URL) {
+
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.getTransistorToken({
+        org: orgname,
+        username: username,
+        url: url
+      }).then((result:any) => {
+        if (result.success) {
+          const token = result.token;
+          token.url = url;
+          resolve(token);
+        } else {
+          console.warn('[TransistorAuthorizationToken findOrCreate] ERROR: ', result);
+          if (result.status == '403') {
+            reject(result);
+            return;
+          }
+          resolve({
+            accessToken: DUMMY_TOKEN,
+            refreshToken: DUMMY_TOKEN,
+            expires: -1,
+            url:url
+          });
+        }
+      }).catch((error:PluginResultError) => {
+        reject(error);
+      });
+    });
+  }
+
+  static destroy(url:string=DEFAULT_URL) {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.destroyTransistorToken({url: url}).then(() => {
+        resolve();
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static applyIf(config:any) {
+    if (!config.transistorAuthorizationToken) return config;
+
+    const token = config.transistorAuthorizationToken;
+    delete config.transistorAuthorizationToken;
+
+    config.url = token.url + LOCATIONS_PATH;
+    config.authorization = {
+      strategy: 'JWT',
+      accessToken: token.accessToken,
+      refreshToken: token.refreshToken,
+      refreshUrl: token.url + REFRESH_TOKEN_PATH,
+      refreshPayload: REFRESH_PAYLOAD,
+      expires: token.expires
+    }
+    return config;
+  }
+}
+
+/**
+ * DeviceSettings
+ */
+const IGNORE_BATTERY_OPTIMIZATIONS = "IGNORE_BATTERY_OPTIMIZATIONS";
+const POWER_MANAGER = "POWER_MANAGER";
+
+const resolveSettingsRequest = (resolve:Function, request:any) => {
+  if (request.lastSeenAt > 0) {
+    request.lastSeenAt = new Date(request.lastSeenAt);
+  }
+  resolve(request);
+}
+
+class DeviceSettings {
+  static isIgnoringBatteryOptimizations() {
+    return new Promise((resolve:Function, reject:Function) => {
+      NativeModule.isIgnoringBatteryOptimizations().then((result:any) => {
+        resolve(result.isIgnoringBatteryOptimizations);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      })
+    });
+  }
+
+  static showIgnoreBatteryOptimizations() {
+    return new Promise((resolve:Function, reject:Function) => {
+      const args = {action: IGNORE_BATTERY_OPTIMIZATIONS};
+      NativeModule.requestSettings(args).then((result:any) => {
+        resolveSettingsRequest(resolve, result);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+
+  static showPowerManager() {
+    return new Promise((resolve:Function, reject:Function) => {
+      const args = {action: POWER_MANAGER};
+      NativeModule.requestSettings(args).then((result:any) => {
+        resolveSettingsRequest(resolve, result);
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      })
+    });
+  }
+
+  static show(request:any) {
+    return new Promise((resolve:Function, reject:Function) => {
+      const args = {action: request.action};
+      NativeModule.showSettings(args).then(() => {
+        resolve();
+      }).catch((error:PluginResultError) => {
+        reject(error.message);
+      });
+    });
+  }
+}
+
+
 import {Events} from "./Events";
 
 const TAG               = "TSLocationManager";
