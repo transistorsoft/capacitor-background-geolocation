@@ -1,5 +1,8 @@
 # Change Log
 
+## 7.0.1 &mdash; 2025-02-06
+* Upgrade to Capacitor 7
+
 ## 6.1.5 &mdash; 2024-12-03
 * [Android] Remove Android Setup Step for `proguard-rules.pro`.  The plugin is able to automatically apply its `proguard-rules`.
 
