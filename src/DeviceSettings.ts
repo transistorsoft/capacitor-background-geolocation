@@ -1,9 +1,9 @@
 import {
   PluginResultError,
-  Plugins
+  Plugin
 } from '@capacitor/core';
 
-const NativeModule:any = Plugins.BackgroundGeolocation;
+const NativeModule:any = Plugin.BackgroundGeolocation;
 
 const IGNORE_BATTERY_OPTIMIZATIONS = "IGNORE_BATTERY_OPTIMIZATIONS";
 const POWER_MANAGER = "POWER_MANAGER";

@@ -12,7 +12,7 @@
     "outDir": "dist",
     "pretty": true,
     "sourceMap": true,
-    "strict": true,
+    "strict": false,
     "target": "es5",
   },
   "files": ["src/index.ts"]

@@ -1,5 +1,5 @@
 #!/bin/sh
 
-adb shell cmd jobscheduler run -f com.transistorsoft.backgroundgeolocation.capacitor 999
+adb shell cmd jobscheduler run -f com.transistorsoft.backgroundfetch.capacitor.demo 999
 
 
