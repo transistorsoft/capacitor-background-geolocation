@@ -1,5 +1,8 @@
 # Change Log
 
+## 7.0.2 &mdash; 2025-02-07
+* Update `peerDependencies` in `package.json`.
+
 ## 7.0.1 &mdash; 2025-02-06
 * Upgrade to Capacitor 7
 
