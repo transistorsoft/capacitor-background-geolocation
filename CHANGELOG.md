@@ -1,5 +1,9 @@
 # Change Log
 
+## 7.0.3 &mdash; 2025-02-13
+* [Android] Re-compile library with JDK 17
+* [Android] Fix `ConcurrentModificationException` in `StopTimeoutEvaluator`.
+
 ## 7.0.2 &mdash; 2025-02-07
 * Update `peerDependencies` in `package.json`.
 
