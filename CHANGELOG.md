@@ -1,5 +1,14 @@
 # Change Log
 
+## 7.0.4 &mdash; 2025-06-16
+* [Android] Fix issue with polygon geofencing where `identifier` consists of long strings, such as `aaaa-bbbb-cccccccc-dddd-eeeee
+eeeeeee`.
+* [Android] Fix edge-case where polygons can fail to fire after the containing geofence is exited.  This could happen if the containing geofence was exited without trigger an onMotionChange event.
+* [iOS] Fix edge-case where polygon could fail to fire EXIT event after launching from terminated state when the containing geofence is exit causes background app restart.
+* [Android] Support 16KB page sizes
+* [iOS] Fix `ProviderChangeEvent.enabled` not showing the result of global *Privacy -> Location Services -> Enabled* switch
+* [Android] Fix `java.util.ConcurrentModificationException at com.transistorsoft.locationmanager.location.SingleLocationRequest.getBestLocation`.
+
 ## 7.0.3 &mdash; 2025-02-13
 * [Android] Re-compile library with JDK 17
 * [Android] Fix `ConcurrentModificationException` in `StopTimeoutEvaluator`.
