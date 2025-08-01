@@ -58,6 +58,7 @@ const addGeofencesConfig:any = {
   notifyOnEntry: true,
   notifyOnExit: false,
   notifyOnDwell: false,
+  radius: 200,
   loiteringDelay: 10000
 };
 
