@@ -100,10 +100,7 @@ const AdvancedApp: React.FC = () => {
     subscribe(BackgroundGeolocation.onPowerSaveChange((value) => {
       console.log("******* Capacitor onPowerSaveChange: ", value);
     }));
-  }
 
-  const onMapReady = async (isReady:boolean) => {    
-    if (!isReady) return;
     // Fetch registered orgname / username from Storage so we can fetch an Auth token from the demo server
     const org = (await Preferences.get({key: 'orgname'})).value;
     const username = (await Preferences.get({key: 'username'})).value;
@@ -111,7 +108,7 @@ const AdvancedApp: React.FC = () => {
       history.goBack();
       return;
     }
-
+    
     // Get an authorization token from demo server at tracker.transistorsoft.com
     const token = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(org, username, ENV.TRACKER_HOST);
 
@@ -145,6 +142,12 @@ const AdvancedApp: React.FC = () => {
       setOdometer(state.odometer);
       setReady(true);
     });
+  }
+
+  const onMapReady = async (isReady:boolean) => {    
+    if (!isReady) return;
+    
+  
   }
 
   const initBackgroundFetch = () => {
