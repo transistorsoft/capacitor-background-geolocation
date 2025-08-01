@@ -509,7 +509,7 @@ const MapView: React.FC<MapViewProps> = (props) => {
       map.removeCircles(MARKERS.stationaryCircle);
       MARKERS.stationaryCircle = null;
     }    
-    if (MARKERS.locationMarkers.length > 0) {      
+    if (MARKERS.locationMarkers.length > 0) {
       map.removeMarkers(MARKERS.locationMarkers);
       MARKERS.locationMarkers = [];
     }    
@@ -671,7 +671,7 @@ const MapView: React.FC<MapViewProps> = (props) => {
 
     // Render location markers.
     EVENT_QUEUE.location.forEach(async (location:Location) => {
-      MARKERS.locationMarkers.push(map.addMarker(buildLocationMarker(location)));
+      MARKERS.locationMarkers.push(await map.addMarker(buildLocationMarker(location)));
       POLYLINE_PATH.push({
         lat: location.coords.latitude,
         lng: location.coords.longitude
