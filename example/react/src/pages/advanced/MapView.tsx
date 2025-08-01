@@ -321,8 +321,7 @@ const MapView: React.FC<MapViewProps> = (props) => {
   /// Update current-location Map Marker.
   const updateCurrentLocationMarker = async (location:Location) => {
     if (!map) { return }
-
-    setCenter(location);  
+        
     if (MARKERS.currentLocation) {
       try {
         await map.removeMarker(MARKERS.currentLocation);
@@ -374,7 +373,9 @@ const MapView: React.FC<MapViewProps> = (props) => {
       strokeOpacity: 0.6,
       strokeWeight: 10,
       path: POLYLINE_PATH
-    }]);    
+    }]);
+
+    setCenter(location);
   }
 
 
