@@ -321,8 +321,7 @@ const MapView: React.FC<MapViewProps> = (props) => {
   /// Update current-location Map Marker.
   const updateCurrentLocationMarker = async (location:Location) => {
     if (!map) { return }
-
-    setCenter(location);  
+        
     if (MARKERS.currentLocation) {
       try {
         await map.removeMarker(MARKERS.currentLocation);
@@ -374,7 +373,9 @@ const MapView: React.FC<MapViewProps> = (props) => {
       strokeOpacity: 0.6,
       strokeWeight: 10,
       path: POLYLINE_PATH
-    }]);    
+    }]);
+
+    setCenter(location);
   }
 
 
@@ -509,7 +510,7 @@ const MapView: React.FC<MapViewProps> = (props) => {
       map.removeCircles(MARKERS.stationaryCircle);
       MARKERS.stationaryCircle = null;
     }    
-    if (MARKERS.locationMarkers.length > 0) {      
+    if (MARKERS.locationMarkers.length > 0) {
       map.removeMarkers(MARKERS.locationMarkers);
       MARKERS.locationMarkers = [];
     }    
@@ -671,7 +672,7 @@ const MapView: React.FC<MapViewProps> = (props) => {
 
     // Render location markers.
     EVENT_QUEUE.location.forEach(async (location:Location) => {
-      MARKERS.locationMarkers.push(map.addMarker(buildLocationMarker(location)));
+      MARKERS.locationMarkers.push(await map.addMarker(buildLocationMarker(location)));
       POLYLINE_PATH.push({
         lat: location.coords.latitude,
         lng: location.coords.longitude
