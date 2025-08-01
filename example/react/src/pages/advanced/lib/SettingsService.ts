@@ -608,7 +608,7 @@ export default class SettingsService {
         "radius": 200,
         "center": {
           "latitude": 45.51872221233045,
-          "longitude": -73.60041976465013,
+          "longitude": -73.60041976465013
         }
       }
     }, {
@@ -624,7 +624,7 @@ export default class SettingsService {
         "radius": 200,
         "center": {
           "latitude": 45.51791915253888,
-          "longitude": -73.60480434117284,
+          "longitude": -73.60480434117284
         }
       }
     }, {
@@ -640,7 +640,7 @@ export default class SettingsService {
         "radius": 200,
         "center": {
           "latitude": 45.52193435702239,
-          "longitude": -73.60793815706307,
+          "longitude": -73.60793815706307
         }
       }
     }, {
@@ -676,7 +676,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[CAP] Parc & Fairmount",
+      "identifier": "[CAP] Parc Fairmount",
       "radius": 200.0,
       "latitude": 45.5204308608878,
       "longitude": -73.59730225310089,
@@ -708,7 +708,7 @@ export default class SettingsService {
         }
       }
     }, {
-      "identifier": "[CAP] Laurier & Côtes Saint Catherines",
+      "identifier": "[CAP] Laurier Cotes Saint Catherines",
       "radius": 200.0,
       "latitude": 45.51602235252262,
       "longitude": -73.59890979915006,
@@ -720,7 +720,7 @@ export default class SettingsService {
         "radius": 200,
         "center": {
           "latitude": 45.51602235252262,
-          "longitude": -73.59890979915006,
+          "longitude": -73.59890979915006
         }
       }
     }, {
@@ -835,23 +835,7 @@ export default class SettingsService {
           "longitude": -73.61568446341691
         }
       }
-    }, {
-      "identifier": "[CAP] Rope Park",
-      "radius": 200.0,
-      "latitude": 45.51335215591131,
-      "longitude": -73.58016477295465,
-      "notifyOnEntry": true,
-      "notifyOnExit": true,
-      "notifyOnDwell": true,
-      "loiteringDelay": 60000,
-      "extras": {
-        "radius": 200,
-        "center": {
-          "latitude": 45.51335215591131,
-          "longitude": -73.58016477295465
-        }
-      }
-    }, {
+    },{
       "identifier": "[CAP] Cafe Union",
       "radius": 200.0,
       "latitude": 45.5332674993574,
@@ -880,11 +864,11 @@ export default class SettingsService {
         "radius": 200,
         "center": {
           "latitude": 45.53237479609443,
-          "longitude": -73.58741778627864,
+          "longitude": -73.58741778627864
         }
       }
     }];
-
+      
     await BackgroundGeolocation.removeGeofences();
     await BackgroundGeolocation.addGeofences(geofences);
     await BackgroundGeolocation.resetOdometer();

@@ -1,5 +1,8 @@
 # Change Log
 
+## 7.1.0 &mdash; 2025-08-01
+* [iOS] Implement Swift Package Manager
+
 ## 7.0.5 &mdash; 2025-07-07
 * [Android] Implement behaviour for `locationAuthorizationRequest: "Any"` to not continue showing `backgroundPermissionRationale` after user clicks `[CANCEL]` button.
 * [Android] Rebuild `tslocationmanager` with AGP >= 8.5.1 (16KB page size support)

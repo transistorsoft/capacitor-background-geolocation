@@ -1,7 +1,7 @@
 {
-  "name": "foo",
+  "name": "BGGeo",
   "integrations": {
     "capacitor": {}
   },
-  "type": "react-vite"
+  "type": "react"
 }
