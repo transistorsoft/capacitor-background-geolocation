@@ -69,6 +69,14 @@ const MARKERS = {
   motionChangePolylines: []
 }
 
+/// Queue for events received from the background geolocation plugin while launched in the background (before GoogleMap is ready)
+const EVENT_QUEUE = {
+  location: [],
+  geofence: [],
+  geofencesChange: [],
+  motionChange: []
+}
+
 /// Active Geofence Map, keyed by Geofence.identifier
 const ACTIVE_GEOFENCES = new Map<string, Geofence>();
 let IS_CREATING_POLYGON = false;
@@ -158,7 +166,13 @@ const MapView: React.FC<MapViewProps> = (props) => {
 
   /// onLocation Effect.
   React.useEffect(() => {    
-    if (location === null) { return; }
+    if (location === null) {       
+      return;
+    }
+    if (map === null) {
+      EVENT_QUEUE.location.push(location);
+      return;
+    }
     BackgroundGeolocation.logger.debug("👍👍👍 [onLocation] " + JSON.stringify(location));
     updateCurrentLocationMarker(location);
   }, [location]);
@@ -178,29 +192,11 @@ const MapView: React.FC<MapViewProps> = (props) => {
   /// onMotionChange Effect.
   React.useEffect(() => {
     if (motionChangeEvent === null) { return; }
-    if (map === null) { return; }
+    if (map === null) { 
+      EVENT_QUEUE.motionChange.push(motionChangeEvent);
+      return; }
 
-    const location = motionChangeEvent.location;
-
-    if (motionChangeEvent.isMoving) {
-      if (!stationaryLocation) stationaryLocation = location;
-      map.addCircles([buildMotionChangeCircle(stationaryLocation)]).then((result) => {
-        MARKERS.motionChangeCircles = MARKERS.motionChangeCircles.concat(result);
-      });
-      map.addPolylines([buildMotionChangePolyline(stationaryLocation, location)]).then((result) => {
-        MARKERS.motionChangePolylines = MARKERS.motionChangePolylines.concat(result);
-      });
-      hideStationaryCircle();
-    } else {
-      stationaryLocation = location;
-      showStationaryCircle(location);
-    }
-    
-    if (map) {      
-      map.setCamera({      
-        zoom: 16
-      });
-    }
+    handleMotionChangeEvent(motionChangeEvent);
     
   }, [motionChangeEvent]);
 
@@ -223,15 +219,50 @@ const MapView: React.FC<MapViewProps> = (props) => {
   /// onGeofence Effect.
   React.useEffect(() => {    
     if (geofenceEvent == null) { return }    
-    if (map === null) { return; }
-    handleGeofenceEvent(geofenceEvent);    
+    if (map === null) { 
+      EVENT_QUEUE.geofence.push(geofenceEvent);
+      EVENT_QUEUE.location.push(geofenceEvent.location);
+      return;
+     }
+    handleGeofenceEvent(geofenceEvent);
+    updateCurrentLocationMarker(geofenceEvent.location);
   }, [geofenceEvent]);
 
   /// onGeofencesChange Effect.
   React.useEffect(() => {  
-    if (!geofencesChangeEvent || !map) return;
+    if (!geofencesChangeEvent) { 
+      return;
+    } 
+    if (map === null) {
+      EVENT_QUEUE.geofencesChange.push(geofencesChangeEvent);
+      return;
+    }
     updateGeofences(geofencesChangeEvent);
   }, [geofencesChangeEvent]);
+
+  const handleMotionChangeEvent = async (motionChangeEvent) => {
+    const location = motionChangeEvent.location;
+
+    if (motionChangeEvent.isMoving) {
+      if (!stationaryLocation) stationaryLocation = location;
+      map.addCircles([buildMotionChangeCircle(stationaryLocation)]).then((result) => {
+        MARKERS.motionChangeCircles = MARKERS.motionChangeCircles.concat(result);
+      });
+      map.addPolylines([buildMotionChangePolyline(stationaryLocation, location)]).then((result) => {
+        MARKERS.motionChangePolylines = MARKERS.motionChangePolylines.concat(result);
+      });
+      hideStationaryCircle();
+    } else {
+      stationaryLocation = location;
+      showStationaryCircle(location);
+    }
+    
+    if (map) {      
+      map.setCamera({      
+        zoom: 16
+      });
+    }
+  };
 
   /// Re-render active Geofence map Circle / Polygon.
   const updateGeofences = async (event) => {
@@ -317,27 +348,8 @@ const MapView: React.FC<MapViewProps> = (props) => {
         y: 12
       }
     });
-    // Add a breadcrumb.    
-    let iconIndex = (location.coords.heading >= 0) ? Math.round(location.coords.heading / 10) : 0;
-    if (iconIndex > 36) iconIndex = 0;
-    
-    MARKERS.locationMarkers.push(await map.addMarker({
-      coordinate: {
-        lat: location.coords.latitude,
-        lng: location.coords.longitude
-      },
-      isFlat: true,
-      zIndex: 10,
-      iconUrl: `markers/location-arrow-${iconIndex}.png`,
-      iconSize: {        
-        height: 16,
-        width: 16
-      },
-      iconAnchor: {
-        x: 8,
-        y: 8
-      }      
-    }));
+        
+    MARKERS.locationMarkers.push(await map.addMarker(buildLocationMarker(location)));
 
     if (!enabled) return;
     
@@ -365,9 +377,29 @@ const MapView: React.FC<MapViewProps> = (props) => {
     }]);    
   }
 
+
   /// Build a bread-crumb location marker.
   const buildLocationMarker = (location:Location, options?:any) => {
-    
+    // Add a breadcrumb.    
+    let iconIndex = (location.coords.heading >= 0) ? Math.round(location.coords.heading / 10) : 0;
+    if (iconIndex > 36) iconIndex = 0;
+    return {
+      coordinate: {
+        lat: location.coords.latitude,
+        lng: location.coords.longitude
+      },
+      isFlat: true,
+      zIndex: 10,
+      iconUrl: `markers/location-arrow-${iconIndex}.png`,
+      iconSize: {        
+        height: 16,
+        width: 16
+      },
+      iconAnchor: {
+        x: 8,
+        y: 8
+      }      
+    }
   }
 
   const buildMotionChangeCircle = (location:Location) => {
@@ -518,17 +550,12 @@ const MapView: React.FC<MapViewProps> = (props) => {
 
     const geofence = await BackgroundGeolocation.getGeofence(event.identifier);
     const location = event.location;
+    
     const center = {
       latitude: geofence.latitude,
       longitude: geofence.longitude
     };
     const radius = geofence.radius;
-
-    POLYLINE_PATH.push({
-      lat: location.coords.latitude,
-      lng: location.coords.longitude
-    });
-    
 
     let color, iconColor;
     if (event.action === 'ENTER') {
@@ -630,6 +657,61 @@ const MapView: React.FC<MapViewProps> = (props) => {
       setMapWidth(ionContent.offsetWidth);
     }    
     setMapReady(true);
+
+    // Because @capacitor/google-maps sucks, it can't render if the app is launched in the background.
+    // Now that the maps is ready, we can process all queued events.  So ugly.
+
+    // Fetch the last location to render to "blue dot" current location marker.
+    
+
+    if (EVENT_QUEUE.location.length > 0) {
+      const lastLocation = EVENT_QUEUE.location[EVENT_QUEUE.location.length-1];
+      await updateCurrentLocationMarker(lastLocation);
+    }    
+
+    // Render location markers.
+    EVENT_QUEUE.location.forEach(async (location:Location) => {
+      MARKERS.locationMarkers.push(map.addMarker(buildLocationMarker(location)));
+      POLYLINE_PATH.push({
+        lat: location.coords.latitude,
+        lng: location.coords.longitude
+      })
+    });
+    // Render tracking polyline.
+    MARKERS.polyline = await map.addPolylines([{
+      zIndex: 9,
+      geodesic: true,
+      strokeColor: COLORS.polyline_color,
+      strokeOpacity: 0.6,
+      strokeWeight: 10,
+      path: POLYLINE_PATH
+    }]);    
+
+
+    // Render queued geofence events.  
+    EVENT_QUEUE.geofence.forEach(async(geofence:Geofence) => {
+      await handleGeofenceEvent(geofence);
+    });
+    
+    // Render queued motionchange events.
+    EVENT_QUEUE.motionChange.forEach(async (motionChange:MotionChangeEvent) => {
+      await handleMotionChangeEvent(motionChange);
+    });
+    
+    // Render quueed geofencesChange events.
+    EVENT_QUEUE.geofencesChange.forEach(async (geofences:GeofencesChangeEvent) => {      
+      await updateGeofences(geofences);
+    });
+
+    if (EVENT_QUEUE.location.length > 0) {      
+      setCenter(EVENT_QUEUE.location.pop());
+    }
+
+    // Clear the event queue.
+    EVENT_QUEUE.location = [];
+    EVENT_QUEUE.geofence = [];
+    EVENT_QUEUE.motionChange = [];
+    EVENT_QUEUE.geofencesChange = [];
   };
 
   /// @capacitor/google-maps Map-click listener.
