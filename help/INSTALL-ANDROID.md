@@ -140,7 +140,8 @@ If you've purchased a license for the [Polygon Geofencing add-on](https://shop.t
 </manifest>
 ```
 
-### Huawei Mobile Services (HMS) Support (**REMOVED for failure to support Android 16KB page size**)
+### Huawei Mobile Services (HMS) Support
+:warning: Huawei HMS support ended in `v7.2.0` since they failed to release their SDKs with *Android 16KB page size* support.
 
 <!-- If you've [purchased an *HMS Background Geolocation* License](https://shop.transistorsoft.com/collections/frontpage/products/huawei-background-geolocation) for installing the plugin on _Huawei_ devices without *Google Play Services* installed, add your *HMS Background Geolocation* license key: -->
 
@@ -159,7 +160,7 @@ If you've purchased a license for the [Polygon Geofencing add-on](https://shop.t
   </application>
 </manifest>
 ```
-:warning: Huawei HMS support ended `capacitor-background-geolocation >= 7.2.0`.
+
 
 
 ## `AlarmManager` "Exact Alarms" (optional)
