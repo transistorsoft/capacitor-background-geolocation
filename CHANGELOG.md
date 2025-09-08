@@ -1,5 +1,8 @@
 # Change Log
 
+## 7.2.1 &mdash; 2025-09-08
+* [iOS] Forgot to update `files` section in `package.json` -- that's why the plugin was broken in `7.1.0`.  The location of ios source-files had changed and the new files were not uploaded to npm.
+
 ## 7.2.0 &mdash; 2025-09-08
 * [Android] Drop Huawei HMS support -- they failed to release their SDKs with Android 16KB page size support.
 * [iOS] Fix broken podfile for SPM support.
