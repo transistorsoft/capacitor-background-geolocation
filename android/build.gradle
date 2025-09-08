@@ -115,10 +115,6 @@ dependencies {
 
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:$localBroadcastManagerVersion"
     implementation "com.google.android.gms:play-services-location:$playServicesLocationVersion"
-    // HMS location
-    implementation("com.huawei.hms:location:$hmsLocationVersion") {
-      exclude(group: "com.huawei.hms", module: 'hianalytics')
-    }
 
     api "org.greenrobot:eventbus:$eventBusVersion"
     api "com.squareup.okhttp3:okhttp:$okHttpVersion"
