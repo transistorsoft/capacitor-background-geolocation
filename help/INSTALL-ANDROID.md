@@ -88,9 +88,7 @@ android {
             .
             .
             .
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-+           // [background-geolocation] Proguard-rules
-+           proguardFiles "${background_geolocation.projectDir}/proguard-rules.pro"
++           shrinkResources false
         }
     }
 }
