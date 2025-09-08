@@ -1,6 +1,6 @@
 {
   "name": "@transistorsoft/capacitor-background-geolocation",
-  "version": "7.1.0",
+  "version": "7.2.1",
   "description": "The most sophisticated cross platform Capacitor background location tracking & geofencing module with battery-conscious motion-detection intelligence",
   "main": "dist/plugin.cjs.js",
   "module": "dist/index.js",
@@ -13,10 +13,10 @@
     "android/libs",
     "android/proguard-rules.pro",
     "dist/",
-    "ios/Plugin/",
-    "ios/Resources/",
-    "ios/TSLocationManager.xcframework/",
-    "TransistorsoftCapacitorBackgroundGeolocation.podspec"
+    "ios/Sources/",
+    "ios/Frameworks/TSLocationManager.xcframework/",
+    "TransistorsoftCapacitorBackgroundGeolocation.podspec",
+    "Package.swift"
   ],
   "author": "Transistor Software <chris@transistorsoft.com>",
   "license": "CUSTOM",
