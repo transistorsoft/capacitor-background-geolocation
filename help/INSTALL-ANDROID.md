@@ -63,7 +63,6 @@ allprojects {	// <-- IMPORTANT:  allprojects
 
 +       // capacitor-background-geolocation
 +       maven { url("${project(':transistorsoft-capacitor-background-geolocation').projectDir}/libs") }
-+       maven { url 'https://developer.huawei.com/repo/' }
 +       // capacitor-background-fetch
 +       maven { url("${project(':transistorsoft-capacitor-background-fetch').projectDir}/libs") }
     }
@@ -141,9 +140,9 @@ If you've purchased a license for the [Polygon Geofencing add-on](https://shop.t
 </manifest>
 ```
 
-### Huawei Mobile Services (HMS) Support
+### Huawei Mobile Services (HMS) Support (**REMOVED for failure to support Android 16KB page size**)
 
-If you've [purchased an *HMS Background Geolocation* License](https://shop.transistorsoft.com/collections/frontpage/products/huawei-background-geolocation) for installing the plugin on _Huawei_ devices without *Google Play Services* installed, add your *HMS Background Geolocation* license key:
+<!-- If you've [purchased an *HMS Background Geolocation* License](https://shop.transistorsoft.com/collections/frontpage/products/huawei-background-geolocation) for installing the plugin on _Huawei_ devices without *Google Play Services* installed, add your *HMS Background Geolocation* license key: -->
 
 ```diff
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -160,7 +159,8 @@ If you've [purchased an *HMS Background Geolocation* License](https://shop.trans
   </application>
 </manifest>
 ```
-:warning: Huawei HMS support requires `capacitor-background-geolocation >= 3.11.0`.
+:warning: Huawei HMS support ended `capacitor-background-geolocation >= 7.2.0`.
+
 
 ## `AlarmManager` "Exact Alarms" (optional)
 
