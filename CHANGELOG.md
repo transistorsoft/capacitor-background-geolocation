@@ -1,5 +1,9 @@
 # Change Log
 
+## 7.2.0 &mdash; 2025-09-08
+* [Android] Drop Huawei HMS support -- they failed to release their SDKs with Android 16KB page size support.
+* [iOS] Fix broken podfile for SPM support.
+
 ## 7.1.0 &mdash; 2025-08-01
 * [iOS] Implement Swift Package Manager
 

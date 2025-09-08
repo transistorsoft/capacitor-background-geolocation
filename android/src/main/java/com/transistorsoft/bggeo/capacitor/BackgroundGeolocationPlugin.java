@@ -2,10 +2,7 @@ package com.transistorsoft.bggeo.capacitor;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
-import android.util.Log;
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -13,7 +10,7 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
-import com.transistorsoft.xms.g.common.ExtensionApiAvailability;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.transistorsoft.locationmanager.adapter.BackgroundGeolocation;
 import com.transistorsoft.locationmanager.adapter.TSConfig;
 import com.transistorsoft.locationmanager.adapter.callback.TSActivityChangeCallback;
@@ -105,7 +102,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     private void handlePlayServicesConnectError(Integer errorCode) {
         Activity activity = getActivity();
-        ExtensionApiAvailability.getInstance().getErrorDialog(activity, errorCode, 1001).show();
+        GoogleApiAvailability.getInstance().getErrorDialog(activity, errorCode, 1001).show();
     }
 
     @PluginMethod()
