@@ -1,5 +1,8 @@
 # Change Log
 
+## 7.2.3 &mdash; 2025-10-03
+* [iOS] Fix bug in iOS polygon geofences not recognizing `vertices`.  (thanks @kobusbeets)
+
 ## 7.2.2 &mdash; 2025-09-08
 * [Android] remove huawei from android gradle dependencies
 
