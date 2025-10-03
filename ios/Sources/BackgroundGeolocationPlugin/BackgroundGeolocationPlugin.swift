@@ -858,7 +858,7 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
         let notifyOnDwell = (params["notifyOnDwell"] as? Bool) ?? false
         let loiteringDelay = (params["loiteringDelay"] as? Double) ?? 0
         let extras = params["extras"] as? [String: Any]
-        let vertices = params["vertices"] as? [[String: Any]]
+        let vertices = params["vertices"] as? [[Double]]
 
         return TSGeofence(
             identifier: identifier,
