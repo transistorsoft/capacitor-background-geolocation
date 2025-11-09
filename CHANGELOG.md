@@ -1,5 +1,8 @@
 # Change Log
 
+## 7.2.4 &mdash; 2025-11-08
+* [Android] pin `tslocationmanager` at `3.+` in preparation for next release..
+
 ## 7.2.3 &mdash; 2025-10-03
 * [iOS] Fix bug in iOS polygon geofences not recognizing `vertices`.  (thanks @kobusbeets)
 
