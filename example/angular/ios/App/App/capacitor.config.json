@@ -7,7 +7,7 @@
 		"KeyboardPlugin",
 		"PreferencesPlugin",
 		"StatusBarPlugin",
-		"BackgroundFetchModule",
+		"BackgroundFetchPlugin",
 		"BackgroundGeolocationModule"
 	]
 }

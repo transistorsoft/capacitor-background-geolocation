@@ -1,5 +1,8 @@
 # Change Log
 
+## 7.2.5 &mdash; 2025-11-29
+* [Android] Rebuild with Android ELF alignment
+
 ## 7.2.4 &mdash; 2025-11-08
 * [Android] pin `tslocationmanager` at `3.+` in preparation for next release..
 
