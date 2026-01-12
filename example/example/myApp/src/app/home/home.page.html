@@ -1,0 +1,48 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Background Geolocation
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Background Geolocation</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div style="padding: 16px;">
+    <ion-button
+      expand="block"
+      [color]="enabled ? 'danger' : 'success'"
+      (click)="toggleEnabled()">
+      {{ enabled ? 'STOP' : 'START' }}
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      color="primary"
+      (click)="getCurrentPosition()">
+      Get Current Position
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      color="secondary"
+      (click)="changePace()">
+      Change Pace
+    </ion-button>
+  </div>
+
+  <ion-list>
+    <ion-item *ngFor="let location of locations">
+      <ion-label>
+        <h3>{{ location.timestamp | date:'medium' }}</h3>
+        <p>Lat: {{ location.coords.latitude }}, Lng: {{ location.coords.longitude }}</p>
+        <p>Accuracy: {{ location.coords.accuracy }}m | Speed: {{ location.coords.speed }}m/s</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
