@@ -1,5 +1,8 @@
 # Change Log
 
+## 8.0.0 &mdash; 2026-01-12
+* Capacitor 8 support
+
 ## 7.2.5 &mdash; 2025-11-29
 * [Android] Rebuild with Android ELF alignment
 
