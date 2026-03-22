@@ -1,12 +1,9 @@
 // swift-tools-version: 5.9
-// The swift-tools-version declares the minimum version of Swift required to build this package.
-// "@transistorsoft/capacitor-background-fetch": "file:../../capacitor-background-fetch"
-
 import PackageDescription
 
 let package = Package(
     name: "TransistorsoftCapacitorBackgroundGeolocation",
-    platforms: [.iOS(.v15)],
+    platforms: [.iOS(.v14)],
     products: [
         .library(
             name: "TransistorsoftCapacitorBackgroundGeolocation",
@@ -14,8 +11,10 @@ let package = Package(
         )
     ],
     dependencies: [
-         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
-         .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack.git", from: "3.8.5")
+        .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
+        .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack.git", from: "3.8.5"),
+        .package(url: "https://github.com/transistorsoft/native-background-geolocation.git", from: "4.0.10"),
+        .package(url: "https://github.com/transistorsoft/transistor-background-fetch.git", from: "4.0.5")
     ],
     targets: [
         .target(
@@ -23,8 +22,9 @@ let package = Package(
             dependencies: [
                 .product(name: "Capacitor", package: "capacitor-swift-pm"),
                 .product(name: "Cordova", package: "capacitor-swift-pm"),
-                "CocoaLumberjack",
-                "TSLocationManager"
+                .product(name: "TSLocationManager", package: "native-background-geolocation"),
+                .product(name: "TSBackgroundFetch", package: "transistor-background-fetch"),
+                .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack")
             ],
             path: "ios/Sources/BackgroundGeolocationPlugin",
             resources: [
@@ -32,14 +32,8 @@ let package = Package(
             ],
             linkerSettings: [
                 .linkedLibrary("z"),
-                .linkedLibrary("sqlite3"),
-                .linkedLibrary("stdc++")
+                .linkedLibrary("sqlite3")
             ]
-        ),
-        .binaryTarget(
-            name: "TSLocationManager",
-            path: "ios/Frameworks/TSLocationManager.xcframework"
         )
     ]
 )
-

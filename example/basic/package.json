@@ -1,0 +1,34 @@
+{
+  "name": "bggeo-basic",
+  "version": "1.0.0",
+  "description": "Background Geolocation Basic Demo — React / Vite",
+  "type": "module",
+  "keywords": ["capacitor", "background-geolocation", "react"],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/core": "latest",
+    "@capacitor/ios": "^8.2.0",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/splash-screen": "latest",
+    "@transistorsoft/capacitor-background-fetch": "^8.0.0",
+    "@transistorsoft/capacitor-background-geolocation": "file:../..",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "latest",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.5.3",
+    "vite": "^7.3.1"
+  },
+  "author": "Transistor Software",
+  "license": "MIT"
+}

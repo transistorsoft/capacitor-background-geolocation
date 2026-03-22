@@ -1,0 +1,30 @@
+require_relative '../../node_modules/@capacitor/ios/scripts/pods_helpers'
+
+platform :ios, '14.0'
+use_frameworks! :linkage => :static
+
+# Workaround to avoid Xcode caching of Pods that requires
+# Product -> Clean Build Folder after new Capacitor plugins are installed.
+# Requires CocoaPods 1.6 or newer.
+install! 'cocoapods', :disable_input_output_paths => true
+
+def capacitor_pods
+  pod 'Capacitor',       :path => '../../node_modules/@capacitor/ios'
+  pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/ios'
+  pod 'CapacitorPreferences',  :path => '../../node_modules/@capacitor/preferences'
+  pod 'CapacitorSplashScreen', :path => '../../node_modules/@capacitor/splash-screen'
+  # Explicit top-level declaration prevents duplicate tsbackgroundfetch.xcframework
+  # when both BGFetch and TSLocationManager (BGGeo's dep) pull it in transitively.
+  pod 'TSBackgroundFetch', '~> 4.0'
+  pod 'TransistorsoftCapacitorBackgroundFetch', :path => '../../node_modules/@transistorsoft/capacitor-background-fetch'
+  pod 'TransistorsoftCapacitorBackgroundGeolocation', :path => '../../../..'
+end
+
+target 'App' do
+  capacitor_pods
+  # Add your Pods here
+end
+
+post_install do |installer|
+  assertDeploymentTarget(installer)
+end

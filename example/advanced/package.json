@@ -1,0 +1,48 @@
+{
+  "name": "bggeo-advanced",
+  "version": "1.0.0",
+  "description": "Background Geolocation Advanced Demo — React / Vite / Google Maps",
+  "type": "module",
+  "keywords": [
+    "capacitor",
+    "background-geolocation",
+    "react",
+    "google-maps"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@capacitor/action-sheet": "^8.0.0",
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/clipboard": "^8.0.1",
+    "@capacitor/core": "latest",
+    "@capacitor/dialog": "^8.0.1",
+    "@capacitor/google-maps": "^8.0.0",
+    "@capacitor/haptics": "^8.0.0",
+    "@capacitor/ios": "^8.2.0",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/splash-screen": "latest",
+    "@capacitor/status-bar": "^8.0.1",
+    "@ionic/react": "^8.0.0",
+    "@transistorsoft/capacitor-background-fetch": "^8.0.0",
+    "@transistorsoft/capacitor-background-geolocation": "file:../..",
+    "ionicons": "^7.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "latest",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.5.3",
+    "vite": "^7.3.1"
+  },
+  "author": "Transistor Software",
+  "license": "MIT"
+}

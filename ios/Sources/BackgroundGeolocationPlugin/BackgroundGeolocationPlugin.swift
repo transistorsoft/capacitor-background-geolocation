@@ -4,21 +4,7 @@ import UIKit
 import Capacitor
 import TSLocationManager
 
-let EVENT_LOCATION           = "location"
-let EVENT_WATCHPOSITION      = "watchposition"
-let EVENT_PROVIDERCHANGE     = "providerchange"
-let EVENT_MOTIONCHANGE       = "motionchange"
-let EVENT_ACTIVITYCHANGE     = "activitychange"
-let EVENT_GEOFENCESCHANGE    = "geofenceschange"
-let EVENT_HTTP               = "http"
-let EVENT_SCHEDULE           = "schedule"
-let EVENT_GEOFENCE           = "geofence"
-let EVENT_HEARTBEAT          = "heartbeat"
-let EVENT_POWERSAVECHANGE    = "powersavechange"
-let EVENT_CONNECTIVITYCHANGE = "connectivitychange"
-let EVENT_ENABLEDCHANGE      = "enabledchange"
-let EVENT_NOTIFICATIONACTION = "notificationaction"
-let EVENT_AUTHORIZATION      = "authorization"
+// Event name constants are provided by TSEventName* from TSLocationManager SDK.
 
 @objc(BackgroundGeolocationModule)
 public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
@@ -60,8 +46,7 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "insertLocation", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "destroyLocations", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "destroyLocation", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "getProviderState", returnType: CAPPluginReturnPromise),
-        
+
         CAPPluginMethod(name: "startBackgroundTask", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "stopBackgroundTask", returnType: CAPPluginReturnPromise),
         
@@ -88,10 +73,10 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     var ready = false
 
     public override func load() {
-        let locationManager = TSLocationManager.sharedInstance()
+        let locationManager = BackgroundGeolocation.sharedInstance()
 
         if let root = UIApplication.shared.delegate?.window??.rootViewController {
-            locationManager?.viewController = root
+            locationManager.viewController = root
         }
         ready = false
         registerEventListeners()
@@ -99,112 +84,121 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
 
     func registerEventListeners() {
 
-        guard let locationManager = TSLocationManager.sharedInstance()  else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
         weak var me = self
         
-        locationManager.onLocation({ (location: TSLocation?) in
-            guard let me = me, me.hasListeners(EVENT_LOCATION) else { return }
-            if let locationDict = location?.toDictionary() as? [String: Any] {
-                me.notifyListeners(EVENT_LOCATION, data: locationDict)
+        locationManager.onLocation({ (event: TSLocationEvent?) in
+            guard let me = me, me.hasListeners(TSEventNameLocation) else { return }
+            if let locationDict = event?.toDictionary() as? [String: Any] {
+                me.notifyListeners(TSEventNameLocation, data: locationDict)
             }
         }, failure: { error in
-            guard let me = me, me.hasListeners(EVENT_LOCATION) else { return }
+            guard let me = me, me.hasListeners(TSEventNameLocation) else { return }
             if let nsError = error as? NSError {
-                me.notifyListeners(EVENT_LOCATION, data: ["error": nsError.code] as [String: Any])
+                me.notifyListeners(TSEventNameLocation, data: ["error": nsError.code] as [String: Any])
             }
         })
 
-        locationManager.onMotionChange({ (tsLocation: TSLocation?) in
-            guard let me = me, me.hasListeners(EVENT_MOTIONCHANGE) else { return }
+        locationManager.onMotionChange({ (event: TSLocationEvent?) in
+            guard let me = me, me.hasListeners(TSEventNameMotionChange) else { return }
             let params: [String: Any] = [
-                "isMoving": tsLocation?.isMoving as Any,
-                "location": tsLocation?.toDictionary() as Any
+                "isMoving": event?.isMoving as Any,
+                "location": event?.toDictionary() as Any
             ]
-            me.notifyListeners(EVENT_MOTIONCHANGE, data: params)
+            me.notifyListeners(TSEventNameMotionChange, data: params)
         })
 
         locationManager.onActivityChange({ (event: TSActivityChangeEvent?) in
-            guard let me = me, me.hasListeners(EVENT_ACTIVITYCHANGE) else { return }
+            guard let me = me, me.hasListeners(TSEventNameActivityChange) else { return }
             let params: [String: Any] = [
                 "activity": event?.activity as Any,
                 "confidence": event?.confidence as Any
             ]
-            me.notifyListeners(EVENT_ACTIVITYCHANGE, data: params)
+            me.notifyListeners(TSEventNameActivityChange, data: params)
         })
 
-        locationManager.onHeartbeat({ (event:TSHeartbeatEvent?) in
-            guard let me = me, me.hasListeners(EVENT_HEARTBEAT) else { return }
-            let params: [String: Any] = [
-                "location": event?.location.toDictionary() as Any
-            ]
-            me.notifyListeners(EVENT_HEARTBEAT, data: params)
+        locationManager.onHeartbeat({ (event: TSHeartbeatEvent?) in
+            guard let me = me, me.hasListeners(TSEventNameHeartbeat) else { return }
+            if let eventData = event?.toDictionary() as? [String: Any] {
+                me.notifyListeners(TSEventNameHeartbeat, data: eventData)
+            }
         })
 
         locationManager.onGeofence({ (event: TSGeofenceEvent?) in
-            guard let me = me, me.hasListeners(EVENT_GEOFENCE) else { return }
-            if var params = event?.toDictionary() as? [String: Any] {
-                params["location"] = event?.location.toDictionary() as? [String: Any]
-                me.notifyListeners(EVENT_GEOFENCE, data: params)
+            guard let me = me, me.hasListeners(TSEventNameGeofence) else { return }
+            if let eventData = event?.toDictionary() as? [String: Any] {
+                me.notifyListeners(TSEventNameGeofence, data: eventData)
             }
         })
-        
+
         locationManager.onGeofencesChange({ (event: TSGeofencesChangeEvent?) in
-            guard let me = me, me.hasListeners(EVENT_GEOFENCESCHANGE) else { return }
+            guard let me = me, me.hasListeners(TSEventNameGeofencesChange) else { return }
             if let eventData = event?.toDictionary() as? [String: Any] {
-                me.notifyListeners(EVENT_GEOFENCESCHANGE, data: eventData)
+                me.notifyListeners(TSEventNameGeofencesChange, data: eventData)
             }
         })
-        
+
         locationManager.onHttp({ (event: TSHttpEvent?) in
-            guard let me = me, me.hasListeners(EVENT_HTTP) else { return }
+            guard let me = me, me.hasListeners(TSEventNameHttp) else { return }
             if let eventData = event?.toDictionary() as? [String: Any] {
-                me.notifyListeners(EVENT_HTTP, data: eventData)
+                me.notifyListeners(TSEventNameHttp, data: eventData)
             }
         })
 
         locationManager.onProviderChange({ (event: TSProviderChangeEvent?) in
-            guard let me = me, me.hasListeners(EVENT_PROVIDERCHANGE) else { return }
+            guard let me = me, me.hasListeners(TSEventNameProviderChange) else { return }
             if let eventData = event?.toDictionary() as? [String: Any] {
-                me.notifyListeners(EVENT_PROVIDERCHANGE, data: eventData)
+                me.notifyListeners(TSEventNameProviderChange, data: eventData)
             }
         })
 
         locationManager.onSchedule({ (event: TSScheduleEvent?) in
-            guard let me = me, me.hasListeners(EVENT_SCHEDULE) else { return }
+            guard let me = me, me.hasListeners(TSEventNameSchedule) else { return }
             if let state = event?.state as? [String: Any] {
-                me.notifyListeners(EVENT_SCHEDULE, data: state)
+                me.notifyListeners(TSEventNameSchedule, data: state)
             }
         })
-        
+
         locationManager.onPowerSaveChange({ (event: TSPowerSaveChangeEvent?) in
-            guard let me = me, me.hasListeners(EVENT_POWERSAVECHANGE) else { return }
+            guard let me = me, me.hasListeners(TSEventNamePowerSaveChange) else { return }
             let params: [String: Any] = ["value": event?.isPowerSaveMode as Any]
-            me.notifyListeners(EVENT_POWERSAVECHANGE, data: params)
+            me.notifyListeners(TSEventNamePowerSaveChange, data: params)
         })
 
         locationManager.onConnectivityChange({ (event: TSConnectivityChangeEvent?) in
-            guard let me = me, me.hasListeners(EVENT_CONNECTIVITYCHANGE) else { return }
+            guard let me = me, me.hasListeners(TSEventNameConnectivityChange) else { return }
             let params: [String: Any] = ["connected": event?.hasConnection as Any]
-            me.notifyListeners(EVENT_CONNECTIVITYCHANGE, data: params)
+            me.notifyListeners(TSEventNameConnectivityChange, data: params)
         })
 
         locationManager.onEnabledChange({ (event: TSEnabledChangeEvent?) in
-            guard let me = me, me.hasListeners(EVENT_ENABLEDCHANGE) else { return }
-            me.notifyListeners(EVENT_ENABLEDCHANGE, data: ["value": event?.enabled as Any])
+            guard let me = me, me.hasListeners(TSEventNameEnabledChange) else { return }
+            me.notifyListeners(TSEventNameEnabledChange, data: ["value": event?.enabled as Any])
         })
 
+        locationManager.onAuthorization({ (event: TSAuthorizationEvent?) in
+            guard let me = me, me.hasListeners(TSEventNameAuthorization) else { return }
+            if let eventData = event?.toDictionary() as? [String: Any] {
+                me.notifyListeners(TSEventNameAuthorization, data: eventData)
+            }
+        })
 
     }
 
     @objc func registerPlugin(_ call: CAPPluginCall) {
-        let pluginId = call.getString("id")
+        guard let pluginId = call.getString("id") else {
+            call.reject("Missing required parameter: id")
+            return
+        }
         let config = TSConfig.sharedInstance()
-        config?.registerPlugin(pluginId)
+        config.registerPlugin(pluginId)
+        call.resolve()
     }
 
     @objc func ready(_ call: CAPPluginCall) {
-        guard let locationManager = TSLocationManager.sharedInstance(),
-              let config = TSConfig.sharedInstance() else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        let config = TSConfig.sharedInstance()
+        
         let params = call.getObject("options") ?? [:]
         let reset = (params["reset"] as? Bool) ?? true
         if ready {
@@ -227,11 +221,11 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
                 config.update(with: params)
             } else {
                 if reset {
-                    config.reset(true)
+                    config.resetConfig(true)
                     config.update(with: params)
                 } else if let auth = params["authorization"] as? [String: Any] {
-                    config.update { builder in
-                        builder?.authorization = TSAuthorization.create(with: auth)
+                    config.batchUpdate { cfg in
+                        cfg.authorization.update(with: auth)
                     }
                 }
             }
@@ -246,13 +240,15 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
 
     @objc func reset(_ call: CAPPluginCall) {
         let params = call.getObject("options") ?? [:]
-        guard let config = TSConfig.sharedInstance() else { return }
+        let config = TSConfig.sharedInstance()
+
         if !params.isEmpty {
-            config.reset(true)
+            config.resetConfig(true)
             config.update(with: params)
         } else {
-            config.reset()
+            config.resetConfig(false)
         }
+
         if let configDict = config.toDictionary() as? [String: Any] {
             call.resolve(configDict)
         } else {
@@ -262,7 +258,7 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
 
     @objc func setConfig(_ call: CAPPluginCall) {
         let params = call.getObject("options") ?? [:]
-        guard let config = TSConfig.sharedInstance() else { return }
+        let config = TSConfig.sharedInstance()
         config.update(with: params)
         if let configDict = config.toDictionary() as? [String: Any] {
             call.resolve(configDict)
@@ -272,7 +268,7 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func getState(_ call: CAPPluginCall) {
-        guard let config = TSConfig.sharedInstance() else { return }
+        let config = TSConfig.sharedInstance()
         if let configDict = config.toDictionary() as? [String: Any] {
             call.resolve(configDict)
         } else {
@@ -282,7 +278,7 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
 
     @objc func start(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
-            guard let locationManager = TSLocationManager.sharedInstance() else { return }
+            let locationManager = BackgroundGeolocation.sharedInstance()
             locationManager.start()
             if let state = locationManager.getState() as? [String: Any] {
                 call.resolve(state)
@@ -293,7 +289,7 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func stop(_ call: CAPPluginCall) {
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
         locationManager.stop()
         if let state = locationManager.getState() as? [String: Any] {
             call.resolve(state)
@@ -303,8 +299,8 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func startSchedule(_ call: CAPPluginCall) {
-        guard let config = TSConfig.sharedInstance(),
-              let locationManager = TSLocationManager.sharedInstance() else { return }
+        let config = TSConfig.sharedInstance()
+        let locationManager = BackgroundGeolocation.sharedInstance()
         locationManager.startSchedule()
         if let configDict = config.toDictionary() as? [String: Any] {
             call.resolve(configDict)
@@ -314,8 +310,8 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func stopSchedule(_ call: CAPPluginCall) {
-        guard let config = TSConfig.sharedInstance(),
-              let locationManager = TSLocationManager.sharedInstance() else { return }
+        let config = TSConfig.sharedInstance()
+        let locationManager = BackgroundGeolocation.sharedInstance()
         locationManager.stopSchedule()
         if let configDict = config.toDictionary() as? [String: Any] {
             call.resolve(configDict)
@@ -325,8 +321,8 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func startGeofences(_ call: CAPPluginCall) {
-        guard let config = TSConfig.sharedInstance(),
-              let locationManager = TSLocationManager.sharedInstance() else { return }
+        let config = TSConfig.sharedInstance()
+        let locationManager = BackgroundGeolocation.sharedInstance()
         locationManager.startGeofences()
         if let configDict = config.toDictionary() as? [String: Any] {
             call.resolve(configDict)
@@ -337,133 +333,157 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
 
     @objc func changePace(_ call: CAPPluginCall) {
         let isMoving = call.getBool("isMoving") ?? false
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
         locationManager.changePace(isMoving)
         call.resolve()
     }
 
     @objc func startBackgroundTask(_ call: CAPPluginCall) {
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
         let taskId = locationManager.createBackgroundTask()
-        call.resolve(["taskId": taskId])
+        call.resolve(["taskId": taskId.rawValue])
     }
 
     @objc func stopBackgroundTask(_ call: CAPPluginCall) {
-        let taskId = call.getInt("taskId") ?? -1
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
-        locationManager.stopBackgroundTask(UIBackgroundTaskIdentifier(rawValue: taskId))
+        guard let taskIdNumber = call.options["taskId"] as? NSNumber else {
+            call.reject("Missing required parameter: taskId")
+            return
+        }
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.stopBackgroundTask(UIBackgroundTaskIdentifier(rawValue: taskIdNumber.intValue))
         call.resolve()
     }
-    
+
     @objc func getCurrentPosition(_ call: CAPPluginCall) {
         let options = call.getObject("options") ?? [:]
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
 
-        let request = TSCurrentPositionRequest(success: { (location: TSLocation?) in
-            if let locationData = location?.toDictionary() as? [String: Any] {
-                call.resolve(locationData)
-            } else {
-                call.reject("Failed to convert location to dictionary", nil, nil, [:])
+        let request = TSCurrentPositionRequest.make(
+            type: .current,
+            success: { event in
+                if let eventData = event.data as? [String: Any] {
+                    call.resolve(eventData)
+                } else if let dict = event.toDictionary() as? [String: Any] {
+                    call.resolve(dict)
+                } else {
+                    call.reject("Failed to convert location to dictionary", nil, nil, [:])
+                }
+            },
+            failure: { error in
+                call.reject("get_current_position_error", error.localizedDescription, error, [:])
             }
-        }, failure: { error in
-            if let nsError = error as? NSError {
-                call.reject("\(nsError.code)", nil, error, nsError.userInfo)
-            } else {
-                call.reject("Unknown error occurred", nil, error, [:])
-            }
-        })
+        )
 
         if let timeout = options["timeout"] as? Double {
-            request?.timeout = timeout
+            request.timeout = timeout
         }
-        if let maximumAge = options["maximumAge"] as? Double {
-            request?.maximumAge = maximumAge
+        if let maximumAge = options["maximumAge"] as? Int {
+            request.maximumAge = maximumAge
         }
         if let persist = options["persist"] as? Bool {
-            request?.persist = persist
+            request.persist = persist
         }
         if let samples = options["samples"] as? Int {
-            request?.samples = Int32(samples)
+            request.samples = samples
         }
         if let desiredAccuracy = options["desiredAccuracy"] as? Double {
-            request?.desiredAccuracy = desiredAccuracy
+            request.desiredAccuracy = desiredAccuracy
         }
         if let extras = options["extras"] as? [String: Any] {
-            request?.extras = extras
+            request.extras = extras
         }
+
         locationManager.getCurrentPosition(request)
     }
-
+    
     @objc func watchPosition(_ call: CAPPluginCall) {
         let options = call.getObject("options") ?? [:]
         weak var me = self
+        let locationManager = BackgroundGeolocation.sharedInstance()
 
-        let request = TSWatchPositionRequest(success: { (location: TSLocation?) in
-            guard let me = me else { return }
-            if !me.hasListeners(EVENT_WATCHPOSITION) {
-                TSLocationManager.sharedInstance()?.stopWatchPosition()
-                return
-            }
-            if let locationData = location?.toDictionary() as? [String: Any] {
-                me.notifyListeners(EVENT_WATCHPOSITION, data: locationData)
-            }
-        }, failure: { error in
-            guard let me = me else { return }
-            if !me.hasListeners(EVENT_WATCHPOSITION) {
-                TSLocationManager.sharedInstance()?.stopWatchPosition()
-                return
-            }
-            if let nsError = error as? NSError {
-                let result: [String: Any] = [
-                    "error": [
-                        "code": nsError.code,
-                        "message": nsError.localizedDescription
+        let request = TSWatchPositionRequest.make(
+            interval: 1000,
+            success: { event in
+                guard let me = me else { return }
+                
+                if let eventData = event.locationEvent.toDictionary() as? [String: Any] {
+                    me.notifyListeners(TSEventNameWatchPosition, data: eventData)
+                } else if let dict = event.toDictionary() as? [String: Any] {
+                    me.notifyListeners(TSEventNameWatchPosition, data: dict)
+                }
+            },
+            failure: { error in
+                guard let me = me else { return }
+
+                if let nsError = error as? NSError {
+                    let result: [String: Any] = [
+                        "error": [
+                            "code": nsError.code,
+                            "message": nsError.localizedDescription
+                        ]
                     ]
-                ]
-                me.notifyListeners(EVENT_WATCHPOSITION, data: result)
+                    me.notifyListeners(TSEventNameWatchPosition, data: result)
+                } else {
+                    let result: [String: Any] = [
+                        "error": [
+                            "code": -1,
+                            "message": error.localizedDescription
+                        ]
+                    ]
+                    me.notifyListeners(TSEventNameWatchPosition, data: result)
+                }
             }
-        })
+        )
 
         if let interval = options["interval"] as? Double {
-            request?.interval = interval
+            request.interval = interval
         }
+
         if let desiredAccuracy = options["desiredAccuracy"] as? Double {
-            request?.desiredAccuracy = desiredAccuracy
+            request.desiredAccuracy = desiredAccuracy
         }
+
         if let persist = options["persist"] as? Bool {
-            request?.persist = persist
+            request.persist = persist
         }
+
         if let extras = options["extras"] as? [String: Any] {
-            request?.extras = extras
+            request.extras = extras
         }
-        if let timeout = options["timeout"] as? Double {
-            request?.timeout = timeout
+
+        if let timeoutNumber = options["timeout"] as? NSNumber {
+            request.timeout = timeoutNumber.doubleValue
         }
-        TSLocationManager.sharedInstance()?.watchPosition(request)
-        call.resolve()
+
+        let watchId = Int(locationManager.watchPosition(request))
+        call.resolve(["watchId": NSNumber(value: watchId)])
     }
 
+
     @objc func stopWatchPosition(_ call: CAPPluginCall) {
-        TSLocationManager.sharedInstance()?.stopWatchPosition()
+        guard let watchIdNumber = call.options["watchId"] as? NSNumber else {
+            call.reject("Missing required parameter: watchId")
+            return
+        }
+        let watchId = watchIdNumber.intValue
+        BackgroundGeolocation.sharedInstance().stopWatchPosition(watchId)
         call.resolve()
     }
 
     // Locations Database
 
     @objc func getLocations(_ call: CAPPluginCall) {
-        TSLocationManager.sharedInstance()?.getLocations({ records in
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.getLocations({ records in
             call.resolve(["locations": records as Any])
         }, failure: { error in
-            if let errorString = error {
-                call.reject(errorString, nil, nil, [:])
-            } else {
-                call.reject("Unknown error", nil, nil, [:])
-            }
+            call.reject(error, nil, nil, [:])
         })
     }
 
     @objc func sync(_ call: CAPPluginCall) {
-        TSLocationManager.sharedInstance()?.sync({ records in
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.sync({ records in
             call.resolve(["locations": records as Any])
         }, failure: { error in
             if let nsError = error as? NSError {
@@ -475,44 +495,42 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func getGeofences(_ call: CAPPluginCall) {
-        TSLocationManager.sharedInstance()?.getGeofences({ geofences in
-            if let geofenceArray = geofences {
-                let result = geofenceArray.compactMap { ($0 as? TSGeofence)?.toDictionary() as? [String: Any] }
-                call.resolve(["geofences": result])
-            } else {
-                call.resolve(["geofences": []])
-            }
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.getGeofences({ geofences in
+            let geofenceArray = geofences ?? []
+            let result = geofenceArray.compactMap { ($0 as? TSGeofence)?.toDictionary() as? [String: Any] }
+            call.resolve(["geofences": result])
         }, failure: { error in
-            if let errorString = error {
-                call.reject(errorString, nil, nil, [:])
-            } else {
-                call.reject("Unknown error", nil, nil, [:])
-            }
+            call.reject(error, nil, nil, [:])
         })
     }
-    
 
     @objc func getGeofence(_ call: CAPPluginCall) {
-        let identifier = call.getString("identifier")
-        TSLocationManager.sharedInstance()?.getGeofence(identifier, success: { geofence in
-            if let geofence = geofence,
-               let geofenceData = geofence.toDictionary() as? [String: Any] {
+        guard let identifier = call.getString("identifier") else {
+            call.reject("Missing required parameter: identifier")
+            return
+        }
+
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.getGeofence(identifier, success: { geofence in
+            if let geofenceData = geofence.toDictionary() as? [String: Any] {
                 call.resolve(geofenceData)
             } else {
                 call.reject("Failed to convert geofence to dictionary", nil, nil, [:])
             }
         }, failure: { error in
-            if let errorString = error {
-                call.reject(errorString, nil, nil, [:])
-            } else {
-                call.reject("Unknown error", nil, nil, [:])
-            }
+            call.reject(error, nil, nil, [:])
         })
     }
     
     @objc func geofenceExists(_ call: CAPPluginCall) {
-        let identifier = call.getString("identifier")
-        TSLocationManager.sharedInstance()?.geofenceExists(identifier, callback: { exists in
+        guard let identifier = call.getString("identifier") else {
+            call.reject("Missing required parameter: identifier")
+            return
+        }
+
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.geofenceExists(identifier, callback: { exists in
             call.resolve(["exists": exists])
         })
     }
@@ -524,14 +542,12 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
             call.reject(error, nil, nil, [:])
             return
         }
-        TSLocationManager.sharedInstance()?.add(geofence, success: {
+
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.add(geofence, success: {
             call.resolve()
         }, failure: { error in
-            if let errorString = error {
-                call.reject(errorString, nil, nil, [:])
-            } else {
-                call.reject("Unknown error", nil, nil, [:])
-            }
+            call.reject(error, nil, nil, [:])
         })
     }
 
@@ -540,6 +556,7 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
             call.reject("Invalid geofences data", nil, nil, [:])
             return
         }
+
         var geofences: [TSGeofence] = []
         for params in data {
             if let geofence = buildGeofence(params) {
@@ -550,73 +567,70 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
                 return
             }
         }
-        TSLocationManager.sharedInstance()?.addGeofences(geofences, success: {
+
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.addGeofences(geofences, success: {
             call.resolve()
         }, failure: { error in
-            if let errorString = error {
-                call.reject(errorString, nil, nil, [:])
-            } else {
-                call.reject("Unknown error", nil, nil, [:])
-            }
+            call.reject(error, nil, nil, [:])
         })
     }
 
     @objc func removeGeofence(_ call: CAPPluginCall) {
-        let identifier = call.getString("identifier")
-        TSLocationManager.sharedInstance()?.removeGeofence(identifier, success: {
+        guard let identifier = call.getString("identifier") else {
+            call.reject("Missing required parameter: identifier")
+            return
+        }
+
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.removeGeofence(identifier, success: {
             call.resolve()
         }, failure: { error in
-            if let errorString = error {
-                call.reject(errorString, nil, nil, [:])
-            } else {
-                call.reject("Unknown error", nil, nil, [:])
-            }
+            call.reject(error, nil, nil, [:])
         })
     }
 
     @objc func removeGeofences(_ call: CAPPluginCall) {
-        guard let identifiers = call.options["identifiers"] as? [String] else {
-            call.reject("Invalid identifiers", nil, nil, [:])
-            return
-        }
-        TSLocationManager.sharedInstance()?.removeGeofences(identifiers, success: {
+        let identifiers = call.options["identifiers"] as? [String] ?? []
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.removeGeofences(identifiers, success: {
             call.resolve()
         }, failure: { error in
-            if let errorString = error {
-                call.reject(errorString, nil, nil, [:])
-            } else {
-                call.reject("Unknown error", nil, nil, [:])
-            }
+            call.reject(error, nil, nil, [:])
         })
     }
 
     @objc func getOdometer(_ call: CAPPluginCall) {
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
         let distance = locationManager.getOdometer()
         call.resolve(["odometer": distance])
     }
 
     @objc func setOdometer(_ call: CAPPluginCall) {
         let value = call.getDouble("odometer") ?? 0
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
-        let request = TSCurrentPositionRequest(success: { location in
-            if let locationData = location?.toDictionary() as? [String: Any] {
-                call.resolve(locationData)
-            } else {
-                call.reject("Failed to convert location to dictionary", nil, nil, [:])
+        let locationManager = BackgroundGeolocation.sharedInstance()
+
+        let request = TSCurrentPositionRequest.make(
+            type: .current,
+            success: { event in
+                if let eventData = event.data as? [String: Any] {
+                    call.resolve(eventData)
+                } else if let dict = event.toDictionary() as? [String: Any] {
+                    call.resolve(dict)
+                } else {
+                    call.reject("Failed to convert location to dictionary", nil, nil, [:])
+                }
+            },
+            failure: { error in
+                call.reject("set_odometer_error", error.localizedDescription, error, [:])
             }
-        }, failure: { error in
-            if let nsError = error as? NSError {
-                call.reject("\(nsError.code)", nil, error, nsError.userInfo)
-            } else {
-                call.reject("Unknown error occurred", nil, error, [:])
-            }
-        })
+        )
+
         locationManager.setOdometer(value, request: request)
     }
-    
+
     @objc func destroyLocations(_ call: CAPPluginCall) {
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
         let result = locationManager.destroyLocations()
         if result {
             call.resolve()
@@ -626,54 +640,48 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func destroyLocation(_ call: CAPPluginCall) {
-        let uuid = call.getString("uuid")
-        TSLocationManager.sharedInstance()?.destroyLocation(uuid, success: {
+        guard let uuid = call.getString("uuid") else {
+            call.reject("Missing required parameter: uuid")
+            return
+        }
+
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.destroyLocation(uuid, success: {
             call.resolve()
         }, failure: { error in
-            if let errorString = error {
-                call.reject(errorString, nil, nil, [:])
-            } else {
-                call.reject("Unknown error", nil, nil, [:])
-            }
+            call.reject(error, nil, nil, [:])
         })
     }
 
     @objc func getCount(_ call: CAPPluginCall) {
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
         let count = locationManager.getCount()
         call.resolve(["count": count])
     }
 
     @objc func insertLocation(_ call: CAPPluginCall) {
         let params = call.getObject("options") ?? [:]
-        TSLocationManager.sharedInstance()?.insertLocation(params, success: { uuid in
-            call.resolve(["uuid": uuid as Any])
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.insertLocation(params, success: { uuid in
+            call.resolve(["uuid": uuid])
         }, failure: { error in
-            if let errorString = error {
-                call.reject(errorString, nil, nil, [:])
-            } else {
-                call.reject("Unknown error", nil, nil, [:])
-            }
+            call.reject(error, nil, nil, [:])
         })
     }
 
     @objc func getLog(_ call: CAPPluginCall) {
         let params = call.getObject("options") ?? [:]
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
         let query = LogQuery(dictionary: params)
         locationManager.getLog(query, success: { log in
-            call.resolve(["log": log as Any])
+            call.resolve(["log": log])
         }, failure: { error in
-            if let errorString = error {
-                call.reject(errorString, nil, nil, [:])
-            } else {
-                call.reject("Unknown error", nil, nil, [:])
-            }
+            call.reject(error, nil, nil, [:])
         })
     }
 
     @objc func destroyLog(_ call: CAPPluginCall) {
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
         let result = locationManager.destroyLog()
         if result {
             call.resolve()
@@ -684,43 +692,45 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
 
     @objc func emailLog(_ call: CAPPluginCall) {
         let params = call.getObject("query") ?? [:]
-        let email = call.getString("email")
+        guard let email = call.getString("email") else {
+            call.reject("Missing required parameter: email")
+            return
+        }
+
         let query = LogQuery(dictionary: params)
-        TSLocationManager.sharedInstance()?.emailLog(email, query: query, success: {
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.emailLog(email, query: query, success: {
             call.resolve()
         }, failure: { error in
-            if let errorString = error {
-                call.reject(errorString, nil, nil, [:])
-            } else {
-                call.reject("Unknown error", nil, nil, [:])
-            }
+            call.reject(error, nil, nil, [:])
         })
     }
 
     @objc func uploadLog(_ call: CAPPluginCall) {
         let params = call.getObject("query") ?? [:]
-        let url = call.getString("url")
+        guard let url = call.getString("url") else {
+            call.reject("Missing required parameter: url")
+            return
+        }
+
         let query = LogQuery(dictionary: params)
-        TSLocationManager.sharedInstance()?.uploadLog(url, query: query, success: {
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        locationManager.uploadLog(url, query: query, success: {
             call.resolve()
         }, failure: { error in
-            if let errorString = error {
-                call.reject(errorString, nil, nil, [:])
-            } else {
-                call.reject("Unknown error", nil, nil, [:])
-            }
+            call.reject(error, nil, nil, [:])
         })
     }
 
     @objc func log(_ call: CAPPluginCall) {
         let level = call.getString("level") ?? "debug"
         let message = call.getString("message") ?? "no message"
-        TSLocationManager.sharedInstance()?.log(level, message: message)
+        BackgroundGeolocation.sharedInstance().log(level, message: message)
         call.resolve()
     }
 
     @objc func getSensors(_ call: CAPPluginCall) {
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
         let sensors: [String: Any] = [
             "platform": "ios",
             "accelerometer": locationManager.isAccelerometerAvailable(),
@@ -733,7 +743,7 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
 
     @objc func getDeviceInfo(_ call: CAPPluginCall) {
         let deviceInfo = TSDeviceInfo.sharedInstance()
-        if let infoDict = deviceInfo?.toDictionary("capacitor") as? [String: Any] {
+        if let infoDict = deviceInfo.toDictionary("capacitor") as? [String: Any] {
             call.resolve(infoDict)
         } else {
             call.reject("Failed to get device info", nil, nil, [:])
@@ -741,7 +751,7 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func isPowerSaveMode(_ call: CAPPluginCall) {
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
+        let locationManager = BackgroundGeolocation.sharedInstance()
         call.resolve([
             "isPowerSaveMode": locationManager.isPowerSaveMode()
         ])
@@ -762,16 +772,16 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func requestPermission(_ call: CAPPluginCall) {
-        TSLocationManager.sharedInstance()?.requestPermission({ status in
-            call.resolve(["success": true, "status": status as Any])
+        BackgroundGeolocation.sharedInstance().requestPermission({ status in
+            call.resolve(["success": true, "status": status])
         }, failure: { status in
-            call.resolve(["success": false, "status": status as Any])
+            call.resolve(["success": false, "status": status])
         })
     }
 
     @objc func requestTemporaryFullAccuracy(_ call: CAPPluginCall) {
         let purpose = call.getString("purpose") ?? ""
-        TSLocationManager.sharedInstance()?.requestTemporaryFullAccuracy(purpose, success: { accuracyAuthorization in
+        BackgroundGeolocation.sharedInstance().requestTemporaryFullAccuracy(purpose, success: { accuracyAuthorization in
             call.resolve(["accuracyAuthorization": accuracyAuthorization])
         }, failure: { error in
             if let nsError = error as? NSError,
@@ -784,65 +794,98 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
     
     @objc func getProviderState(_ call: CAPPluginCall) {
-        guard let locationManager = TSLocationManager.sharedInstance() else { return }
-        if let event = locationManager.getProviderState(),
-           let stateData = event.toDictionary() as? [String: Any] {
+        let locationManager = BackgroundGeolocation.sharedInstance()
+        let event = locationManager.getProviderState()
+        if let stateData = event.toDictionary() as? [String: Any] {
             call.resolve(stateData)
         } else {
             call.reject("Failed to convert provider state to dictionary", nil, nil, [:])
         }
     }
-    
+
     @objc func getTransistorToken(_ call: CAPPluginCall) {
-        let orgname = call.getString("org")
-        let username = call.getString("username")
-        let url = call.getString("url")
-        TransistorAuthorizationToken.findOrCreate(withOrg: orgname, username: username, url: url, framework: "capacitor", success: { token in
-            if let token = token,
-               let tokenData = token.toDictionary() as? [String: Any] {
-                let result: [String: Any] = [
-                    "success": true,
-                    "token": tokenData
-                ]
+        guard let orgname = call.getString("org") else {
+            call.resolve([
+                "success": false,
+                "status": -1,
+                "message": "Missing required parameter: org"
+            ])
+            return
+        }
+
+        guard let username = call.getString("username") else {
+            call.resolve([
+                "success": false,
+                "status": -1,
+                "message": "Missing required parameter: username"
+            ])
+            return
+        }
+
+        guard let url = call.getString("url") else {
+            call.resolve([
+                "success": false,
+                "status": -1,
+                "message": "Missing required parameter: url"
+            ])
+            return
+        }
+
+        TransistorAuthorizationToken.findOrCreate(
+            withOrg: orgname,
+            username: username,
+            url: url,
+            framework: "capacitor",
+            success: { token in
+                if let tokenData = token.toDictionary() as? [String: Any] {
+                    let result: [String: Any] = [
+                        "success": true,
+                        "token": tokenData
+                    ]
+                    call.resolve(result)
+                } else {
+                    call.reject("Failed to convert token to dictionary", nil, nil, [:])
+                }
+            },
+            failure: { error in
+                let result: [String: Any]
+                if let nsError = error as? NSError {
+                    result = [
+                        "success": false,
+                        "status": nsError.code,
+                        "message": nsError.localizedDescription
+                    ]
+                } else {
+                    result = [
+                        "success": false,
+                        "status": -1,
+                        "message": "Unknown error occurred"
+                    ]
+                }
                 call.resolve(result)
-            } else {
-                call.reject("Failed to convert token to dictionary", nil, nil, [:])
             }
-        }, failure: { error in
-            let result: [String: Any]
-            if let nsError = error as? NSError {
-                result = [
-                    "success": false,
-                    "status": nsError.code,
-                    "message": nsError.localizedDescription
-                ]
-            } else {
-                result = [
-                    "success": false,
-                    "status": -1,
-                    "message": "Unknown error occurred"
-                ]
-            }
-            call.resolve(result)
-        })
+        )
     }
-    
+
     @objc func destroyTransistorToken(_ call: CAPPluginCall) {
-        let url = call.getString("url")
+        guard let url = call.getString("url") else {
+            call.reject("Missing required parameter: url")
+            return
+        }
         TransistorAuthorizationToken.destroy(withUrl: url)
         call.resolve()
     }
 
+
     @objc func playSound(_ call: CAPPluginCall) {
         let soundId = call.getInt("soundId") ?? 0
-        TSLocationManager.sharedInstance()?.playSound(UInt32(soundId))
+        BackgroundGeolocation.sharedInstance().playSound(UInt32(soundId))
         call.resolve()
     }
 
     @objc func removeAllEventListeners(_ call: CAPPluginCall) {
         self.removeAllListeners(call)
         NSLog("BackgroundGeolocation plugin removeAllListeners")
-        call.resolve()
     }
 
     func buildGeofence(_ params: [String: Any]) -> TSGeofence? {
@@ -850,15 +893,19 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
               (params["vertices"] != nil || (params["radius"] != nil && params["latitude"] != nil && params["longitude"] != nil)) else {
             return nil
         }
-        let radius = (params["radius"] as? Double) ?? 0
-        let latitude = (params["latitude"] as? Double) ?? 0
-        let longitude = (params["longitude"] as? Double) ?? 0
+
+        let radius = (params["radius"] as? NSNumber)?.doubleValue ?? 0
+        let latitude = (params["latitude"] as? NSNumber)?.doubleValue ?? 0
+        let longitude = (params["longitude"] as? NSNumber)?.doubleValue ?? 0
         let notifyOnEntry = (params["notifyOnEntry"] as? Bool) ?? false
         let notifyOnExit = (params["notifyOnExit"] as? Bool) ?? false
         let notifyOnDwell = (params["notifyOnDwell"] as? Bool) ?? false
-        let loiteringDelay = (params["loiteringDelay"] as? Double) ?? 0
+        let loiteringDelay = (params["loiteringDelay"] as? NSNumber)?.doubleValue ?? 0
         let extras = params["extras"] as? [String: Any]
-        let vertices = params["vertices"] as? [[Double]]
+
+        let vertices: [[Double]]? = (params["vertices"] as? [[NSNumber]])?.map {
+            $0.map { $0.doubleValue }
+        }
 
         return TSGeofence(
             identifier: identifier,
@@ -875,6 +922,6 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     deinit {
-        TSLocationManager.sharedInstance()?.removeListeners()
+        BackgroundGeolocation.sharedInstance().removeListeners()
     }
 }

@@ -26,23 +26,13 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 // Android dependencies
-def DEFAULT_COMPILE_SDK_VERSION                     = 34
-def DEFAULT_TARGET_SDK_VERSION                      = 34
-def DEFAULT_APP_COMPAT_VERSION                      = "1.6.1"
+def DEFAULT_COMPILE_SDK_VERSION                     = 35
+def DEFAULT_TARGET_SDK_VERSION                      = 35
 
 // Plugin dependencies
-def DEFAULT_PLAY_SERVICES_LOCATION_VERSION          = "20.0.0"
-def DEFAULT_HMS_LOCATION_VERSION                    = "6.9.0.300"
-def DEFAULT_OK_HTTP_VERSION                         = "3.12.13"
-def DEFAULT_ANDROID_PERMISSIONS_VERSION             = "2.1.6"
+def DEFAULT_PLAY_SERVICES_LOCATION_VERSION          = "21.3.0"
+def DEFAULT_TSLOCATIONMANAGER_VERSION               = "4.0.+"
 def DEFAULT_EVENTBUS_VERSION                        = "3.3.1"
-def DEFAULT_LOCAL_BROADCAST_MANAGER_VERSION         = "1.0.0"
-def DEFAULT_LIFE_CYCLE_RUNTIME_VERSION              = "2.4.1"
-def DEFAULT_LIFE_CYCLE_EXTENSIONS_VERSION           = "2.2.0"
-def DEFAULT_LOGBACK_VERSION                         = "3.0.0"
-def DEFAULT_SLF4J_VERSION                           = "2.0.7"
-def DEFAULT_WORK_VERSION                            = "2.8.1"
-def DEFAULT_CONCURRENT_FUTURES_VERSION              = "1.1.0"
 
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
@@ -56,7 +46,7 @@ android {
 
     compileSdk safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
     defaultConfig {
-        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 22
+        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 26
         targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
@@ -85,52 +75,24 @@ repositories {
 
 
 dependencies {
-    def androidxAppCompatVersion = safeExtGet('androidxAppCompatVersion', DEFAULT_APP_COMPAT_VERSION)
-    def playServicesLocationVersion = safeExtGet('playServicesLocationVersion', safeExtGet('googlePlayServicesLocationVersion', DEFAULT_PLAY_SERVICES_LOCATION_VERSION))
-    def hmsLocationVersion = safeExtGet('hmsLocationVersion', DEFAULT_HMS_LOCATION_VERSION);
-    def okHttpVersion = safeExtGet('okHttpVersion', DEFAULT_OK_HTTP_VERSION)
-    def androidPermissionsVersion = safeExtGet('androidPermissionsVersion', DEFAULT_ANDROID_PERMISSIONS_VERSION)
+    def playServicesLocationVersion = safeExtGet('playServicesLocationVersion', DEFAULT_PLAY_SERVICES_LOCATION_VERSION)
+    def tslocationmanagerVersion = safeExtGet('tslocationmanagerVersion', DEFAULT_TSLOCATIONMANAGER_VERSION)
     def eventBusVersion = safeExtGet('eventBusVersion', DEFAULT_EVENTBUS_VERSION)
-    def localBroadcastManagerVersion = safeExtGet('localBroadcastManagerVersion', DEFAULT_LOCAL_BROADCAST_MANAGER_VERSION)
-
-    def lifeCycleRuntimeVersion = safeExtGet('lifeCycleRuntimeVersion', DEFAULT_LIFE_CYCLE_RUNTIME_VERSION)
-    def lifeCycleExtensionsVersion = safeExtGet('lifeCycleExtensionsVersion', DEFAULT_LIFE_CYCLE_EXTENSIONS_VERSION)
-    def logbackVersion = safeExtGet('logbackVersion', DEFAULT_LOGBACK_VERSION);
-    def slf4jVersion = safeExtGet('slf4jVersion', DEFAULT_SLF4J_VERSION);
-
+    
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':capacitor-android')
-    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
 
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "com.google.android.gms:play-services-location:$playServicesLocationVersion"
     def locationMajorVersion = playServicesLocationVersion.split('\\.')[0] as int
     if (locationMajorVersion >= 21) {
-        api(group: 'com.transistorsoft', name:'tslocationmanager-v21', version: '3.+')
-    } else {
-        api(group: 'com.transistorsoft', name:'tslocationmanager', version: '3.+')
-    }
-
-    implementation "androidx.localbroadcastmanager:localbroadcastmanager:$localBroadcastManagerVersion"
-    implementation "com.google.android.gms:play-services-location:$playServicesLocationVersion"
-
-    api "org.greenrobot:eventbus:$eventBusVersion"
-    api "com.squareup.okhttp3:okhttp:$okHttpVersion"
-    
-    // logback-android
-    implementation "com.github.tony19:logback-android:$logbackVersion"
-    implementation "org.slf4j:slf4j-api:$slf4jVersion"
-
-    implementation "io.github.nishkarsh:android-permissions:$androidPermissionsVersion"
-    // LifeCycleObserver
-    implementation "androidx.lifecycle:lifecycle-runtime:$lifeCycleRuntimeVersion"
-    implementation "androidx.lifecycle:lifecycle-extensions:$lifeCycleExtensionsVersion"
-     
-    // WorkManager
-    def workVersion = safeExtGet('workVersion', DEFAULT_WORK_VERSION)
-    def concurrentFuturesVersion = safeExtGet('concurrentFuturesVersion', DEFAULT_CONCURRENT_FUTURES_VERSION)
-    implementation "androidx.work:work-runtime:$workVersion"
-    implementation "androidx.concurrent:concurrent-futures:$concurrentFuturesVersion"
-
+        api "com.transistorsoft:tslocationmanager:$tslocationmanagerVersion"
+    } else {        
+        api "com.transistorsoft:tslocationmanager-gms20:$tslocationmanagerVersion"
+    }       
+    api "org.greenrobot:eventbus:$eventBusVersion"    
 }

@@ -1,0 +1,14 @@
+{
+  "appId": "com.transistorsoft.backgroundgeolocation.capacitor",
+  "appName": "BGGeo Demo",
+  "webDir": "dist",
+  "backgroundColor": "#ffffff00",
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false
+    },
+    "StatusBar": {
+      "style": "LIGHT"
+    }
+  }
+}

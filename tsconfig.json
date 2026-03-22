@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "allowUnreachableCode": false,
+    "skipLibCheck": true,
     "declaration": false,
     "esModuleInterop": true,
     "lib": ["dom", "es2015"],
@@ -14,6 +15,8 @@
     "sourceMap": true,
     "strict": false,
     "target": "es5",
+    "importHelpers": true,
+    "noEmitHelpers": false
   },
   "files": ["src/index.ts"]
 }

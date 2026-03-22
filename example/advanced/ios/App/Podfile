@@ -1,0 +1,29 @@
+require_relative '../../node_modules/@capacitor/ios/scripts/pods_helpers'
+
+platform :ios, '14.0'
+use_frameworks! :linkage => :static
+
+install! 'cocoapods', :disable_input_output_paths => true
+
+def capacitor_pods
+  pod 'Capacitor',            :path => '../../node_modules/@capacitor/ios'
+  pod 'CapacitorCordova',     :path => '../../node_modules/@capacitor/ios'
+  pod 'CapacitorApp',         :path => '../../node_modules/@capacitor/app'
+  pod 'CapacitorActionSheet', :path => '../../node_modules/@capacitor/action-sheet'
+  pod 'CapacitorHaptics',     :path => '../../node_modules/@capacitor/haptics'
+  pod 'CapacitorPreferences',  :path => '../../node_modules/@capacitor/preferences'
+  pod 'CapacitorSplashScreen', :path => '../../node_modules/@capacitor/splash-screen'
+  # Explicit TSBackgroundFetch version to prevent xcframework conflict between
+  # TransistorsoftCapacitorBackgroundFetch and TSLocationManager (BGGeo's transitive dep).
+  pod 'TSBackgroundFetch', '~> 4.0'
+  pod 'TransistorsoftCapacitorBackgroundFetch',      :path => '../../node_modules/@transistorsoft/capacitor-background-fetch'
+  pod 'TransistorsoftCapacitorBackgroundGeolocation', :path => '../../../..'
+end
+
+target 'App' do
+  capacitor_pods
+end
+
+post_install do |installer|
+  assertDeploymentTarget(installer)
+end

@@ -1,3 +1,9 @@
+# Claude Code
+.claude
+
+# Ignore locally generates ./docs
+docs/
+
 # node files
 dist
 node_modules

@@ -1,5 +1,5 @@
 import commonjs from '@rollup/plugin-commonjs';
-import copy from "rollup-plugin-copy";
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 export default {
   input: 'dist/index.js',
@@ -10,6 +10,7 @@ export default {
       name: 'capacitorBackgroundGeolocation',
       globals: {
         '@capacitor/core': 'capacitorExports',
+        '@transistorsoft/background-geolocation-types': 'backgroundGeolocationTypes',
       },
       sourcemap: true,
       inlineDynamicImports: true,
@@ -22,15 +23,9 @@ export default {
     },
   ],
   plugins: [
-    commonjs(),
-    copy({
-      targets: [
-        { src: 'src/index.d.ts', dest: 'dist' },
-        //{ src: 'src/declarations/**/*', dest: 'dist/declarations'}
-        { src: 'src/declarations', dest: 'dist'}
-      ]
-    })
+    nodeResolve(),
+    commonjs()
   ],
-  external: ['@capacitor/core'],
+  external: ['@capacitor/core', '@transistorsoft/background-geolocation-types'],
 };
 
