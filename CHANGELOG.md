@@ -1,5 +1,26 @@
 # Change Log
 
+## [9.0.0] &mdash; 2026-03-22 — **[BREAKING]** See [Migration Guide](help/MIGRATION-GUIDE-9.0.0.md)
+
+### 🔑 New License Key Format — **Breaking Change**
+- v9 introduces a new **JWT-based license key** format. **v8 and older license keys will not work.**
+- Login to the [Customer Dashboard](https://www.transistorsoft.com/shop/customers) and retrieve your new key from the **"New"** license tab.
+- **iOS now requires a license key** — previous versions only required a key on Android.
+- Add-on product entitlements (eg: [`polygon-geofencing`](https://shop.transistorsoft.com/collections/frontpage/products/polygon-geofencing), `firebase`) are now **encoded into the JWT key** — separate add-on license keys are no longer required or accepted.
+
+### 📦 Native Dependencies — No Local Files Required
+- **[Android]** Native SDK is now imported directly from **Maven Central** — no local `.aar` files or custom `maven url` entries required in `android/build.gradle`.
+- **[iOS]** Native SDK is imported via **CocoaPods** and **Swift Package Manager** — no manual framework linking required.
+
+### ⚙️ New Compound Config Format
+- Introduces a new grouped **Compound Config** structure, replacing the legacy flat config. Legacy flat config remains supported but is deprecated.
+- See [Migration Guide](help/MIGRATION-GUIDE-9.0.0.md) for full mapping of flat → compound keys.
+
+### 🆕 New Features
+- **`LocationFilter`** — powerful new API for filtering and transforming location data before HTTP upload and persistence.  See [API Docs](https://transistorsoft.github.io/capacitor-background-geolocation/latest).
+- **Completely rebuilt TypeScript API** — shared, strongly-typed interfaces via [`@transistorsoft/background-geolocation-types`](https://github.com/transistorsoft/background-geolocation-types), providing full IntelliSense support across all platform SDKs.
+
+
 ## 8.0.1 &mdash; 2025-01-14
 * [Android] Implement spurious geofence exit detection..  Google Play Services seems to have a bug where
  geofence exit events fire even while the device is still inside the geofence, causing the SDK to constantly enter the *m
