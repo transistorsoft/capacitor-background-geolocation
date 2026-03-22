@@ -1,0 +1,180 @@
+/* ── Reset & base ──────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --yellow: #FFD500;
+  --yellow-dark: #E6C000;
+  --accent: #007AFF;
+  --success: #34C759;
+  --danger: #FF3B30;
+}
+
+html, body, #root { height: 100%; overflow: hidden; background: transparent; }
+
+/* ── Map wrapper ────────────────────────────────────────────────────────────── */
+.map-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  /* Transparent so native map layer beneath WebView shows through */
+  background: transparent;
+}
+
+/* The native map renders under the WebView — this element MUST be transparent */
+capacitor-google-map {
+  background: transparent;
+}
+
+/* ── Bottom toolbar status ──────────────────────────────────────────────────── */
+.status-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  gap: 3px;
+}
+.status-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #000;
+  letter-spacing: 0.5px;
+}
+.status-distance {
+  font-size: 11px;
+  color: #000;
+}
+
+/* ── Map overlays ────────────────────────────────────────────────────────────── */
+#geofence-prompt {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255,241,165,0.95);
+  color: #333;
+  text-align: center;
+  padding: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  border-bottom: 1px solid #fedd1e;
+  z-index: 20;
+}
+
+.polygon-toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--yellow);
+  border-bottom: 1px solid rgba(0,0,0,0.15);
+  z-index: 20;
+}
+.polygon-toolbar-left { display: flex; gap: 4px; }
+.polygon-toolbar-title { font-size: 13px; color: #000; font-weight: 500; }
+
+/* ── Ionic overrides ────────────────────────────────────────────────────────── */
+ion-app {
+  /* Must be transparent so native Google Map layer shows through */
+  --ion-background-color: transparent;
+}
+
+/* Ensure the main content area uses flex layout */
+ion-app {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── RegistrationModal ──────────────────────────────────────────────────────── */
+.registration-modal {
+  --height: 100%;
+  --width: 100%;
+  --border-radius: 0;
+  --background: #1a1a2e;
+}
+.registration-modal::part(content) {
+  border-radius: 0;
+  height: 100%;
+  max-height: 100%;
+  top: 0;
+  bottom: 0;
+  background: #1a1a2e;
+}
+.registration-modal::part(backdrop) {
+  background: #1a1a2e;
+}
+.registration-modal ion-content {
+  --background: #1a1a2e;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-bottom: 16px;
+  --padding-top: 0px;
+  color: #fff;
+}
+.registration-modal .reg-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+.registration-modal .reg-logo {
+  width: 270px;
+  height: 270px;
+  margin-top: 8px;
+}
+.registration-modal .reg-subtitle {
+  font-size: 15px;
+  color: #ccc;
+  margin-top: -16px;
+  margin-bottom: 0;
+}
+.registration-modal .reg-info-box {
+  background-color: rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.15);
+  margin-bottom: 24px;
+}
+.registration-modal .reg-info-text {
+  font-size: 14px;
+  line-height: 20px;
+  color: #ccc;
+  margin: 0;
+}
+.registration-modal .reg-info-url {
+  font-size: 14px;
+  font-weight: 700;
+  color: #007AFF;
+  margin-top: 8px;
+  margin-bottom: 0;
+  cursor: pointer;
+  -webkit-user-select: all;
+  user-select: all;
+}
+.registration-modal ion-item {
+  --background: transparent;
+  --color: #fff;
+  --border-color: rgba(255,255,255,0.2);
+}
+.registration-modal ion-item + ion-item {
+  margin-top: 12px;
+}
+.registration-modal ion-item ion-label {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-size: 13px;
+  color: #aaa;
+}
+.registration-modal ion-button {
+  margin-top: 24px;
+  --border-radius: 27px;
+}
+
+/* ── ConfigView: sheet-style modal with handle ─────────────────────────────── */
+.config-view-modal {
+  --border-radius: 16px 16px 0 0;
+}

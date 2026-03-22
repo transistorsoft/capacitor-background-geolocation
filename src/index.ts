@@ -5,6 +5,23 @@ import {
   PluginResultError
 } from '@capacitor/core';
 
+import {
+  LogLevel,
+  DesiredAccuracy,
+  PersistMode,
+  AuthorizationStatus,
+  AccuracyAuthorization,
+  LocationRequest,
+  AuthorizationStrategy,
+  LocationFilterPolicy,
+  KalmanProfile,
+  NotificationPriority,
+  HttpMethod,
+  TriggerActivity,
+  ActivityType,
+  Event
+} from '@transistorsoft/background-geolocation-types';
+
 const NativeModule:any = registerPlugin('BackgroundGeolocation');
 
 /**
@@ -240,16 +257,13 @@ class DeviceSettings {
   }
 }
 
-
-import {Events} from "./Events";
-
 const TAG               = "TSLocationManager";
 
 /// Container for event-subscriptions.
 let EVENT_SUBSCRIPTIONS:any = [];
 
-/// Container for watchPostion subscriptions.
-let WATCH_POSITION_SUBSCRIPTIONS:any = [];
+/// Container for watchPosition subscriptions, keyed by watchId.
+let WATCH_POSITION_SUBSCRIPTIONS: Map<number, PluginListenerHandle> = new Map();
 
 /// Event handler Subscription
 ///
@@ -295,69 +309,80 @@ const validateConfig = (config:any) => {
   return config;
 };
 
-const LOG_LEVEL_OFF     =  0;
-const LOG_LEVEL_ERROR   =  1;
-const LOG_LEVEL_WARNING =  2;
-const LOG_LEVEL_INFO    =  3;
-const LOG_LEVEL_DEBUG   =  4;
-const LOG_LEVEL_VERBOSE =  5;
+const LOG_LEVEL_OFF     = LogLevel.Off;
+const LOG_LEVEL_ERROR   = LogLevel.Error;
+const LOG_LEVEL_WARNING = LogLevel.Warning;
+const LOG_LEVEL_INFO    = LogLevel.Info;
+const LOG_LEVEL_DEBUG   = LogLevel.Debug;
+const LOG_LEVEL_VERBOSE = LogLevel.Verbose;
 
-const DESIRED_ACCURACY_NAVIGATION = -2;
-const DESIRED_ACCURACY_HIGH       = -1;
-const DESIRED_ACCURACY_MEDIUM     = 10;
-const DESIRED_ACCURACY_LOW        = 100;
-const DESIRED_ACCURACY_VERY_LOW   = 1000;
-const DESIRED_ACCURACY_LOWEST     = 3000;
+const DESIRED_ACCURACY_NAVIGATION = DesiredAccuracy.Navigation;
+const DESIRED_ACCURACY_HIGH       = DesiredAccuracy.High;
+const DESIRED_ACCURACY_MEDIUM     = DesiredAccuracy.Medium;
+const DESIRED_ACCURACY_LOW        = DesiredAccuracy.Low;
+const DESIRED_ACCURACY_VERY_LOW   = DesiredAccuracy.VeryLow;
+const DESIRED_ACCURACY_LOWEST     = DesiredAccuracy.Lowest;
 
-const AUTHORIZATION_STATUS_NOT_DETERMINED = 0;
-const AUTHORIZATION_STATUS_RESTRICTED     = 1;
-const AUTHORIZATION_STATUS_DENIED         = 2;
-const AUTHORIZATION_STATUS_ALWAYS         = 3;
-const AUTHORIZATION_STATUS_WHEN_IN_USE    = 4;
+const AUTHORIZATION_STATUS_NOT_DETERMINED = AuthorizationStatus.NotDetermined;
+const AUTHORIZATION_STATUS_RESTRICTED     = AuthorizationStatus.Restricted;
+const AUTHORIZATION_STATUS_DENIED         = AuthorizationStatus.Denied;
+const AUTHORIZATION_STATUS_ALWAYS         = AuthorizationStatus.Always;
+const AUTHORIZATION_STATUS_WHEN_IN_USE    = AuthorizationStatus.WhenInUse;
 
-const NOTIFICATION_PRIORITY_DEFAULT       = 0;
-const NOTIFICATION_PRIORITY_HIGH          = 1;
-const NOTIFICATION_PRIORITY_LOW           =-1;
-const NOTIFICATION_PRIORITY_MAX           = 2;
-const NOTIFICATION_PRIORITY_MIN           =-2;
+const NOTIFICATION_PRIORITY_DEFAULT = NotificationPriority.Default;
+const NOTIFICATION_PRIORITY_HIGH    = NotificationPriority.High;
+const NOTIFICATION_PRIORITY_LOW     = NotificationPriority.Low;
+const NOTIFICATION_PRIORITY_MAX     = NotificationPriority.Max;
+const NOTIFICATION_PRIORITY_MIN     = NotificationPriority.Min;
 
-const ACTIVITY_TYPE_OTHER                 = 1;
-const ACTIVITY_TYPE_AUTOMOTIVE_NAVIGATION = 2;
-const ACTIVITY_TYPE_FITNESS               = 3;
-const ACTIVITY_TYPE_OTHER_NAVIGATION      = 4;
-const ACTIVITY_TYPE_AIRBORNE              = 5;
+const ACTIVITY_TYPE_OTHER                 = ActivityType.Other;
+const ACTIVITY_TYPE_AUTOMOTIVE_NAVIGATION = ActivityType.AutomotiveNavigation;
+const ACTIVITY_TYPE_FITNESS               = ActivityType.Fitness;
+const ACTIVITY_TYPE_OTHER_NAVIGATION      = ActivityType.OtherNavigation;
+const ACTIVITY_TYPE_AIRBORNE              = ActivityType.Airborne;
 
-const LOCATION_AUTHORIZATION_ALWAYS       = "Always";
-const LOCATION_AUTHORIZATION_WHEN_IN_USE  = "WhenInUse";
-const LOCATION_AUTHORIZATION_ANY          = "Any";
+const LOCATION_AUTHORIZATION_ALWAYS      = LocationRequest.Always;
+const LOCATION_AUTHORIZATION_WHEN_IN_USE = LocationRequest.WhenInUse;
+const LOCATION_AUTHORIZATION_ANY         = LocationRequest.Any;
 
-const PERSIST_MODE_ALL                    = 2;
-const PERSIST_MODE_LOCATION               = 1;
-const PERSIST_MODE_GEOFENCE               = -1;
-const PERSIST_MODE_NONE                   = 0;
+const PERSIST_MODE_ALL      = PersistMode.All;
+const PERSIST_MODE_LOCATION = PersistMode.Location;
+const PERSIST_MODE_GEOFENCE = PersistMode.Geofence;
+const PERSIST_MODE_NONE     = PersistMode.None;
 
-const ACCURACY_AUTHORIZATION_FULL        = 0;
-const ACCURACY_AUTHORIZATION_REDUCED     = 1;
+const ACCURACY_AUTHORIZATION_FULL    = AccuracyAuthorization.Full;
+const ACCURACY_AUTHORIZATION_REDUCED = AccuracyAuthorization.Reduced;
 
 /// BackgroundGeolocation JS API
 export default class BackgroundGeolocation {
+  static get LogLevel() { return LogLevel; }
+  static get DesiredAccuracy() { return DesiredAccuracy; }
+  static get PersistMode() { return PersistMode; }
+  static get AuthorizationStatus() { return AuthorizationStatus; }
+  static get AccuracyAuthorization() { return AccuracyAuthorization; }
+  static get AuthorizationStrategy() { return AuthorizationStrategy; }
+  static get LocationFilterPolicy() { return LocationFilterPolicy; }
+  static get KalmanProfile() { return KalmanProfile; }
+  static get HttpMethod() { return HttpMethod; }
+  static get TriggerActivity() { return TriggerActivity; }
+
   /// Events
-  static get EVENT_BOOT()                  { return Events.BOOT; }
-  static get EVENT_TERMINATE()             { return Events.TERMINATE; }
-  static get EVENT_LOCATION()              { return Events.LOCATION; }
-  static get EVENT_MOTIONCHANGE()          { return Events.MOTIONCHANGE; }
-  static get EVENT_HTTP()                  { return Events.HTTP; }
-  static get EVENT_HEARTBEAT()             { return Events.HEARTBEAT; }
-  static get EVENT_PROVIDERCHANGE()        { return Events.PROVIDERCHANGE; }
-  static get EVENT_ACTIVITYCHANGE()        { return Events.ACTIVITYCHANGE; }
-  static get EVENT_GEOFENCE()              { return Events.GEOFENCE; }
-  static get EVENT_GEOFENCESCHANGE()       { return Events.GEOFENCESCHANGE; }
-  static get EVENT_ENABLEDCHANGE()         { return Events.ENABLEDCHANGE; }
-  static get EVENT_CONNECTIVITYCHANGE()    { return Events.CONNECTIVITYCHANGE; }
-  static get EVENT_SCHEDULE()              { return Events.SCHEDULE; }
-  static get EVENT_POWERSAVECHANGE()       { return Events.POWERSAVECHANGE; }
-  static get EVENT_NOTIFICATIONACTION()    { return Events.NOTIFICATIONACTION; }
-  static get EVENT_AUTHORIZATION()         { return Events.AUTHORIZATION; }
+  static get EVENT_BOOT()                  { return Event.Boot; }
+  static get EVENT_TERMINATE()             { return Event.Terminate; }
+  static get EVENT_LOCATION()              { return Event.Location; }
+  static get EVENT_MOTIONCHANGE()          { return Event.MotionChange; }
+  static get EVENT_HTTP()                  { return Event.Http; }
+  static get EVENT_HEARTBEAT()             { return Event.Heartbeat; }
+  static get EVENT_PROVIDERCHANGE()        { return Event.ProviderChange; }
+  static get EVENT_ACTIVITYCHANGE()        { return Event.ActivityChange; }
+  static get EVENT_GEOFENCE()              { return Event.Geofence; }
+  static get EVENT_GEOFENCESCHANGE()       { return Event.GeofencesChange; }
+  static get EVENT_ENABLEDCHANGE()         { return Event.EnabledChange; }
+  static get EVENT_CONNECTIVITYCHANGE()    { return Event.ConnectivityChange; }
+  static get EVENT_SCHEDULE()              { return Event.Schedule; }
+  static get EVENT_POWERSAVECHANGE()       { return Event.PowerSaveChange; }
+  static get EVENT_NOTIFICATIONACTION()    { return "notificationaction"} // <-- TODO : Add to background-geolocation-types
+  static get EVENT_AUTHORIZATION()         { return Event.Authorization; }
 
 	static get LOG_LEVEL_OFF()                        { return LOG_LEVEL_OFF; }
   static get LOG_LEVEL_ERROR()                      { return LOG_LEVEL_ERROR; }
@@ -463,7 +488,7 @@ export default class BackgroundGeolocation {
     });
   }
 
-  static watchPosition(onLocation:Function, onError?:Function, options?:any) {
+  static watchPosition(onLocation:Function, onError?:Function, options?:any):Promise<number> {
     options = options || {};
     return new Promise(async (resolve:Function, reject:Function) => {
 
@@ -472,7 +497,7 @@ export default class BackgroundGeolocation {
           if (typeof(onError) === 'function') {
             onError(response.error.code);
           } else {
-            console.warn('[BackgroundGeolocation watchPostion] DEFAULT ERROR HANDLER.  Provide an onError handler to watchPosition to receive this message: ', response.error);
+            console.warn('[BackgroundGeolocation watchPosition] DEFAULT ERROR HANDLER.  Provide an onError handler to watchPosition to receive this message: ', response.error);
           }
         } else {
           onLocation(response);
@@ -480,9 +505,10 @@ export default class BackgroundGeolocation {
       }
       const listener:PluginListenerHandle = await NativeModule.addListener("watchposition", handler);
 
-      NativeModule.watchPosition({options:options}).then(() => {
-        WATCH_POSITION_SUBSCRIPTIONS.push(listener);
-        resolve();
+      NativeModule.watchPosition({options:options}).then((result:any) => {
+        const watchId:number = result.watchId;
+        WATCH_POSITION_SUBSCRIPTIONS.set(watchId, listener);
+        resolve(watchId);
       }).catch((error:any) => {
         listener.remove();
         reject(error.message);
@@ -490,12 +516,13 @@ export default class BackgroundGeolocation {
     });
   }
 
-  static stopWatchPosition() {
-    for (let n=0;n<WATCH_POSITION_SUBSCRIPTIONS.length;n++) {
-      const subscription = WATCH_POSITION_SUBSCRIPTIONS[n];
-      subscription.remove();
+  static stopWatchPosition(watchId:number):Promise<void> {
+    const listener = WATCH_POSITION_SUBSCRIPTIONS.get(watchId);
+    if (listener) {
+      listener.remove();
+      WATCH_POSITION_SUBSCRIPTIONS.delete(watchId);
     }
-    return NativeModule.stopWatchPosition();
+    return NativeModule.stopWatchPosition({watchId: watchId});
   }
 
   static requestPermission() {
@@ -759,69 +786,65 @@ export default class BackgroundGeolocation {
   /// Event Handling
   ///
   static onLocation(success:Function, failure:Function) {
-    return BackgroundGeolocation.addListener(Events.LOCATION, success, failure);
+    return BackgroundGeolocation.addListener(Event.Location, success, failure);
   }
 
   static onMotionChange(success:Function) {
-    return BackgroundGeolocation.addListener(Events.MOTIONCHANGE, success);
+    return BackgroundGeolocation.addListener(Event.MotionChange, success);
   }
 
   static onHttp(success:Function) {
-    return BackgroundGeolocation.addListener(Events.HTTP, success);
+    return BackgroundGeolocation.addListener(Event.Http, success);
   }
 
   static onHeartbeat(success:Function) {
-    return BackgroundGeolocation.addListener(Events.HEARTBEAT, success);
+    return BackgroundGeolocation.addListener(Event.Heartbeat, success);
   }
 
   static onProviderChange(success:Function) {
-    return BackgroundGeolocation.addListener(Events.PROVIDERCHANGE, success);
+    return BackgroundGeolocation.addListener(Event.ProviderChange, success);
   }
 
   static onActivityChange(success:Function) {
-    return BackgroundGeolocation.addListener(Events.ACTIVITYCHANGE, success);
+    return BackgroundGeolocation.addListener(Event.ActivityChange, success);
   }
 
   static onGeofence(success:Function) {
-    return BackgroundGeolocation.addListener(Events.GEOFENCE, success);
+    return BackgroundGeolocation.addListener(Event.Geofence, success);
   }
 
   static onGeofencesChange(success:Function) {
-    return BackgroundGeolocation.addListener(Events.GEOFENCESCHANGE, success);
+    return BackgroundGeolocation.addListener(Event.GeofencesChange, success);
   }
 
   static onSchedule(success:Function) {
-    return BackgroundGeolocation.addListener(Events.SCHEDULE, success);
+    return BackgroundGeolocation.addListener(Event.Schedule, success);
   }
 
   static onEnabledChange(success:Function) {
-    return BackgroundGeolocation.addListener(Events.ENABLEDCHANGE, success);
+    return BackgroundGeolocation.addListener(Event.EnabledChange, success);
   }
 
   static onConnectivityChange(success:Function) {
-    return BackgroundGeolocation.addListener(Events.CONNECTIVITYCHANGE, success);
+    return BackgroundGeolocation.addListener(Event.ConnectivityChange, success);
   }
 
   static onPowerSaveChange(success:Function) {
-    return BackgroundGeolocation.addListener(Events.POWERSAVECHANGE, success);
+    return BackgroundGeolocation.addListener(Event.PowerSaveChange, success);
   }
 
   static onNotificationAction(success:Function) {
-    return BackgroundGeolocation.addListener(Events.NOTIFICATIONACTION, success);
+    return BackgroundGeolocation.addListener("notificationaction", success);
   }
 
   static onAuthorization(success:Function) {
-    return BackgroundGeolocation.addListener(Events.AUTHORIZATION, success);
+    return BackgroundGeolocation.addListener(Event.Authorization, success);
   }
 
   ///
   /// Listen to a plugin event
   ///
-  static addListener(event:string, success:Function, failure?:Function) {
-    if (!Events[event.toUpperCase()]) {
-      throw (TAG + "#addListener - Unknown event '" + event + "'");
-    }
-
+  static addListener(event:string, success:Function, failure?:Function) {    
     const handler = (response:any) => {
       if (response.hasOwnProperty("value")) {
         response = response.value;

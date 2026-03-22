@@ -1,6 +1,7 @@
 package com.transistorsoft.bggeo.capacitor;
 
 import android.app.Activity;
+
 import android.content.Context;
 import android.os.Build;
 
@@ -12,7 +13,7 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.transistorsoft.locationmanager.adapter.BackgroundGeolocation;
-import com.transistorsoft.locationmanager.adapter.TSConfig;
+
 import com.transistorsoft.locationmanager.adapter.callback.TSActivityChangeCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSBackgroundTaskCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSCallback;
@@ -39,8 +40,9 @@ import com.transistorsoft.locationmanager.adapter.callback.TSPowerSaveChangeCall
 import com.transistorsoft.locationmanager.adapter.callback.TSRequestPermissionCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSScheduleCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSSyncCallback;
-import com.transistorsoft.locationmanager.config.TSAuthorization;
-import com.transistorsoft.locationmanager.config.TransistorAuthorizationToken;
+
+import com.transistorsoft.locationmanager.config.TSConfig;
+import com.transistorsoft.locationmanager.config.edit.Editor;
 import com.transistorsoft.locationmanager.data.LocationModel;
 import com.transistorsoft.locationmanager.data.SQLQuery;
 import com.transistorsoft.locationmanager.device.DeviceInfo;
@@ -48,14 +50,18 @@ import com.transistorsoft.locationmanager.device.DeviceSettingsRequest;
 import com.transistorsoft.locationmanager.event.ActivityChangeEvent;
 import com.transistorsoft.locationmanager.event.AuthorizationEvent;
 import com.transistorsoft.locationmanager.event.ConnectivityChangeEvent;
+import com.transistorsoft.locationmanager.event.EventName;
 import com.transistorsoft.locationmanager.event.GeofenceEvent;
 import com.transistorsoft.locationmanager.event.GeofencesChangeEvent;
 import com.transistorsoft.locationmanager.event.HeartbeatEvent;
+import com.transistorsoft.locationmanager.event.LocationEvent;
 import com.transistorsoft.locationmanager.event.LocationProviderChangeEvent;
 import com.transistorsoft.locationmanager.event.TerminateEvent;
 import com.transistorsoft.locationmanager.geofence.TSGeofence;
 import com.transistorsoft.locationmanager.http.HttpResponse;
 import com.transistorsoft.locationmanager.http.HttpService;
+import com.transistorsoft.locationmanager.http.TSAuthorization;
+import com.transistorsoft.locationmanager.http.TransistorAuthorizationToken;
 import com.transistorsoft.locationmanager.location.TSCurrentPositionRequest;
 import com.transistorsoft.locationmanager.location.TSLocation;
 import com.transistorsoft.locationmanager.location.TSWatchPositionRequest;
@@ -70,7 +76,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @CapacitorPlugin(name = "BackgroundGeolocation")
 public class BackgroundGeolocationPlugin extends Plugin {
@@ -79,7 +89,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     private static final String BACKGROUND_GEOLOCATION_HEADLESS_CLASSNAME = "BackgroundGeolocationHeadlessTask";
 
-    private static final String EVENT_WATCHPOSITION = "watchposition";
+    private static final AtomicInteger sWatchIdCounter = new AtomicInteger(0);
 
     @Override
     public void load() {
@@ -88,16 +98,17 @@ public class BackgroundGeolocationPlugin extends Plugin {
         TSLog.logger.debug("");
 
         TSConfig config = TSConfig.getInstance(getContext());
-        config.useCLLocationAccuracy(true);
-        config.updateWithBuilder()
-                .setHeadlessJobService(getHeadlessJobService())
-                .commit();
+        config.setUseCLLocationAccuracy(true);
+        Editor ed = config.edit();
+        ed.app().setHeadlessJobService(getHeadlessJobService());
+        ed.commit();
 
         BackgroundGeolocation bgGeo = BackgroundGeolocation.getInstance(getContext());
         Activity activity = getActivity();
         if (activity != null) {
             bgGeo.setActivity(activity);
         }
+        bgGeo.removeListeners();
     }
 
     private void handlePlayServicesConnectError(Integer errorCode) {
@@ -128,7 +139,8 @@ public class BackgroundGeolocationPlugin extends Plugin {
                 setConfig(call);
             } else {
                 TSLog.logger.warn(TSLog.warn("#ready already called.  Ignored"));
-                call.resolve(JSObject.fromJSONObject(config.toJson()));
+                JSObject state = JSObject.fromJSONObject(config.toJson(false));
+                call.resolve(state);
             }
             return;
         }
@@ -144,15 +156,15 @@ public class BackgroundGeolocationPlugin extends Plugin {
                 config.updateWithJSONObject(setHeadlessJobService(params));
             } else if (params.has(TSAuthorization.NAME)) {
                 JSONObject options = params.getJSONObject(TSAuthorization.NAME);
-                config.updateWithBuilder()
-                        .setAuthorization(new TSAuthorization(options, false))
-                        .commit();
+                Editor ed = config.edit();
+                ed.auth().setAuthorization(jsonObjectToMap(options));
+                ed.commit();
             }
         }
         adapter.ready(new TSCallback() {
             @Override public void onSuccess() {
                 try {
-                    call.resolve(JSObject.fromJSONObject(config.toJson()));
+                    call.resolve(JSObject.fromJSONObject(config.toJson(false)));
                 } catch (JSONException e) {
                     call.reject(e.getMessage());
                 }
@@ -163,6 +175,8 @@ public class BackgroundGeolocationPlugin extends Plugin {
         });
     }
 
+
+
     @PluginMethod()
     public void reset(PluginCall call) {
         JSObject params = call.getObject("options");
@@ -170,7 +184,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
         config.reset();
         config.updateWithJSONObject(setHeadlessJobService(params));
         try {
-            call.resolve(JSObject.fromJSONObject(config.toJson()));
+            call.resolve(JSObject.fromJSONObject(config.toJson(false)));
         } catch (JSONException e) {
             call.reject(e.getMessage());
         }
@@ -181,14 +195,14 @@ public class BackgroundGeolocationPlugin extends Plugin {
         TSConfig config = TSConfig.getInstance(getContext());
         JSObject params = call.getObject("options");
         config.updateWithJSONObject(params);
-        call.resolve(JSObject.fromJSONObject(config.toJson()));
+        call.resolve(JSObject.fromJSONObject(config.toJson(false)));
     }
 
     @PluginMethod()
     public void getState(PluginCall call) {
         try {
             TSConfig config = TSConfig.getInstance(getContext());
-            call.resolve(JSObject.fromJSONObject(config.toJson()));
+            call.resolve(JSObject.fromJSONObject(config.toJson(false)));
         } catch (JSONException e) {
             call.reject(e.getMessage());
         }
@@ -200,7 +214,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
         getAdapter().start(new TSCallback() {
             @Override public void onSuccess() {
                 try {
-                    call.resolve(JSObject.fromJSONObject(config.toJson()));
+                    call.resolve(JSObject.fromJSONObject(config.toJson(false)));
                 } catch (JSONException e) {
                     call.reject(e.getMessage());
                 }
@@ -216,7 +230,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
         if (getAdapter().startSchedule()) {
             TSConfig config = TSConfig.getInstance(getContext());
             try {
-                call.resolve(JSObject.fromJSONObject(config.toJson()));
+                call.resolve(JSObject.fromJSONObject(config.toJson(false)));
             } catch (JSONException e) {
                 call.reject(e.getMessage());
             }
@@ -230,7 +244,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
         getAdapter().stopSchedule();
         TSConfig config = TSConfig.getInstance(getContext());
         try {
-            call.resolve(JSObject.fromJSONObject(config.toJson()));
+            call.resolve(JSObject.fromJSONObject(config.toJson(false)));
         } catch (JSONException e) {
             call.reject(e.getMessage());
         }
@@ -243,7 +257,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
         }
         @Override public void onSuccess() {
             try {
-                mCallback.resolve(JSObject.fromJSONObject(TSConfig.getInstance(getContext()).toJson()));
+                mCallback.resolve(JSObject.fromJSONObject(TSConfig.getInstance(getContext()).toJson(false)));
             } catch (JSONException e) {
                 mCallback.reject(e.getMessage());
             }
@@ -270,7 +284,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
         }
         @Override public void onSuccess() {
             try {
-                mCallback.resolve(JSObject.fromJSONObject(TSConfig.getInstance(getContext()).toJson()));
+                mCallback.resolve(JSObject.fromJSONObject(TSConfig.getInstance(getContext()).toJson(false)));
             } catch (JSONException e) {
                 mCallback.reject(e.getMessage());
             }
@@ -359,9 +373,9 @@ public class BackgroundGeolocationPlugin extends Plugin {
         TSCurrentPositionRequest.Builder builder = new TSCurrentPositionRequest.Builder(getContext());
 
         builder.setCallback(new TSLocationCallback() {
-            @Override public void onLocation(TSLocation location) {
+            @Override public void onLocation(LocationEvent event) {
                 try {
-                    call.resolve(JSObject.fromJSONObject(location.toJson()));
+                    call.resolve(JSObject.fromJSONObject(event.toJson()));
                 } catch (JSONException e) {
                     call.reject(e.getMessage());
                 }
@@ -403,16 +417,16 @@ public class BackgroundGeolocationPlugin extends Plugin {
         TSWatchPositionRequest.Builder builder = new TSWatchPositionRequest.Builder(getContext());
 
         builder.setCallback(new TSLocationCallback() {
-            @Override public void onLocation(TSLocation tsLocation) {
+            @Override public void onLocation(LocationEvent event) {
                 try {
-                    if (!hasListeners(EVENT_WATCHPOSITION)) {
+                    if (!hasListeners(EventName.WATCH_POSITION)) {
                         getAdapter().stopWatchPosition(new TSCallback() {
                             @Override public void onSuccess() { }
                             @Override public void onFailure(String s) { }
                         });
                         return;
                     }
-                    notifyListeners(EVENT_WATCHPOSITION, JSObject.fromJSONObject(tsLocation.toJson()));
+                    notifyListeners(EventName.WATCH_POSITION, JSObject.fromJSONObject(event.toJson()));
                 } catch (JSONException e) {
                     /// This will probably never fire, but...
                     e.printStackTrace();
@@ -420,7 +434,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
                     JSObject error = new JSObject();
                     error.put("code", -1);
                     result.put("error", error);
-                    notifyListeners(EVENT_WATCHPOSITION, error);
+                    notifyListeners(EventName.WATCH_POSITION, error);
                 }
             }
             @Override public void onError(Integer code) {
@@ -428,7 +442,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
                 JSObject error = new JSObject();
                 error.put("code", code);
                 result.put("error", error);
-                notifyListeners(EVENT_WATCHPOSITION, result);
+                notifyListeners(EventName.WATCH_POSITION, result);
             }
         });
 
@@ -445,8 +459,11 @@ public class BackgroundGeolocationPlugin extends Plugin {
             if (options.has("desiredAccuracy")) {
                 builder.setDesiredAccuracy(options.getInt("desiredAccuracy"));
             }
+            int watchId = sWatchIdCounter.incrementAndGet();
             getAdapter().watchPosition(builder.build());
-            call.resolve();
+            JSObject result = new JSObject();
+            result.put("watchId", watchId);
+            call.resolve(result);
         } catch (JSONException e) {
             e.printStackTrace();
             call.reject(e.getMessage());
@@ -455,6 +472,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     @PluginMethod()
     public void stopWatchPosition(final PluginCall call) {
+        // watchId is accepted for API parity with iOS but Android stops all watches globally.
         getAdapter().stopWatchPosition(new TSCallback() {
             @Override public void onSuccess() { call.resolve(); }
             @Override public void onFailure(String error) {
@@ -480,7 +498,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void addGeofences(final PluginCall call) {
         JSArray data = call.getArray("options");
-        List<TSGeofence> geofences = new ArrayList<TSGeofence>();
+        List<TSGeofence> geofences = new ArrayList<>();
         for (int i = 0; i < data.length(); i++) {
             try {
                 geofences.add(buildGeofence(data.getJSONObject(i)));
@@ -546,6 +564,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void getGeofence(final PluginCall call) {
         String identifier = call.getString("identifier");
+        if (identifier == null) { call.reject("Missing required parameter: identifier"); return; }
         getAdapter().getGeofence(identifier, new TSGetGeofenceCallback() {
             @Override public void onSuccess(TSGeofence geofence) {
                 try {
@@ -564,6 +583,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void geofenceExists(final PluginCall call) {
         String identifier = call.getString("identifier");
+        if (identifier == null) { call.reject("Missing required parameter: identifier"); return; }
         getAdapter().geofenceExists(identifier, new TSGeofenceExistsCallback() {
             @Override public void onResult(boolean exists) {
                 JSObject result = new JSObject();
@@ -576,6 +596,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void removeGeofence(final PluginCall call) {
         String identifier = call.getString("identifier");
+        if (identifier == null) { call.reject("Missing required parameter: identifier"); return; }
         getAdapter().removeGeofence(identifier, new TSCallback() {
             @Override public void onSuccess() {
                 call.resolve();
@@ -591,8 +612,10 @@ public class BackgroundGeolocationPlugin extends Plugin {
         final JSArray identifiers = call.getArray("identifiers");
         List<String> rs = new ArrayList<String>();
         try {
-            for (int i = 0; i < identifiers.length(); i++) {
-                rs.add(identifiers.getString(i));
+            if (identifiers != null) {
+                for (int i = 0; i < identifiers.length(); i++) {
+                    rs.add(identifiers.getString(i));
+                }
             }
             getAdapter().removeGeofences(rs, new TSCallback() {
                 @Override public void onSuccess() {
@@ -617,11 +640,11 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     @PluginMethod()
     public void setOdometer(final PluginCall call) {
-        Float value = call.getFloat("odometer");
+        Double value = call.getDouble("odometer");
         getAdapter().setOdometer(value, new TSLocationCallback() {
-            @Override public void onLocation(TSLocation location) {
+            @Override public void onLocation(LocationEvent event) {
                 try {
-                    call.resolve(JSObject.fromJSONObject(location.toJson()));
+                    call.resolve(JSObject.fromJSONObject(event.toJson()));
                 } catch (JSONException e) {
                     e.printStackTrace();
                     call.reject(e.getMessage());
@@ -698,6 +721,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void destroyLocation(final PluginCall call) {
         String uuid = call.getString("uuid");
+        if (uuid == null) { call.reject("Missing required parameter: uuid"); return; }
         getAdapter().destroyLocation(uuid, new TSCallback() {
             @Override public void onSuccess() {
                 call.resolve();
@@ -723,7 +747,8 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     @PluginMethod()
     public void stopBackgroundTask(PluginCall call) {
-        int taskId = call.getInt("taskId");
+        Integer taskId = call.getInt("taskId");
+        if (taskId == null) { call.reject("Missing required parameter: taskId"); return; }
         getAdapter().stopBackgroundTask(taskId);
         call.resolve();
     }
@@ -768,6 +793,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void emailLog(final PluginCall call) {
         String email = call.getString("email");
+        if (email == null) { call.reject("Missing required parameter: email"); return; }
         JSONObject query = call.getObject("query");
 
         try {
@@ -791,6 +817,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void uploadLog(final PluginCall call) {
         String url = call.getString("url");
+        if (url == null) { call.reject("Missing required parameter: url"); return; }
         JSONObject query = call.getObject("query");
         try {
             TSLog.uploadLog(getContext().getApplicationContext(), url, parseSQLQuery(query), new TSCallback() {
@@ -938,6 +965,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void destroyTransistorToken(PluginCall call) {
         String url = call.getString("url");
+        if (url == null) { call.reject("Missing required parameter: url"); return; }
         Context context = getContext();
         TransistorAuthorizationToken.destroyTokenForUrl(context, url, new TSCallback() {
             @Override public void onSuccess() {
@@ -965,7 +993,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     }
 
     private String getHeadlessJobService() {
-        return getActivity().getClass().getPackage().getName() + "." + BACKGROUND_GEOLOCATION_HEADLESS_CLASSNAME;
+        return getContext().getPackageName() + "." + BACKGROUND_GEOLOCATION_HEADLESS_CLASSNAME;
     }
 
     protected void handleOnPause() {
@@ -999,9 +1027,9 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
         bgGeo.onLocation(new TSLocationCallback() {
             @Override
-            public void onLocation(TSLocation tsLocation) {
+            public void onLocation(LocationEvent event) {
                 try {
-                    handleEvent(BackgroundGeolocation.EVENT_LOCATION, tsLocation.toJson());
+                    handleEvent(EventName.LOCATION, event.toJson());
                 } catch (JSONException e) {
                     TSLog.logger.error(e.getMessage(), e);
                 }
@@ -1009,129 +1037,163 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
             @Override
             public void onError(Integer code) {
-                if (!hasListeners(BackgroundGeolocation.EVENT_LOCATION)) return;
+                if (!hasListeners(EventName.LOCATION)) return;
                 JSObject result = new JSObject();
                 result.put("error", code);
-                notifyListeners(BackgroundGeolocation.EVENT_LOCATION, result);
+                notifyListeners(EventName.LOCATION, result);
             }
         });
 
         bgGeo.onMotionChange(new TSLocationCallback() {
-            @Override public void onLocation(TSLocation location) {
-                if (!hasListeners(BackgroundGeolocation.EVENT_MOTIONCHANGE)) return;
-                JSObject params = new JSObject();
-                params.put("isMoving", location.getIsMoving());
-                try {
-                    params.put("location", location.toJson());
-                    notifyListeners(BackgroundGeolocation.EVENT_MOTIONCHANGE, params);
+            @Override public void onLocation(LocationEvent event) {
+                if (!hasListeners(EventName.MOTIONCHANGE)) return;
+
+                try {                                        
+                    JSObject params = new JSObject();
+                    params.put("isMoving", event.isMoving());
+                    params.put("location", event.toJson());
+
+                    notifyListeners(EventName.MOTIONCHANGE, params);
                 } catch (JSONException e) {
                     TSLog.logger.error(e.getMessage(), e);
                 }
             }
             @Override public void onError(Integer integer) {
-                if (!hasListeners(BackgroundGeolocation.EVENT_MOTIONCHANGE)) return;
+                if (!hasListeners(EventName.MOTIONCHANGE)) return;
                 TSLog.logger.debug("onMotionChange error: " + integer);
             }
         });
 
-        bgGeo.onActivityChange(new TSActivityChangeCallback() {
-            @Override
-            public void onActivityChange(ActivityChangeEvent event) {
-                handleEvent(BackgroundGeolocation.EVENT_ACTIVITYCHANGE, event.toJson());
-            }
-        });
+        bgGeo.onActivityChange(event -> handleEvent(EventName.ACTIVITYCHANGE, event.toJson()));
 
         bgGeo.onConnectivityChange(new TSConnectivityChangeCallback() {
             @Override
             public void onConnectivityChange(ConnectivityChangeEvent event) {
-                if (!hasListeners(BackgroundGeolocation.EVENT_CONNECTIVITYCHANGE)) return;
+                if (!hasListeners(EventName.CONNECTIVITYCHANGE)) return;
                 JSObject params = new JSObject();
                 params.put("connected", event.hasConnection());
-                notifyListeners(BackgroundGeolocation.EVENT_CONNECTIVITYCHANGE, params);
+                notifyListeners(EventName.CONNECTIVITYCHANGE, params);
             }
         });
 
         bgGeo.onEnabledChange(new TSEnabledChangeCallback() {
             @Override
             public void onEnabledChange(boolean enabled) {
-                if (!hasListeners(BackgroundGeolocation.EVENT_ENABLEDCHANGE)) return;
+                if (!hasListeners(EventName.ENABLEDCHANGE)) return;
                 JSObject params = new JSObject();
                 params.put("value", enabled);
-                notifyListeners(BackgroundGeolocation.EVENT_ENABLEDCHANGE, params);
+                notifyListeners(EventName.ENABLEDCHANGE, params);
             }
         });
 
         bgGeo.onGeofence(new TSGeofenceCallback() {
             @Override
             public void onGeofence(GeofenceEvent event) {
-                handleEvent(BackgroundGeolocation.EVENT_GEOFENCE, event.toJson());
+                handleEvent(EventName.GEOFENCE, event.toJson());
             }
         });
 
         bgGeo.onGeofencesChange(new TSGeofencesChangeCallback() {
             @Override
             public void onGeofencesChange(GeofencesChangeEvent event) {
-                handleEvent(BackgroundGeolocation.EVENT_GEOFENCESCHANGE, event.toJson());
+                handleEvent(EventName.GEOFENCESCHANGE, event.toJson());
             }
         });
 
         bgGeo.onHeartbeat(new TSHeartbeatCallback() {
             @Override
             public void onHeartbeat(HeartbeatEvent event) {
-                handleEvent(BackgroundGeolocation.EVENT_HEARTBEAT, event.toJson());
+                handleEvent(EventName.HEARTBEAT, event.toJson());
             }
         });
 
         bgGeo.onHttp(new TSHttpResponseCallback() {
             @Override
             public void onHttpResponse(HttpResponse event) {
-                handleEvent(BackgroundGeolocation.EVENT_HTTP, event.toJson());
+                handleEvent(EventName.HTTP, event.toJson());
             }
         });
 
         bgGeo.onLocationProviderChange(new TSLocationProviderChangeCallback() {
             @Override
             public void onLocationProviderChange(LocationProviderChangeEvent event) {
-                handleEvent(BackgroundGeolocation.EVENT_PROVIDERCHANGE, event.toJson());
+                handleEvent(EventName.PROVIDERCHANGE, event.toJson());
             }
         });
 
         bgGeo.onNotificationAction(new TSNotificationActionCallback() {
             @Override
             public void onClick(String button) {
-                if (!hasListeners(BackgroundGeolocation.EVENT_NOTIFICATIONACTION)) return;
+                if (!hasListeners(EventName.NOTIFICATIONACTION)) return;
                 JSObject params = new JSObject();
                 params.put("value", button);
-                notifyListeners(BackgroundGeolocation.EVENT_NOTIFICATIONACTION, params);
+                notifyListeners(EventName.NOTIFICATIONACTION, params);
             }
         });
 
         bgGeo.onPowerSaveChange(new TSPowerSaveChangeCallback() {
             @Override
             public void onPowerSaveChange(Boolean enabled) {
-                if (!hasListeners(BackgroundGeolocation.EVENT_POWERSAVECHANGE)) return;
+                if (!hasListeners(EventName.POWERSAVECHANGE)) return;
                 JSObject params = new JSObject();
                 params.put("value", enabled);
-                notifyListeners(BackgroundGeolocation.EVENT_POWERSAVECHANGE, params);
+                notifyListeners(EventName.POWERSAVECHANGE, params);
             }
         });
 
         bgGeo.onSchedule(new TSScheduleCallback() {
             @Override
             public void onSchedule(ScheduleEvent event) {
-                handleEvent(BackgroundGeolocation.EVENT_SCHEDULE, event.getState());
+                handleEvent(EventName.SCHEDULE, event.getState());
             }
         });
 
         HttpService.getInstance(getContext()).onAuthorization(new TSAuthorizationCallback() {
             @Override
             public void onResponse(AuthorizationEvent event) {
-                handleEvent(BackgroundGeolocation.EVENT_AUTHORIZATION, event.toJson());
+                handleEvent(EventName.AUTHORIZATION, event.toJson());
             }
         });
     }
 
+    private Map<String, Object> jsonObjectToMap(JSONObject json) throws JSONException {
+        Map<String, Object> map = new HashMap<>();
+        Iterator<String> keys = json.keys();
 
+        while (keys.hasNext()) {
+            String key = keys.next();
+            Object value = json.get(key);
+
+            if (value instanceof JSONObject) {
+                value = jsonObjectToMap((JSONObject) value);
+            } else if (value instanceof JSONArray) {
+                value = jsonArrayToList((JSONArray) value);
+            } else if (value == JSONObject.NULL) {
+                value = null;
+            }
+
+            map.put(key, value);
+        }
+        return map;
+    }
+
+    private List<Object> jsonArrayToList(JSONArray array) throws JSONException {
+        List<Object> list = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            Object value = array.get(i);
+
+            if (value instanceof JSONObject) {
+                value = jsonObjectToMap((JSONObject) value);
+            } else if (value instanceof JSONArray) {
+                value = jsonArrayToList((JSONArray) value);
+            } else if (value == JSONObject.NULL) {
+                value = null;
+            }
+
+            list.add(value);
+        }
+        return list;
+    }
 
     private void handleEvent(String name, JSONObject event) {
         if (!hasListeners(name)) return;
