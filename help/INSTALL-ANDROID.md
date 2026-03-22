@@ -93,26 +93,6 @@ Login to the [Customer Dashboard](https://www.transistorsoft.com/shop/customers)
 
 ---
 
-## `AlarmManager` Exact Alarms (Optional)
-
-The plugin uses `AlarmManager` exact alarms for precise scheduling of events such as `Config.stopTimeout`, `Config.motionTriggerDelay`, and `Config.schedule`. *Android 14 (SDK 34)* restricted usage of [exact alarms](https://developer.android.com/about/versions/14/changes/schedule-exact-alarms). To opt in to precise timing on Android 14+, add the following permission to your `AndroidManifest`. Without it the plugin gracefully falls back to inexact scheduling. See the [Android docs](https://developer.android.com/training/scheduling/alarms) for more information.
-
-:open_file_folder: **`android/app/src/main/AndroidManifest.xml`**
-
-```xml
-<manifest>
-    <uses-permission android:minSdkVersion="34" android:name="android.permission.USE_EXACT_ALARM" />
-    .
-    .
-    .
-</manifest>
-```
-
-> [!WARNING]
-> Google Play has [plans to impose greater scrutiny](https://support.google.com/googleplay/android-developer/answer/13161072?sjid=3640341614632608469-NA) over usage of this permission. This is why the plugin does not add it automatically.
-
----
-
 ## Optional: Background Fetch
 
 [`@transistorsoft/capacitor-background-fetch`](https://github.com/transistorsoft/capacitor-background-fetch) is an optional companion plugin that gives your app a periodic callback in the background — up to once every 15 minutes on both iOS and Android — even when the app has been suspended. This is useful for syncing data, refreshing tokens, or other lightweight background work independent of location tracking.

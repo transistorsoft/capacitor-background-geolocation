@@ -1,70 +1,72 @@
 # 🚀 Migration Guide: Flat Config → Compound Config
 
-> **Version:** 8.0.0
-> **Applies to:** `@transistorsoft/capacitor-background-geolocation` v8.0.0 and above
+> [!IMPORTANT]
+> **Version:** 9.0.0 — Applies to `@transistorsoft/capacitor-background-geolocation` v9.0.0 and above
 
----
 
 ## 📢 Overview
 
-Version 8 introduces two important changes:
+Version 9 introduces two important changes:
 
-1. A new **JWT-based License Key** format that encodes add-on product entitlements — separate add-on keys are no longer required.
+1. A new **JWT-based License Key** format that encodes add-on product entitlements (eg: [`polygon-geofencing`](https://shop.transistorsoft.com/collections/frontpage/products/polygon-geofencing), `firebase`) — separate add-on keys are no longer required.
 2. A new **Compound Config** format that replaces the legacy "flat" config structure.
 
 This guide explains both changes and how to migrate your app.
-
----
 
 ## 🔑 New License Key Format
 
 ### Overview
 
-Version 8 uses a new **JWT-based license key** format. Your existing (legacy) license keys will **not** work with v8.
+Version 9 uses a new **JWT-based license key** format. Your existing (legacy) license keys will **not** work with v9.
 
-> Add-on products (e.g. `background-fetch`) are now **encoded as entitlements** inside the JWT key itself. You no longer need separate license keys for add-on products.
+> [!IMPORTANT]
+> Previous versions of the SDK did not require a license key on iOS. **v9 requires a license key on both iOS and Android.** See [iOS Setup](INSTALL-IOS.md) and [Android Setup](INSTALL-ANDROID.md) for license key configuration details.
+
+> [!NOTE]
+> Add-on products (eg: [`polygon-geofencing`](https://shop.transistorsoft.com/collections/frontpage/products/polygon-geofencing), `firebase`) are now **encoded as entitlements** inside the JWT key itself. You no longer need separate license keys for add-on products.
 
 ### Getting Your New License Key
 
 1. Log in to the [Transistor Software Customer Dashboard](https://www.transistorsoft.com/shop/customers).
 2. Navigate to your product purchase.
 3. You will find **two license tabs**:
-   - **Legacy** — your old license key (for SDK v7 and below)
-   - **New** — your new JWT license key (required for SDK v8+)
+   - **Legacy** — your old license key (for `capacitor-background-geolocation` v8 and below)
+   - **New** — your new JWT license key (required for `capacitor-background-geolocation` v9+)
 4. Copy the key from the **"New"** tab.
 
 ### Applying Your License Key
 
-Replace your old `transistorLicenseKey` value with the new JWT key:
+__[iOS]__ Add your JWT license key to your `Info.plist` under the key `TSLocationManagerLicense`. See [iOS Setup](INSTALL-IOS.md) for full details:
 
-#### Before (Legacy Key)
-```ts
-BackgroundGeolocation.ready({
-  transistorLicenseKey: 'YOUR_LEGACY_LICENSE_KEY',
-  // ...
-});
+:open_file_folder: `ios/App/App/Info.plist`
+```xml
+<key>TSLocationManagerLicense</key>
+<string>YOUR_JWT_LICENSE_KEY</string>
 ```
 
-#### After (New JWT Key)
-```ts
-BackgroundGeolocation.ready({
-  transistorLicenseKey: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJS...',  // JWT from "New" tab
-  // ...
-});
+__[Android]__ Add your JWT license key to `AndroidManifest.xml`. See [Android Setup](INSTALL-ANDROID.md) for full details:
+
+:open_file_folder: `android/app/src/main/AndroidManifest.xml`
+```xml
+<manifest>
+    <application>
+        <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="YOUR_JWT_LICENSE_KEY" />
+    </application>
+</manifest>
 ```
 
-> **Note:** If you previously configured a separate license key for `background-fetch` or another add-on product, **remove it**. Add-on entitlements are now bundled into your single bgGeo JWT license key.
+> [!WARNING]
+> If you previously configured a separate license key for [`polygon-geofencing`](https://shop.transistorsoft.com/collections/frontpage/products/polygon-geofencing), `firebase`, or any other add-on product, **remove it**. Add-on entitlements are now bundled into your single bgGeo JWT license key.
 
----
 
 ## ⚙️ Compatibility
 
 The legacy **flat config** style remains fully supported for backward compatibility.
 You can continue using your existing flat configuration if you prefer, though new features may only appear in the compound structure.
 
-> **Recommendation:** New apps and major refactors should migrate to the compound config to stay aligned with the native SDKs and shared type system.
+> [!TIP]
+> New apps and major refactors should migrate to the compound config to stay aligned with the native SDKs and shared type system.
 
----
 
 ## ⏩ Why Compound Config?
 
@@ -73,7 +75,6 @@ You can continue using your existing flat configuration if you prefer, though ne
 - **Consistency:** Aligns with native SDKs and shared TypeScript types across platforms.
 - **Tooling:** Better IntelliSense / autocomplete when using [`@transistorsoft/background-geolocation-types`](https://github.com/transistorsoft/background-geolocation-types).
 
----
 
 ## 🏗️ Old vs. New Config Structure (Capacitor)
 
@@ -119,8 +120,6 @@ BackgroundGeolocation.ready({
 });
 ```
 
----
-
 ## 🗺️ Mapping Table: Flat → Compound
 
 | Flat Key                | Compound Group | Compound Property         |
@@ -137,17 +136,33 @@ BackgroundGeolocation.ready({
 
 > See the [full mapping table](#full-mapping-table) below for all properties.
 
----
 
 ## 🧑‍💻 Migration Steps
 
 1. **Update your dependency:**
-   Ensure you are using `@transistorsoft/capacitor-background-geolocation` v8.0.0 or later.
+   Ensure you are using `@transistorsoft/capacitor-background-geolocation` v9.0.0 or later.
 
 2. **Update your license key:**
-   Log in to the [Customer Dashboard](https://www.transistorsoft.com/shop/customers), select the **"New"** license tab for your purchase, and replace your old `transistorLicenseKey` with the new JWT key. Remove any separate add-on license keys — they are no longer used.
+   Log in to the [Customer Dashboard](https://www.transistorsoft.com/shop/customers), select the **"New"** license tab for your purchase, and copy your new JWT key. Remove any separate add-on license keys — they are no longer used. See steps 3 and 4 below for where to apply the key on each platform.
 
-3. __[Android]__ Remove custom `maven url` entries from __`android/build.gradle`__ if present from older versions — they are no longer required:
+3. __[iOS]__ Add your JWT license key to your `Info.plist` under the key `TSLocationManagerLicense`. See [iOS Setup](INSTALL-IOS.md) for full details:
+
+:open_file_folder: `ios/App/App/Info.plist`
+```xml
+<key>TSLocationManagerLicense</key>
+<string>YOUR_JWT_LICENSE_KEY</string>
+```
+
+4. __[Android]__ Add your JWT license key to `AndroidManifest.xml` and remove any legacy `maven url` entries from `android/build.gradle`. See [Android Setup](INSTALL-ANDROID.md) for full details.
+
+:open_file_folder: `android/app/src/main/AndroidManifest.xml`
+```xml
+<manifest>
+    <application>
+        <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="YOUR_JWT_LICENSE_KEY" />
+    </application>
+</manifest>
+```
 
 :open_file_folder: `android/build.gradle`
 ```diff
@@ -163,7 +178,7 @@ BackgroundGeolocation.ready({
 }
 ```
 
-4. **Group related options:**
+5. **Group related options:**
    - Move geolocation-related keys into `geolocation: {}`
    - Move HTTP-related keys into `http: {}`
    - Move logging/debug keys into `logger: {}`
@@ -171,15 +186,14 @@ BackgroundGeolocation.ready({
    - Move activity-recognition keys into `activity: {}`
    - Move persistence keys into `persistence: {}`
 
-5. **Replace flat keys:**
+6. **Replace flat keys:**
    - Instead of passing all options in a single flat object, pass them inside the relevant compound config group.
    - Remove any duplicate or conflicting flat keys.
 
-6. **Check for breaking changes:**
+7. **Check for breaking changes:**
    - Some keys may have been renamed, moved, or refactored.
    - See [Breaking Changes](#breaking-changes) below.
 
----
 
 ## 📝 Example Migration
 
@@ -223,7 +237,6 @@ BackgroundGeolocation.ready({
 });
 ```
 
----
 
 ## 🧩 Compound Config Groups
 
@@ -238,7 +251,6 @@ BackgroundGeolocation.ready({
 
 Each group is a separate TypeScript interface. See API docs for details.
 
----
 
 ## 🛠️ Full Mapping Table
 
@@ -296,14 +308,15 @@ Each group is a separate TypeScript interface. See API docs for details.
 
 > Not all legacy keys are shown above. See API docs for full details.
 
----
 
 ## ⚠️ Breaking Changes
 
+- **iOS now requires a license key:**
+  - Previous versions only required a license key on Android. v9 requires a valid JWT license key on **both iOS and Android**. See [iOS Setup](INSTALL-IOS.md) and [Android Setup](INSTALL-ANDROID.md).
 - **Legacy license keys no longer work:**
-  - v7 and older license keys are not accepted by v8. You must obtain a new JWT key from the **"New"** tab in the [Customer Dashboard](https://www.transistorsoft.com/shop/customers).
+  - v8 and older license keys are not accepted by v9. You must obtain a new JWT key from the **"Licenses (New)"** tab in the [Customer Dashboard](https://www.transistorsoft.com/shop/customers).
 - **Separate add-on license keys are no longer accepted:**
-  - Remove any `backgroundFetchLicenseKey` or other add-on key from your config. Add-on entitlements are now bundled into the bgGeo JWT key.
+  - Remove any separate add-on license keys (eg: `polygon-geofencing`, `firebase`) from your config. Add-on entitlements are now bundled into the bgGeo JWT key.
 - **Some keys have moved to new groups:**
   - E.g., `debug` is now in the `logger` group.
 - **`httpRootProperty` renamed to `rootProperty`** within the `http` group.
@@ -312,7 +325,6 @@ Each group is a separate TypeScript interface. See API docs for details.
 - **Legacy flat config remains supported but deprecated:**
   - Using the legacy flat config will show warnings at runtime, but will **not** result in an error. Migration to the new grouped config is recommended for future compatibility.
 
----
 
 ## 🧪 Testing Your Migration
 
@@ -321,22 +333,19 @@ Each group is a separate TypeScript interface. See API docs for details.
 3. **Review logs** to ensure config is applied as expected.
 4. **Consult the API docs** for each config group if unsure.
 
----
 
 ## 🆘 Need Help?
 
-- See the [API Reference](https://transistorsoft.github.io/capacitor-background-geolocation) for each config interface.
+- See the [API Reference](https://transistorsoft.github.io/capacitor-background-geolocation/latest) for each config interface.
 - Ask questions on [GitHub Discussions](https://github.com/transistorsoft/capacitor-background-geolocation/discussions) or [open an issue](https://github.com/transistorsoft/capacitor-background-geolocation/issues).
 
----
 
 ## 📚 Resources
 
-- [Full API Reference](https://transistorsoft.github.io/capacitor-background-geolocation)
+- [Full API Reference](https://transistorsoft.github.io/capacitor-background-geolocation/latest)
 - [GitHub Project](https://github.com/transistorsoft/capacitor-background-geolocation/)
 - [Changelog](CHANGELOG.md)
 
----
 
 ## 🎉 Happy Migrating!
 

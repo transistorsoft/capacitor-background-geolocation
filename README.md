@@ -31,7 +31,7 @@ The **[Android module](http://www.transistorsoft.com/shop/products/capacitor-bac
 
 # Contents
 - ### 😫 [Help!](../../wiki/Help)
-- ### :books: [API Documentation](https://transistorsoft.github.io/capacitor-background-geolocation)
+- ### :books: [API Documentation](https://transistorsoft.github.io/capacitor-background-geolocation/latest)
 - ### [Installing the Plugin](#large_blue_diamond-installing-the-plugin)
 - ### [Setup Guides](#large_blue_diamond-setup-guides)
 - ### [Configure your License](#large_blue_diamond-configure-your-license)
@@ -45,6 +45,9 @@ The **[Android module](http://www.transistorsoft.com/shop/products/capacitor-bac
 ---
 
 ## :large_blue_diamond: Installing the Plugin
+
+> [!CAUTION]
+> This is the new v9 version.  For previous version, see [`v8.x`](https://github.com/transistorsoft/capacitor-background-geolocation/tree/8.0.1).  __`v8.x`__ license keys do not work with __`v9`__.  Login to the customer dashboard to generate a __`v9`__ key.  See the [Migration Guide](help/MIGRATION-GUIDE-9.0.0.md) for details.
 
 ### With `yarn`
 
@@ -273,7 +276,7 @@ const HelloWorld: React.FC = () => {
 
 ### Promise API
 
-The `BackgroundGeolocation` API supports [Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) for nearly every method. The exceptions are **`#watchPosition`** and the event-listener methods (`onLocation`, `onProviderChange`, etc.). See the [API Documentation](https://transistorsoft.github.io/capacitor-background-geolocation) for full details.
+The `BackgroundGeolocation` API supports [Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) for nearly every method. The exceptions are **`#watchPosition`** and the event-listener methods (`onLocation`, `onProviderChange`, etc.). See the [API Documentation](https://transistorsoft.github.io/capacitor-background-geolocation/latest) for full details.
 
 ---
 

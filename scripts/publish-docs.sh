@@ -36,7 +36,7 @@ echo "🛠  Running npm run docs on $SRC_BRANCH..."
 npm run docs
 
 if [[ ! -d "$REPO_ROOT/docs" ]]; then
-  echo "❌ docs directory not found after pnpm run docs"
+  echo "❌ docs directory not found after npm run docs"
   exit 1
 fi
 
