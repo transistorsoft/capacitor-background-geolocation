@@ -29,13 +29,13 @@ import {
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 import BackgroundGeolocation, { State } from '@transistorsoft/capacitor-background-geolocation';
-import { PLUGIN_SETTINGS, SettingOption } from '../config/PluginSettings';
-import TSDialog from '../lib/Dialog';
-import StepperField from './StepperField';
-import ToggleField from './ToggleField';
-import TextField from './TextField';
-import DropdownField from './DropdownField';
-import SegmentedField from './SegmentedField';
+import { PLUGIN_SETTINGS, SettingOption } from './config/PluginSettings';
+import TSDialog from './lib/Dialog';
+import StepperField from './components/StepperField';
+import ToggleField from './components/ToggleField';
+import TextField from './components/TextField';
+import DropdownField from './components/DropdownField';
+import SegmentedField from './components/SegmentedField';
 
 interface ConfigViewProps {
   visible: boolean;

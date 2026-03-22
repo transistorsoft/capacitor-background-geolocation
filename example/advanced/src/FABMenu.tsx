@@ -21,7 +21,7 @@ import { Preferences } from '@capacitor/preferences';
 import { Dialog } from '@capacitor/dialog';
 
 import BackgroundGeolocation from '@transistorsoft/capacitor-background-geolocation';
-import TSDialog from '../lib/Dialog';
+import TSDialog from './lib/Dialog';
 
 const EMAIL_LOG_STORAGE_KEY = '@transistor:email_log_address';
 
@@ -34,16 +34,16 @@ const FABMenu: React.FC<FABMenuProps> = ({ onMenuItemPress }) => {
   const fabRef = useRef<HTMLIonFabElement>(null);
 
   const [isSyncing, setIsSyncing] = useState(false);
-  const watchIdRef = useRef<number | null>(null);
+  const watchSubscriptionRef = useRef<{ remove: () => void } | null>(null);
   const [isWatchingPosition, setIsWatchingPosition] = useState(false);
 
   const [emailLogSending, setEmailLogSending] = useState(false);
 
   useEffect(() => {
     return () => {
-      if (watchIdRef.current !== null) {
-        BackgroundGeolocation.stopWatchPosition(watchIdRef.current);
-        watchIdRef.current = null;
+      if (watchSubscriptionRef.current !== null) {
+        watchSubscriptionRef.current.remove();
+        watchSubscriptionRef.current = null;
       }
     };
   }, []);
@@ -155,34 +155,25 @@ const FABMenu: React.FC<FABMenuProps> = ({ onMenuItemPress }) => {
   };
 
   // BackgroundGeolocation.watchPosition()
-  const toggleWatchPosition = async () => {
-    if (watchIdRef.current !== null) {
-      console.log('[FABMenu] stop watchPosition:', watchIdRef.current);
-      BackgroundGeolocation.stopWatchPosition(watchIdRef.current);
-      watchIdRef.current = null;
+  const toggleWatchPosition = () => {
+    if (watchSubscriptionRef.current !== null) {
+      console.log('[FABMenu] stop watchPosition');
+      watchSubscriptionRef.current.remove();
+      watchSubscriptionRef.current = null;
       setIsWatchingPosition(false);
       return;
     }
     console.log('[FABMenu] start watchPosition');
-    try {
-      const watchId = await BackgroundGeolocation.watchPosition(
-        (location) => {
-          console.log('[watchPosition]', location.coords.latitude, location.coords.longitude);
-        },
-        (error) => {
-          console.warn('[watchPosition] ERROR:', error);
-        },
-        { timeout: 30000, interval: 1000, persist: false }
-      );
-      watchIdRef.current = watchId;
-      setIsWatchingPosition(true);
-      console.log('[FABMenu] watchPosition started, watchId:', watchId);
-    } catch (e) {
-      console.warn('[FABMenu] watchPosition start error:', e);
-      dialog.toast('watchPosition error: ' + String(e));
-      watchIdRef.current = null;
-      setIsWatchingPosition(false);
-    }
+    watchSubscriptionRef.current = BackgroundGeolocation.watchPosition(
+      { timeout: 30000, interval: 1000, persist: false },
+      (location) => {
+        console.log('[watchPosition]', location.coords.latitude, location.coords.longitude);
+      },
+      (error) => {
+        console.warn('[watchPosition] ERROR:', error);
+      }
+    );
+    setIsWatchingPosition(true);
   };
 
   // BackgroundGeolocation.requestPermission()

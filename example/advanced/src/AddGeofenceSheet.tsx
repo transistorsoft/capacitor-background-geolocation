@@ -15,8 +15,8 @@ import {
 } from '@ionic/react';
 
 import BackgroundGeolocation from '@transistorsoft/capacitor-background-geolocation';
-import TSDialog from '../lib/Dialog';
-import StepperField from './StepperField';
+import TSDialog from './lib/Dialog';
+import StepperField from './components/StepperField';
 
 export type AddGeofenceCoordinate = {
   latitude: number;

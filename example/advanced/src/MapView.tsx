@@ -17,12 +17,12 @@ import BackgroundGeolocation, {
   MotionChangeEvent,
 } from '@transistorsoft/capacitor-background-geolocation';
 
-import TSDialog from '../lib/Dialog';
-import { COLORS } from '../config/Colors';
+import TSDialog from './lib/Dialog';
+import { COLORS } from './config/Colors';
 import AddGeofenceTypeSheet, { AddGeofenceType } from './AddGeofenceTypeSheet';
 import AddGeofenceSheet from './AddGeofenceSheet';
-import { ENV } from '../config/ENV';
-import { getBearing, computeOffsetCoordinate } from '../lib/GeoMath';
+import { ENV } from './config/ENV';
+import { getBearing, computeOffsetCoordinate } from './lib/GeoMath';
 
 // Module-level globals (survive React re-renders)
 const SUBSCRIPTIONS: Subscription[] = [];

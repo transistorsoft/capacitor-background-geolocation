@@ -22,10 +22,10 @@ import BackgroundGeolocation, {
   Location,
 } from '@transistorsoft/capacitor-background-geolocation';
 
-import RegistrationModal from './components/RegistrationModal';
-import MapView from './components/MapView';
-import FABMenu from './components/FABMenu';
-import ConfigView from './components/ConfigView';
+import RegistrationModal from './RegistrationModal';
+import MapView from './MapView';
+import FABMenu from './FABMenu';
+import ConfigView from './ConfigView';
 import TSDialog from './lib/Dialog';
 import { ENV } from './config/ENV';
 import { registerTransistorAuthorizationListener } from './config/Authorization';
@@ -68,6 +68,8 @@ export default function App() {
     SplashScreen.hide();
     StatusBar.setStyle({ style: Style.Light });
 
+    // Register BackgroundGeolocation event listeners and store references in module-level SUBSCRIPTIONS array so we can remove them on unmount.  We don't want to store these in state or refs because we don't want to trigger any re-renders when they change, and we don't want them to be reset on re-render.
+    // event listeners should be registered BEFORE calling BackgroundGeolocation.ready(config) in case any events fire immediately upon initialization (e.g. location, geofence, providerchange, motionchange, etc).
     SUBSCRIPTIONS.push(
       BackgroundGeolocation.onLocation((location: Location) => {
         console.log('[location] -', location);
@@ -138,31 +140,46 @@ export default function App() {
     try {
       setIsInitialized(true);
 
+      // NOTE: findOrCreateTransistorAuthorizationToken is used here only to sync data with the
+      // Transistor Software demo server (https://tracker.transistorsoft.com) so you can see your
+      // tracking data on a live map.  It is NOT a required part of the core SDK.  In your own app
+      // you would simply configure { url: 'https://your.server.com/locations' } instead.
       const token = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(
         org, username, ENV.TRACKER_HOST,
       );
 
+      // You must call BackgroundGeolocation.ready() each and every time your app boots.  
       const state = await BackgroundGeolocation.ready({
         reset: false,
         transistorAuthorizationToken: token,
-        desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_NAVIGATION,
-        distanceFilter: 10,
-        stopTimeout: 5,
-        locationAuthorizationRequest: 'Always',
-        backgroundPermissionRationale: {
-          title: "Allow {applicationName} to access this device's location even when closed or not in use.",
-          message: "This app collects location data to enable recording your trips to work and calculate distance-travelled.",
-          positiveAction: 'Change to "{backgroundPermissionOptionLabel}"',
-          negativeAction: 'Cancel',
+        geolocation: {
+          desiredAccuracy: BackgroundGeolocation.DesiredAccuracy.High,
+          distanceFilter: 10,
+          stopTimeout: 5,
+          locationAuthorizationRequest: 'Always',
+        },        
+        app: {
+          stopOnTerminate: false,
+          startOnBoot: true,
+          enableHeadless: true,
+          heartbeatInterval: 60,
+          backgroundPermissionRationale: {
+            title: "Allow {applicationName} to access this device's location even when closed or not in use.",
+            message: "This app collects location data to enable recording your trips to work and calculate distance-travelled.",
+            positiveAction: 'Change to "{backgroundPermissionOptionLabel}"',
+            negativeAction: 'Cancel',
+          }
         },
-        autoSync: true,
-        maxDaysToPersist: 14,
-        stopOnTerminate: false,
-        startOnBoot: true,
-        enableHeadless: true,
-        heartbeatInterval: 60,
-        debug: true,
-        logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
+        http: {
+          autoSync: true,
+        },
+        persistence: {
+          maxDaysToPersist: 3,
+        },                
+        logger: {
+          debug: true,
+          logLevel: BackgroundGeolocation.LogLevel.Verbose,
+        }        
       });
 
       setOdometer(state.odometer ?? 0);

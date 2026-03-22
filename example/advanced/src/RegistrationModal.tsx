@@ -12,7 +12,7 @@ import { Preferences } from '@capacitor/preferences';
 import { Clipboard } from '@capacitor/clipboard';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import BackgroundGeolocation from '@transistorsoft/capacitor-background-geolocation';
-import { ENV } from '../config/ENV';
+import { ENV } from './config/ENV';
 
 interface Props {
   visible: boolean;
@@ -55,7 +55,10 @@ const RegistrationModal: React.FC<Props> = ({ visible, savedOrg = '', savedUsern
       // Ensure any current cached token is destroyed.
       await BackgroundGeolocation.destroyTransistorAuthorizationToken(ENV.TRACKER_HOST);
 
-      // Register device with ENV.TRACKER_HOST to receive a JSON Web Token (JWT).
+      // NOTE: findOrCreateTransistorAuthorizationToken is used here only to sync data with the
+      // Transistor Software demo server (https://tracker.transistorsoft.com) so you can see your
+      // tracking data on a live map.  It is NOT a required part of the core SDK.  In your own app
+      // you would simply configure { url: 'https://your.server.com/locations' } instead.
       const token = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(
         organization,
         username,

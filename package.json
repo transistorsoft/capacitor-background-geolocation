@@ -4,7 +4,7 @@
   "description": "The most sophisticated cross platform Capacitor background location tracking & geofencing module with battery-conscious motion-detection intelligence",
   "main": "dist/plugin.cjs.js",
   "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "src/index.d.ts",
   "unpkg": "dist/plugin.js",
   "files": [
     "android/src/main/",
@@ -13,6 +13,7 @@
     "android/libs",
     "android/proguard-rules.pro",
     "dist/",
+    "src/index.d.ts",
     "ios/Sources/",
     "ios/Frameworks/TSLocationManager.xcframework/",
     "TransistorsoftCapacitorBackgroundGeolocation.podspec",

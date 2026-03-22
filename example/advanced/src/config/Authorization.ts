@@ -31,6 +31,10 @@ async function register(onReregistered?: () => void): Promise<TransistorAuthoriz
     };
   }
 
+  // NOTE: findOrCreateTransistorAuthorizationToken is used here only to sync data with the
+  // Transistor Software demo server (https://tracker.transistorsoft.com) so you can see your
+  // tracking data on a live map.  It is NOT a required part of the core SDK.  In your own app
+  // you would simply configure { url: 'https://your.server.com/locations' } instead.
   const token: TransistorAuthorizationToken =
     await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(org, username, ENV.TRACKER_HOST);
 

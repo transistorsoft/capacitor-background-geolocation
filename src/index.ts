@@ -6,6 +6,24 @@ import {
 } from '@capacitor/core';
 
 import {
+  Config,
+  DeviceSettingsRequest,
+  CurrentPositionRequest,
+  WatchPositionRequest,
+  Location,
+  LocationError,
+  State,
+  Geofence,
+  SQLQuery,
+  MotionChangeEvent,
+  MotionActivityEvent,
+  GeofenceEvent,
+  GeofencesChangeEvent,
+  HeartbeatEvent,
+  HttpEvent,
+  ProviderChangeEvent,
+  ConnectivityChangeEvent,
+  AuthorizationEvent,
   LogLevel,
   DesiredAccuracy,
   PersistMode,
@@ -43,7 +61,7 @@ function log(level:string, msg:string) {
   });
 }
 
-function validateQuery(query:any) {
+function validateQuery(query?:SQLQuery):SQLQuery {
   if (typeof(query) !== 'object') return {};
 
   if (query.hasOwnProperty('start') && isNaN(query.start)) {
@@ -79,7 +97,7 @@ class Logger {
     return log(LOGGER_LOG_LEVEL_NOTICE, msg);
   }
 
-  static getLog(query?:any) {
+  static getLog(query?:SQLQuery) {
     query = validateQuery(query);
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.getLog({options:query}).then((result:any) => {
@@ -100,7 +118,7 @@ class Logger {
     });
   }
 
-  static emailLog(email:string, query?:any) {
+  static emailLog(email:string, query?:SQLQuery) {
     query = validateQuery(query);
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.emailLog({email:email, query:query}).then((result:any) => {
@@ -111,7 +129,7 @@ class Logger {
     });
   }
 
-  static uploadLog(url:string, query?:any) {
+  static uploadLog(url:string, query?:SQLQuery) {
     query = validateQuery(query);
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.uploadLog({url:url, query:query}).then(() => {
@@ -180,13 +198,14 @@ class TransistorAuthorizationToken {
     });
   }
 
-  static applyIf(config:any) {
+  static applyIf(config:Config) {
     if (!config.transistorAuthorizationToken) return config;
 
     const token = config.transistorAuthorizationToken;
     delete config.transistorAuthorizationToken;
 
-    config.url = token.url + LOCATIONS_PATH;
+    if (!config.http) { config.http = {}; }
+    config.http.url = token.url + LOCATIONS_PATH;
     config.authorization = {
       strategy: 'JWT',
       accessToken: token.accessToken,
@@ -205,9 +224,11 @@ class TransistorAuthorizationToken {
 const IGNORE_BATTERY_OPTIMIZATIONS = "IGNORE_BATTERY_OPTIMIZATIONS";
 const POWER_MANAGER = "POWER_MANAGER";
 
-const resolveSettingsRequest = (resolve:Function, request:any) => {
-  if (request.lastSeenAt > 0) {
-    request.lastSeenAt = new Date(request.lastSeenAt);
+const resolveSettingsRequest = (resolve:Function, request:DeviceSettingsRequest) => {
+  // lastSeenAt arrives from the native bridge as a unix timestamp (number); convert to Date.
+  const lastSeenAt = request.lastSeenAt as unknown as number;
+  if (lastSeenAt > 0) {
+    request.lastSeenAt = new Date(lastSeenAt);
   }
   resolve(request);
 }
@@ -245,7 +266,7 @@ class DeviceSettings {
     });
   }
 
-  static show(request:any) {
+  static show(request:DeviceSettingsRequest) {
     return new Promise((resolve:Function, reject:Function) => {
       const args = {action: request.action};
       NativeModule.showSettings(args).then(() => {
@@ -278,36 +299,6 @@ class Subscription {
     this.callback = callback;
   }
 }
-
-
-/// Validate provided config for #ready, #setConfig, #reset.
-const validateConfig = (config:any) => {
-  // Detect obsolete notification* fields and re-map to Notification instance.
-  if (
-    (config.notificationPriority) ||
-    (config.notificationText) ||
-    (config.notificationTitle) ||
-    (config.notificationChannelName) ||
-    (config.notificationColor) ||
-    (config.notificationSmallIcon) ||
-    (config.notificationLargeIcon)
-  ) {
-    console.warn('[BackgroundGeolocation] WARNING: Config.notification* fields (eg: notificationText) are all deprecated in favor of notification: {title: "My Title", text: "My Text"}  See docs for "Notification" class');
-    config.notification = {
-      text: config.notificationText,
-      title: config.notificationTitle,
-      color: config.notificationColor,
-      channelName: config.notificationChannelName,
-      smallIcon: config.notificationSmallIcon,
-      largeIcon: config.notificationLargeIcon,
-      priority: config.notificationPriority
-    };
-  }
-
-  config = TransistorAuthorizationToken.applyIf(config);
-
-  return config;
-};
 
 const LOG_LEVEL_OFF     = LogLevel.Off;
 const LOG_LEVEL_ERROR   = LogLevel.Error;
@@ -431,12 +422,12 @@ export default class BackgroundGeolocation {
 
   static get deviceSettings() { return DeviceSettings; }
 
-  static ready(config:any) {
-    return NativeModule.ready({options:validateConfig(config)});
+  static ready(config:Config) {
+    return NativeModule.ready({options:config});
   }
 
-  static reset(config?:any) {
-    return NativeModule.reset({options:validateConfig(config)});
+  static reset(config?:Config) {
+    return NativeModule.reset({options:config});
   }
 
   static start() {
@@ -459,8 +450,8 @@ export default class BackgroundGeolocation {
     return NativeModule.startGeofences();
   }
 
-  static setConfig(config:any) {
-    return NativeModule.setConfig({options:validateConfig(config)});
+  static setConfig(config:Config) {
+    return NativeModule.setConfig({options:config});
   }
 
   static getState() {
@@ -477,7 +468,7 @@ export default class BackgroundGeolocation {
     });
   }
 
-  static getCurrentPosition(options:Object) {
+  static getCurrentPosition(options:CurrentPositionRequest) {
     options = options || {};
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.getCurrentPosition({options: options}).then((result:Location) => {
@@ -488,41 +479,66 @@ export default class BackgroundGeolocation {
     });
   }
 
-  static watchPosition(onLocation:Function, onError?:Function, options?:any):Promise<number> {
+  static watchPosition(options:WatchPositionRequest, onLocation:(location:Location) => void, onError?:(errorCode:number) => void) {
     options = options || {};
-    return new Promise(async (resolve:Function, reject:Function) => {
 
-      const handler = (response:any) => {
-        if (response.hasOwnProperty("error") && (response.error != null)) {
-          if (typeof(onError) === 'function') {
-            onError(response.error.code);
-          } else {
-            console.warn('[BackgroundGeolocation watchPosition] DEFAULT ERROR HANDLER.  Provide an onError handler to watchPosition to receive this message: ', response.error);
+    let isRemoved = false;
+    let nativeWatchId:number | null = null;
+
+    const subscriptionProxy = {
+      remove: () => {
+        isRemoved = true;
+        if (nativeWatchId !== null) {
+          const listener = WATCH_POSITION_SUBSCRIPTIONS.get(nativeWatchId);
+          if (listener) {
+            listener.remove();
+            WATCH_POSITION_SUBSCRIPTIONS.delete(nativeWatchId);
           }
-        } else {
-          onLocation(response);
+          NativeModule.stopWatchPosition({watchId: nativeWatchId});
+          nativeWatchId = null;
         }
       }
-      const listener:PluginListenerHandle = await NativeModule.addListener("watchposition", handler);
+    };
 
+    const handler = (response:any) => {
+      if (response.hasOwnProperty("error") && (response.error != null)) {
+        if (typeof(onError) === 'function') {
+          onError(response.error.code);
+        } else {
+          console.warn('[BackgroundGeolocation watchPosition] DEFAULT ERROR HANDLER.  Provide an onError callback to watchPosition to receive this message: ', response.error);
+        }
+      } else {
+        onLocation(response);
+      }
+    };
+
+    NativeModule.addListener("watchposition", handler).then((listener:PluginListenerHandle) => {
       NativeModule.watchPosition({options:options}).then((result:any) => {
-        const watchId:number = result.watchId;
-        WATCH_POSITION_SUBSCRIPTIONS.set(watchId, listener);
-        resolve(watchId);
-      }).catch((error:any) => {
+        nativeWatchId = result.watchId;
+        if (isRemoved) {
+          // remove() was called before the native async call resolved — honour it now.
+          listener.remove();
+          NativeModule.stopWatchPosition({watchId: nativeWatchId});
+        } else {
+          WATCH_POSITION_SUBSCRIPTIONS.set(nativeWatchId!, listener);
+        }
+      }).catch(() => {
         listener.remove();
-        reject(error.message);
       });
     });
+
+    return subscriptionProxy;
   }
 
-  static stopWatchPosition(watchId:number):Promise<void> {
-    const listener = WATCH_POSITION_SUBSCRIPTIONS.get(watchId);
-    if (listener) {
-      listener.remove();
-      WATCH_POSITION_SUBSCRIPTIONS.delete(watchId);
+  static stopWatchPosition(watchId?:number):void {
+    if (watchId !== undefined) {
+      const listener = WATCH_POSITION_SUBSCRIPTIONS.get(watchId);
+      if (listener) {
+        listener.remove();
+        WATCH_POSITION_SUBSCRIPTIONS.delete(watchId);
+      }
+      NativeModule.stopWatchPosition({watchId: watchId});
     }
-    return NativeModule.stopWatchPosition({watchId: watchId});
   }
 
   static requestPermission() {
@@ -615,7 +631,7 @@ export default class BackgroundGeolocation {
 
   /// Geofencing
   ///
-  static addGeofence(params:any) {
+  static addGeofence(params:Geofence) {
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.addGeofence({options:params}).then(() => {
         resolve();
@@ -625,7 +641,7 @@ export default class BackgroundGeolocation {
     });
   }
 
-  static addGeofences(params:any) {
+  static addGeofences(params:Geofence[]) {
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.addGeofences({options:params}).then(() => {
         resolve();
@@ -687,7 +703,7 @@ export default class BackgroundGeolocation {
     });
   }
 
-  static removeGeofences(identifiers?:Array<String>) {
+  static removeGeofences(identifiers?:Array<string>) {
     identifiers = identifiers || [];
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.removeGeofences({identifiers:identifiers}).then(() => {
@@ -785,60 +801,60 @@ export default class BackgroundGeolocation {
 
   /// Event Handling
   ///
-  static onLocation(success:Function, failure:Function) {
-    return BackgroundGeolocation.addListener(Event.Location, success, failure);
+  static onLocation(cb:(location:Location) => void, onError?:(err:LocationError) => void) {
+    return BackgroundGeolocation.addListener(Event.Location, cb, onError);
   }
 
-  static onMotionChange(success:Function) {
-    return BackgroundGeolocation.addListener(Event.MotionChange, success);
+  static onMotionChange(cb:(event:MotionChangeEvent) => void) {
+    return BackgroundGeolocation.addListener(Event.MotionChange, cb);
   }
 
-  static onHttp(success:Function) {
-    return BackgroundGeolocation.addListener(Event.Http, success);
+  static onHttp(cb:(event:HttpEvent) => void) {
+    return BackgroundGeolocation.addListener(Event.Http, cb);
   }
 
-  static onHeartbeat(success:Function) {
-    return BackgroundGeolocation.addListener(Event.Heartbeat, success);
+  static onHeartbeat(cb:(event:HeartbeatEvent) => void) {
+    return BackgroundGeolocation.addListener(Event.Heartbeat, cb);
   }
 
-  static onProviderChange(success:Function) {
-    return BackgroundGeolocation.addListener(Event.ProviderChange, success);
+  static onProviderChange(cb:(event:ProviderChangeEvent) => void) {
+    return BackgroundGeolocation.addListener(Event.ProviderChange, cb);
   }
 
-  static onActivityChange(success:Function) {
-    return BackgroundGeolocation.addListener(Event.ActivityChange, success);
+  static onActivityChange(cb:(event:MotionActivityEvent) => void) {
+    return BackgroundGeolocation.addListener(Event.ActivityChange, cb);
   }
 
-  static onGeofence(success:Function) {
-    return BackgroundGeolocation.addListener(Event.Geofence, success);
+  static onGeofence(cb:(event:GeofenceEvent) => void) {
+    return BackgroundGeolocation.addListener(Event.Geofence, cb);
   }
 
-  static onGeofencesChange(success:Function) {
-    return BackgroundGeolocation.addListener(Event.GeofencesChange, success);
+  static onGeofencesChange(cb:(event:GeofencesChangeEvent) => void) {
+    return BackgroundGeolocation.addListener(Event.GeofencesChange, cb);
   }
 
-  static onSchedule(success:Function) {
-    return BackgroundGeolocation.addListener(Event.Schedule, success);
+  static onSchedule(cb:(state:State) => void) {
+    return BackgroundGeolocation.addListener(Event.Schedule, cb);
   }
 
-  static onEnabledChange(success:Function) {
-    return BackgroundGeolocation.addListener(Event.EnabledChange, success);
+  static onEnabledChange(cb:(enabled:boolean) => void) {
+    return BackgroundGeolocation.addListener(Event.EnabledChange, cb);
   }
 
-  static onConnectivityChange(success:Function) {
-    return BackgroundGeolocation.addListener(Event.ConnectivityChange, success);
+  static onConnectivityChange(cb:(event:ConnectivityChangeEvent) => void) {
+    return BackgroundGeolocation.addListener(Event.ConnectivityChange, cb);
   }
 
-  static onPowerSaveChange(success:Function) {
-    return BackgroundGeolocation.addListener(Event.PowerSaveChange, success);
+  static onPowerSaveChange(cb:(enabled:boolean) => void) {
+    return BackgroundGeolocation.addListener(Event.PowerSaveChange, cb);
   }
 
-  static onNotificationAction(success:Function) {
-    return BackgroundGeolocation.addListener("notificationaction", success);
+  static onNotificationAction(cb:(buttonId:string) => void) {
+    return BackgroundGeolocation.addListener("notificationaction", cb);
   }
 
-  static onAuthorization(success:Function) {
-    return BackgroundGeolocation.addListener(Event.Authorization, success);
+  static onAuthorization(cb:(event:AuthorizationEvent) => void) {
+    return BackgroundGeolocation.addListener(Event.Authorization, cb);
   }
 
   ///

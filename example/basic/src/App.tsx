@@ -124,28 +124,45 @@ export default function App() {
     try {
       setupSubscriptions();
 
+      // NOTE: findOrCreateTransistorAuthorizationToken is used here only to sync data with the
+      // Transistor Software demo server (https://tracker.transistorsoft.com) so you can see your
+      // tracking data on a live map.  It is NOT a required part of the core SDK.  In your own app
+      // you would simply configure { http: {url: 'https://your.server.com/locations' }} instead.
       const token = await BackgroundGeolocation.findOrCreateTransistorAuthorizationToken(
         org, username,
       );
-
+        
       const pluginState = await BackgroundGeolocation.ready({
+        reset: true,
         transistorAuthorizationToken: token,
         logger: {
-          debug:    true,
+          debug: true,
           logLevel: BackgroundGeolocation.LogLevel.Verbose,
         },
         geolocation: {
           desiredAccuracy: BackgroundGeolocation.DesiredAccuracy.High,
-          distanceFilter:  10,
-          stopTimeout:     5,
-        },
-        http:  { autoSync: true },
-        app:   {
-          stopOnTerminate:  false,
+          distanceFilter: 10,
+          stopTimeout: 5,
+          locationAuthorizationRequest: 'Always',
+        },        
+        app: {
+          stopOnTerminate: false,
+          startOnBoot: true,
+          enableHeadless: true,
           heartbeatInterval: 60,
-          startOnBoot:      true,
-          enableHeadless:   true,
+          backgroundPermissionRationale: {
+            title: "Allow {applicationName} to access this device's location even when closed or not in use.",
+            message: "This app collects location data to enable recording your trips to work and calculate distance-travelled.",
+            positiveAction: 'Change to "{backgroundPermissionOptionLabel}"',
+            negativeAction: 'Cancel',
+          }
         },
+        http: {
+          autoSync: true,
+        },
+        persistence: {
+          maxDaysToPersist: 14,
+        }        
       });
 
       setState(s => ({
