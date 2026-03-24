@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "Background Geolocation Basic Demo — React / Vite",
   "type": "module",
-  "keywords": ["capacitor", "background-geolocation", "react"],
+  "keywords": [
+    "capacitor",
+    "background-geolocation",
+    "react"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",

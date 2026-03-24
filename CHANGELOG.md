@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## Unreleased
+- Update Capacitor peer/dev dependencies to ^8.0.0
 - Rename CHANGELOG heading, add setup.sh, simplify hook heading match
 - Fix post-commit hook to match '# CHANGELOG' heading
 - Add post-commit hook for auto-changelog
