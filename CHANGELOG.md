@@ -1,6 +1,8 @@
 # CHANGELOG
 
 ## Unreleased
+- Handle [RELEASE] commits in post-commit hook
+  Promotes ## Unreleased to ## [x.x.x] heading instead of adding a bullet.
 - Update Capacitor peer/dev dependencies to ^8.0.0
 - Rename CHANGELOG heading, add setup.sh, simplify hook heading match
 - Fix post-commit hook to match '# CHANGELOG' heading
