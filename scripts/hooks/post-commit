@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# post-commit: Auto-append commit message to CHANGELOG.md under "## Unreleased"
+# Skips merge commits. Amends the commit to include the changelog update.
+
+set -euo pipefail
+
+# Guard against re-entry (amend at the end triggers post-commit again)
+if [[ -n "${_CHANGELOG_HOOK_RUNNING:-}" ]]; then
+  exit 0
+fi
+export _CHANGELOG_HOOK_RUNNING=1
+
+# Get the repo root (works from worktrees too)
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+CHANGELOG="${REPO_ROOT}/CHANGELOG.md"
+
+# Skip merge commits
+PARENT_COUNT="$(git cat-file -p HEAD | grep -c '^parent ')"
+if [[ "$PARENT_COUNT" -gt 1 ]]; then
+  exit 0
+fi
+
+# Get commit message (strip Co-Authored-By lines)
+MSG="$(git log -1 --pretty=format:'%B' | grep -v '^Co-Authored-By:')"
+
+if [[ -z "$MSG" ]]; then
+  exit 0
+fi
+
+# Format: first line as the bullet, subsequent non-empty lines indented under it
+FIRST_LINE="$(echo "$MSG" | head -1)"
+BODY="$(echo "$MSG" | tail -n +2 | sed '/^[[:space:]]*$/d')"
+
+ENTRY="- ${FIRST_LINE}"
+if [[ -n "$BODY" ]]; then
+  ENTRY="${ENTRY}"$'\n'"$(echo "$BODY" | sed 's/^/  /')"
+fi
+
+# Write entry to a temp file (avoids awk/sed issues with multi-line variables)
+ENTRY_FILE="$(mktemp)"
+echo "$ENTRY" > "$ENTRY_FILE"
+
+# Ensure CHANGELOG.md exists
+if [[ ! -f "$CHANGELOG" ]]; then
+  { echo "# CHANGELOG"; echo ""; echo "## Unreleased"; cat "$ENTRY_FILE"; } > "$CHANGELOG"
+  rm -f "$ENTRY_FILE"
+  git add "$CHANGELOG"
+  git commit --amend --no-edit --quiet
+  exit 0
+fi
+
+# Build new changelog with entry inserted under "## Unreleased"
+TMPFILE="$(mktemp)"
+INSERTED=0
+
+if grep -q '^## Unreleased' "$CHANGELOG"; then
+  while IFS= read -r line; do
+    echo "$line"
+    if [[ "$INSERTED" -eq 0 && "$line" == "## Unreleased"* ]]; then
+      cat "$ENTRY_FILE"
+      INSERTED=1
+    fi
+  done < "$CHANGELOG" > "$TMPFILE"
+else
+  while IFS= read -r line; do
+    echo "$line"
+    if [[ "$INSERTED" -eq 0 && "$line" == "# CHANGELOG"* ]]; then
+      echo ""
+      echo "## Unreleased"
+      cat "$ENTRY_FILE"
+      INSERTED=1
+    fi
+  done < "$CHANGELOG" > "$TMPFILE"
+fi
+
+mv "$TMPFILE" "$CHANGELOG"
+rm -f "$ENTRY_FILE"
+
+# Amend the commit to include the changelog update
+git add "$CHANGELOG"
+git commit --amend --no-edit --quiet
