@@ -1,7 +1,8 @@
-# Change Log
+# CHANGELOG
 
 ## Unreleased
-- Fix post-commit hook to match '# Change Log' heading
+- Rename CHANGELOG heading, add setup.sh, simplify hook heading match
+- Fix post-commit hook to match '# CHANGELOG' heading
 - Add post-commit hook for auto-changelog
 
 ## [9.0.0] &mdash; 2026-03-22 — **[BREAKING]** See [Migration Guide](help/MIGRATION-GUIDE-9.0.0.md)

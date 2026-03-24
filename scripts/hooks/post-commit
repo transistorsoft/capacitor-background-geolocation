@@ -64,7 +64,7 @@ if grep -q '^## Unreleased' "$CHANGELOG"; then
 else
   while IFS= read -r line; do
     echo "$line"
-    if [[ "$INSERTED" -eq 0 && ("$line" == "# CHANGELOG"* || "$line" == "# Change Log"*) ]]; then
+    if [[ "$INSERTED" -eq 0 && "$line" == "# CHANGELOG"* ]]; then
       echo ""
       echo "## Unreleased"
       cat "$ENTRY_FILE"
