@@ -1,12 +1,12 @@
 # CHANGELOG
 
 ## Unreleased
-- Update Capacitor peer/dev dependencies to ^8.0.0
-- Rename CHANGELOG heading, add setup.sh, simplify hook heading match
-- Fix post-commit hook to match '# CHANGELOG' heading
-- Add post-commit hook for auto-changelog
+- [RELEASE] 9.0.1
 
-## [9.0.0] &mdash; 2026-03-22 — **[BREAKING]** See [Migration Guide](help/MIGRATION-GUIDE-9.0.0.md)
+## 9.0.1 &mdash; 2026-03-23
+- Update Capacitor peer/dev dependencies to ^8.0.0
+
+## 9.0.0 &mdash; 2026-03-22 — **[BREAKING]** See [Migration Guide](help/MIGRATION-GUIDE-9.0.0.md)
 
 ### 🔑 New License Key Format — **Breaking Change**
 - v9 introduces a new **JWT-based license key** format. **v8 and older license keys will not work.**
