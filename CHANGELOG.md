@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## Unreleased
+- Remove legacy ios/Plugin Obj-C classes and bundled ios/Frameworks xcframework
+  The iOS plugin now uses the Swift implementation at ios/Sources/BackgroundGeolocationPlugin/.
+  TSLocationManager.xcframework is distributed via CocoaPods/SPM and no longer needs to be
+  bundled in the repo.
+
 ## [9.0.1] &mdash; 2026-03-23
 - Update Capacitor dependencies to v8
 
