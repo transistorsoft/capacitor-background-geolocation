@@ -10,7 +10,7 @@ import TSLocationManager
 public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "BackgroundGeolocationPlugin"
     public let jsName = "BackgroundGeolocation"
-
+    
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "registerPlugin", returnType: CAPPluginReturnNone),
         CAPPluginMethod(name: "ready", returnType: CAPPluginReturnPromise),

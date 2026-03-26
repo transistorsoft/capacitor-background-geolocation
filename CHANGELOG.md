@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [9.0.2] &mdash; 2026-03-26
+* Fix SPM package to reference `BackgroundGeolocation` rather than `TSLocationManager`.
+
 ## [9.0.1] &mdash; 2026-03-23
 - Update Capacitor dependencies to v8
 

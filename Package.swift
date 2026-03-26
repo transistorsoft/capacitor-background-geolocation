@@ -22,7 +22,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Capacitor", package: "capacitor-swift-pm"),
                 .product(name: "Cordova", package: "capacitor-swift-pm"),
-                .product(name: "TSLocationManager", package: "native-background-geolocation"),
+                .product(name: "BackgroundGeolocation", package: "native-background-geolocation"),
                 .product(name: "TSBackgroundFetch", package: "transistor-background-fetch"),
                 .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack")
             ],
