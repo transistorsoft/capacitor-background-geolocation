@@ -26,8 +26,6 @@ Open your app in **Xcode** and select the root of your project. Select the **Sig
 
 ![](https://dl.dropboxusercontent.com/s/a4xieyd0h38xklu/Screenshot%202016-09-22%2008.12.51.png?dl=1)
 
----
-
 ## Configure Usage Strings in `Info.plist`
 
 Edit **`Info.plist`** and add the following keys (set the *Value* strings to match your app's actual usage):
@@ -40,7 +38,16 @@ Edit **`Info.plist`** and add the following keys (set the *Value* strings to mat
 
 ![](https://dl.dropboxusercontent.com/scl/fi/dh0sen3wxsgp1hox41le0/iOS-permissions-plist.png?rlkey=i3fipjdcpu7p1eez4mapukkpl&dl=1)
 
----
+## Configure Your License
+
+> [!NOTE]
+> If you've **not** [purchased a license](https://www.transistorsoft.com/shop/products/capacitor-background-geolocation#plans), **ignore this step** &mdash; the plugin is fully functional in *DEBUG* builds so you can try before you [buy](https://www.transistorsoft.com/shop/products/jcapacitor-background-geolocation#plans).
+
+In your __`Info.plist`__, add the following key: 
+
+|      Key     |     Type     |     Value     |
+|-----|-------|-------------|
+| *`TSLocationManagerLicense`* | `String` | `                    <PASTE YOUR LICENSE KEY HERE>                     ` |
 
 ## Optional: Background Fetch
 
