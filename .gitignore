@@ -1,6 +1,8 @@
 # Claude Code
 .claude
 
+Package.resolved
+
 # Ignore locally generates ./docs
 docs/
 
