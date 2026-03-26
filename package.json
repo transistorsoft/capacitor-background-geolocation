@@ -15,7 +15,6 @@
     "dist/",
     "src/index.d.ts",
     "ios/Sources/",
-    "ios/Frameworks/TSLocationManager.xcframework/",
     "TransistorsoftCapacitorBackgroundGeolocation.podspec",
     "Package.swift"
   ],
