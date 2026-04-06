@@ -31,6 +31,25 @@ A full-featured demo app used internally for QA and as a reference implementatio
 
 ---
 
+## Demo Server
+
+When the app launches it will ask you to register an **organization** and **username**. The example app posts your tracking data to Transistor Software's demo server at:
+
+**[https://tracker.transistorsoft.com](https://tracker.transistorsoft.com)**
+
+View your results live on a map by navigating to:
+
+```
+https://tracker.transistorsoft.com/<your-organization>
+```
+
+> [!NOTE]
+> The demo server is for testing purposes only. Use any organization name — it acts as a namespace to group your devices.
+
+![](https://raw.githubusercontent.com/transistorsoft/assets/master/images/tracker.transistorsoft.com.png)
+
+---
+
 ## Getting Started
 
 Each app is self-contained. From either directory:
