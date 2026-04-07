@@ -33,7 +33,7 @@ The SDK uses **motion-detection** APIs (accelerometer, gyroscope, magnetometer) 
 > The SDK is **fully functional in `DEBUG` builds** — no license required. Try before you buy.
 
 A license is required only for **`RELEASE` builds** on Android.
-[Purchase a license](https://docs.transistorsoft.com/purchase/?platform=capacitor)
+[Purchase a license](https://docs.transistorsoft.com)
 
 ---
 
