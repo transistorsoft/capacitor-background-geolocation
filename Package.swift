@@ -12,8 +12,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
-        .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack.git", from: "3.8.5"),
-        .package(url: "https://github.com/transistorsoft/native-background-geolocation.git", from: "4.0.10"),
+        .package(url: "https://github.com/transistorsoft/native-background-geolocation.git", from: "4.1.0"),
         .package(url: "https://github.com/transistorsoft/transistor-background-fetch.git", from: "4.0.5")
     ],
     targets: [
@@ -23,8 +22,7 @@ let package = Package(
                 .product(name: "Capacitor", package: "capacitor-swift-pm"),
                 .product(name: "Cordova", package: "capacitor-swift-pm"),
                 .product(name: "BackgroundGeolocation", package: "native-background-geolocation"),
-                .product(name: "TSBackgroundFetch", package: "transistor-background-fetch"),
-                .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack")
+                .product(name: "TSBackgroundFetch", package: "transistor-background-fetch")
             ],
             path: "ios/Sources/BackgroundGeolocationPlugin",
             resources: [

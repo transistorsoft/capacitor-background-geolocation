@@ -1,5 +1,5 @@
 {
-  "originHash" : "9ab04d0f0267d1b7b80d58e325cacce1625b1c762c010dd512c855d21466b505",
+  "originHash" : "73b80fdbcb4d515482980aa5ca30e41c5129a2f667e1432518e8e31136a42411",
   "pins" : [
     {
       "identity" : "capacitor-swift-pm",
@@ -8,15 +8,6 @@
       "state" : {
         "revision" : "0e862e6ff13852a710c8a484180ca4d6a2cc9761",
         "version" : "8.2.0"
-      }
-    },
-    {
-      "identity" : "cocoalumberjack",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/CocoaLumberjack/CocoaLumberjack.git",
-      "state" : {
-        "revision" : "a9ed4b6f9bdedce7d77046f43adfb8ce1fd54114",
-        "version" : "3.9.0"
       }
     },
     {
@@ -42,17 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/transistorsoft/native-background-geolocation.git",
       "state" : {
-        "revision" : "617ec9de244a406dfc4ebaa771e2180509b2f3e1",
-        "version" : "4.0.29"
-      }
-    },
-    {
-      "identity" : "swift-log",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-log",
-      "state" : {
-        "revision" : "bbd81b6725ae874c69e9b8c8804d462356b55523",
-        "version" : "1.10.1"
+        "revision" : "8f5daf798924996068b3b301f4fce48efbda6512",
+        "version" : "4.1.0"
       }
     },
     {

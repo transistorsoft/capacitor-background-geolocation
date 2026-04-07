@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## [9.1.0] &mdash; 2026-04-06
+
+### 🚀 Zero Third-Party Native Logging Dependencies
+
+The native `TSLocationManager` SDK no longer depends on **any** third-party logging frameworks on either platform:
+
+- **[iOS]** Removed `CocoaLumberjack` — replaced with a custom, zero-dependency SQLite-backed logger using `os_log` for console output.
+- **[Android]** Removed `slf4j` / `logback-android` — replaced with a custom SQLite-backed logger using the native Android `Log` API.
+
+This eliminates a long-standing source of dependency conflicts for apps that use these popular logging libraries at different versions. The SDK's logging behavior, output format, and `emailLog` / `uploadLog` functionality remain identical.
+
+* [iOS] Pin `TSLocationManager ~> 4.1.0`
+* [Android] Pin `tslocationmanager 4.1.+`
+
 ## [9.0.2] &mdash; 2026-03-26
 * Fix SPM package to reference `BackgroundGeolocation` rather than `TSLocationManager`.
 
