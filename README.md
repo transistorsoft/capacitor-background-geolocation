@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/transistorsoft/assets/master/images/logos/transistor/transistor-logo-panel-ts.svg" alt="Background Geolocation for Capacitor" width="635">
+  <img src="https://raw.githubusercontent.com/transistorsoft/assets/master/images/logos/transistor/panel-capacitor.svg" alt="Background Geolocation for Capacitor" width="635">
 </p>
 
 # Background Geolocation for Capacitor
@@ -21,9 +21,9 @@ The SDK uses **motion-detection** APIs (accelerometer, gyroscope, magnetometer) 
 ## :books: Documentation
 
 ### <img src="https://raw.githubusercontent.com/transistorsoft/react-native-background-geolocation/master/assets/images/platforms/capacitor.svg" width="20" height="20"> Capacitor
-- [Setup](https://docs.transistorsoft.com/typescript/setup/?tab=capacitor)
-- [API Reference](https://docs.transistorsoft.com/typescript/BackgroundGeolocation/)
-- [Example](https://docs.transistorsoft.com/typescript/examples/?tab=capacitor)
+- [Setup](https://docs.transistorsoft.com/capacitor/setup/)
+- [API Reference](https://docs.transistorsoft.com/capacitor/BackgroundGeolocation/)
+- [Example](https://docs.transistorsoft.com/capacitor/examples/)
 
 ---
 
