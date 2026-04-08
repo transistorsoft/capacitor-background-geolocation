@@ -13,7 +13,8 @@ Pod::Spec.new do |s|
   s.source_files = 'ios/Sources/BackgroundGeolocationPlugin/**/*.{swift,h,m,c,cc,mm,cpp}'
   s.ios.deployment_target  = '13.0'
   s.dependency 'Capacitor'
-  s.dependency 'TSLocationManager', '~> 4.1.0'
+  tslm_version = ENV['TSLOCATIONMANAGER_VERSION'] || '~> 4.1.0'
+  s.dependency 'TSLocationManager', tslm_version
   s.libraries = 'sqlite3', 'z', 'stdc++'
   s.resource_bundles = {
     'TSLocationManagerPrivacy' => ['ios/Sources/BackgroundGeolocationPlugin/PrivacyInfo.xcprivacy']
