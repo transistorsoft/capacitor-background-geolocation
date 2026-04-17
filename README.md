@@ -61,8 +61,8 @@ See the [example README](./example/README.md) for setup instructions.
 | <img src="https://raw.githubusercontent.com/transistorsoft/react-native-background-geolocation/master/assets/images/platforms/expo.svg" width="16" height="16"> [Expo](https://github.com/transistorsoft/react-native-background-geolocation) | `react-native-background-geolocation` |
 | <img src="https://raw.githubusercontent.com/transistorsoft/react-native-background-geolocation/master/assets/images/platforms/flutter.svg" width="16" height="16"> [Flutter](https://github.com/transistorsoft/flutter_background_geolocation) | `flutter_background_geolocation` |
 | <img src="https://raw.githubusercontent.com/transistorsoft/react-native-background-geolocation/master/assets/images/platforms/cordova.svg" width="16" height="16"> [Cordova](https://github.com/transistorsoft/cordova-background-geolocation-lt) | `cordova-background-geolocation-lt` |
-| <img src="https://raw.githubusercontent.com/transistorsoft/react-native-background-geolocation/master/assets/images/platforms/swift.svg" width="16" height="16"> [Swift / iOS](https://github.com/transistorsoft/background-geolocation) | `background-geolocation` |
-| <img src="https://raw.githubusercontent.com/transistorsoft/react-native-background-geolocation/master/assets/images/platforms/kotlin.svg" width="16" height="16"> [Kotlin / Android](https://github.com/transistorsoft/background-geolocation) | `background-geolocation` |
+| <img src="https://raw.githubusercontent.com/transistorsoft/react-native-background-geolocation/master/assets/images/platforms/swift.svg" width="16" height="16"> [Swift / iOS](https://github.com/transistorsoft/native-background-geolocation) | `background-geolocation` |
+| <img src="https://raw.githubusercontent.com/transistorsoft/react-native-background-geolocation/master/assets/images/platforms/kotlin.svg" width="16" height="16"> [Kotlin / Android](https://github.com/transistorsoft/native-background-geolocation) | `background-geolocation` |
 
 ---
 
