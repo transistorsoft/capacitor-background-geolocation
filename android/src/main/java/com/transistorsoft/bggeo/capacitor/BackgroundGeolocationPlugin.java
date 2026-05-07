@@ -194,6 +194,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     public void setConfig(PluginCall call) throws JSONException {
         TSConfig config = TSConfig.getInstance(getContext());
         JSObject params = call.getObject("options");
+        params.put("useCLLocationAccuracy", true);
         config.updateWithJSONObject(params);
         call.resolve(JSObject.fromJSONObject(config.toJson(false)));
     }
@@ -989,6 +990,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     private JSONObject setHeadlessJobService(JSObject params) {
         params.put("headlessJobService", getHeadlessJobService());
+        params.put("useCLLocationAccuracy", true);
         return params;
     }
 
