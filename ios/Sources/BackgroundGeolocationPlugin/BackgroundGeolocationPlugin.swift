@@ -117,6 +117,11 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
             me.notifyListeners(TSEventNameActivityChange, data: params)
         })
 
+        locationManager.onLocationFilter({ (event: TSLocationFilterEvent?) in
+            guard let me = me, me.hasListeners(TSEventNameLocationFilter) else { return }
+            me.notifyListeners(TSEventNameLocationFilter, data: event?.toDictionary() as? [String: Any] ?? [:])
+        })
+
         locationManager.onHeartbeat({ (event: TSHeartbeatEvent?) in
             guard let me = me, me.hasListeners(TSEventNameHeartbeat) else { return }
             if let eventData = event?.toDictionary() as? [String: Any] {

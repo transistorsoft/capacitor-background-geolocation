@@ -33,6 +33,7 @@ import com.transistorsoft.locationmanager.adapter.callback.TSHeartbeatCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSHttpResponseCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSInsertLocationCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSLocationCallback;
+import com.transistorsoft.locationmanager.adapter.callback.TSLocationFilterCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSLocationProviderChangeCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSNotificationActionCallback;
 import com.transistorsoft.locationmanager.adapter.callback.TSPlayServicesConnectErrorCallback;
@@ -55,6 +56,7 @@ import com.transistorsoft.locationmanager.event.GeofenceEvent;
 import com.transistorsoft.locationmanager.event.GeofencesChangeEvent;
 import com.transistorsoft.locationmanager.event.HeartbeatEvent;
 import com.transistorsoft.locationmanager.event.LocationEvent;
+import com.transistorsoft.locationmanager.event.LocationFilterEvent;
 import com.transistorsoft.locationmanager.event.LocationProviderChangeEvent;
 import com.transistorsoft.locationmanager.event.TerminateEvent;
 import com.transistorsoft.locationmanager.geofence.TSGeofence;
@@ -1067,6 +1069,8 @@ public class BackgroundGeolocationPlugin extends Plugin {
         });
 
         bgGeo.onActivityChange(event -> handleEvent(EventName.ACTIVITYCHANGE, event.toJson()));
+
+        bgGeo.onLocationFilter(event -> handleEvent(EventName.LOCATIONFILTER, event.toJson()));
 
         bgGeo.onConnectivityChange(new TSConnectivityChangeCallback() {
             @Override

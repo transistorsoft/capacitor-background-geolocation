@@ -17,6 +17,7 @@ import {
   SQLQuery,
   MotionChangeEvent,
   MotionActivityEvent,
+  LocationFilterEvent,
   GeofenceEvent,
   GeofencesChangeEvent,
   HeartbeatEvent,
@@ -366,6 +367,7 @@ export default class BackgroundGeolocation {
   static get EVENT_HEARTBEAT()             { return Event.Heartbeat; }
   static get EVENT_PROVIDERCHANGE()        { return Event.ProviderChange; }
   static get EVENT_ACTIVITYCHANGE()        { return Event.ActivityChange; }
+  static get EVENT_LOCATIONFILTER()        { return Event.LocationFilter; }
   static get EVENT_GEOFENCE()              { return Event.Geofence; }
   static get EVENT_GEOFENCESCHANGE()       { return Event.GeofencesChange; }
   static get EVENT_ENABLEDCHANGE()         { return Event.EnabledChange; }
@@ -823,6 +825,10 @@ export default class BackgroundGeolocation {
 
   static onActivityChange(cb:(event:MotionActivityEvent) => void) {
     return BackgroundGeolocation.addListener(Event.ActivityChange, cb);
+  }
+
+  static onLocationFilter(cb:(event:LocationFilterEvent) => void) {
+    return BackgroundGeolocation.addListener(Event.LocationFilter, cb);
   }
 
   static onGeofence(cb:(event:GeofenceEvent) => void) {

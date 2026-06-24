@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/transistorsoft/native-background-geolocation.git",
       "state" : {
-        "revision" : "f0fdb1d09df7d8f3029b95780f49e660150db2dd",
-        "version" : "4.1.2"
+        "revision" : "fb4de79062a9853db745ed1b42ccc07a108b9846",
+        "version" : "4.2.1"
       }
     },
     {
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/transistorsoft/transistor-background-fetch.git",
       "state" : {
-        "revision" : "ba64a5ca902b36601a0c8a9a46d5510cf7a63c1c",
-        "version" : "4.0.6"
+        "revision" : "34676021268c22c5cd356d9c96644aa0ee5fb68d",
+        "version" : "4.1.1"
       }
     }
   ],
