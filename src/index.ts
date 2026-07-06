@@ -15,6 +15,7 @@ import {
   State,
   Geofence,
   SQLQuery,
+  LocationQuery,
   MotionChangeEvent,
   MotionActivityEvent,
   LocationFilterEvent,
@@ -571,9 +572,9 @@ export default class BackgroundGeolocation {
 
   /// Locations database
   ///
-  static getLocations() {
+  static getLocations(query?:LocationQuery) {
     return new Promise((resolve:Function, reject:Function) => {
-      NativeModule.getLocations().then((result:any) => {
+      NativeModule.getLocations({options:query}).then((result:any) => {
         resolve(result.locations);
       }).catch((error:PluginResultError) => {
         reject(error.message);

@@ -478,8 +478,10 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     // Locations Database
 
     @objc func getLocations(_ call: CAPPluginCall) {
+        let params = call.getObject("options") ?? [:]
         let locationManager = BackgroundGeolocation.sharedInstance()
-        locationManager.getLocations({ records in
+        let query = LocationQuery(dictionary: params)
+        locationManager.getLocations(query, success: { records in
             call.resolve(["locations": records as Any])
         }, failure: { error in
             call.reject(error, nil, nil, [:])

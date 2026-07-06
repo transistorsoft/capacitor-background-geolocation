@@ -45,6 +45,7 @@ import com.transistorsoft.locationmanager.adapter.callback.TSSyncCallback;
 import com.transistorsoft.locationmanager.config.TSConfig;
 import com.transistorsoft.locationmanager.config.edit.Editor;
 import com.transistorsoft.locationmanager.data.LocationModel;
+import com.transistorsoft.locationmanager.data.LocationQuery;
 import com.transistorsoft.locationmanager.data.SQLQuery;
 import com.transistorsoft.locationmanager.device.DeviceInfo;
 import com.transistorsoft.locationmanager.device.DeviceSettingsRequest;
@@ -663,7 +664,8 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     @PluginMethod()
     public void getLocations(final PluginCall call) {
-        getAdapter().getLocations(new TSGetLocationsCallback() {
+        LocationQuery query = LocationQuery.fromJson(call.getObject("options"));
+        getAdapter().getLocations(query, new TSGetLocationsCallback() {
             @Override public void onSuccess(List<LocationModel> locations) {
                 JSArray data = new JSArray();
                 for (LocationModel location : locations) {
