@@ -698,6 +698,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void insertLocation(final PluginCall call) {
         JSObject params = call.getObject("options");
+        if (params == null) { call.reject("insertLocation: options object with coords is required"); return; }
 
         getAdapter().insertLocation(params, new TSInsertLocationCallback() {
             @Override public void onSuccess(String uuid) {

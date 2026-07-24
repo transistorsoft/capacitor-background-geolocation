@@ -12,7 +12,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
-        .package(url: "https://github.com/transistorsoft/native-background-geolocation.git", from: "4.3.0"),
+        .package(url: "https://github.com/transistorsoft/native-background-geolocation.git", from: "4.4.0"),
         .package(url: "https://github.com/transistorsoft/transistor-background-fetch.git", from: "4.0.5")
     ],
     targets: [
