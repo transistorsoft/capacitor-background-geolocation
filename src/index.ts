@@ -39,8 +39,32 @@ import {
   HttpMethod,
   TriggerActivity,
   ActivityType,
-  Event
+  Event,
+  Permission
 } from '@transistorsoft/background-geolocation-types';
+
+// (WO-007) Named RUNTIME exports, so `import { Permission, AuthorizationStatus }` is real
+// at runtime and index.d.ts's `export *` promise is honest for ESM consumers (Vite/webpack
+// previously hard-errored: "does not provide an export named ...").
+// The CJS bundle keeps `module.exports = BackgroundGeolocation` via rollup's output.footer —
+// see rollup.config.mjs — so `require()` consumers are unaffected.
+export {
+  LogLevel,
+  DesiredAccuracy,
+  PersistMode,
+  AuthorizationStatus,
+  AccuracyAuthorization,
+  LocationRequest,
+  AuthorizationStrategy,
+  LocationFilterPolicy,
+  KalmanProfile,
+  NotificationPriority,
+  HttpMethod,
+  TriggerActivity,
+  ActivityType,
+  Event,
+  Permission
+};
 
 const NativeModule:any = registerPlugin('BackgroundGeolocation');
 
@@ -352,6 +376,7 @@ export default class BackgroundGeolocation {
   static get DesiredAccuracy() { return DesiredAccuracy; }
   static get PersistMode() { return PersistMode; }
   static get AuthorizationStatus() { return AuthorizationStatus; }
+  static get Permission() { return Permission; }
   static get AccuracyAuthorization() { return AccuracyAuthorization; }
   static get AuthorizationStrategy() { return AuthorizationStrategy; }
   static get LocationFilterPolicy() { return LocationFilterPolicy; }
@@ -544,14 +569,22 @@ export default class BackgroundGeolocation {
     }
   }
 
-  static requestPermission() {
+  static requestPermission(permission?:Permission) {
     return new Promise((resolve:Function, reject:Function) => {
-      NativeModule.requestPermission().then((result:any) => {
+      // (WO-007) permission ∈ 'location' | 'motion' | undefined (undefined = everything,
+      // the historical behaviour).
+      NativeModule.requestPermission({permission: permission ?? null}).then((result:any) => {
         if (result.success) {
           resolve(result.status);
         } else {
           reject(result.status);
         }
+      }).catch((error:PluginResultError) => {
+        // The native handlers always resolve {success, status}; a rejection here means the
+        // bridge itself failed (no web implementation, or an exception escaping the plugin
+        // method).  Without this the Promise would hang forever — see "each call is
+        // independently awaitable" (WO-007).
+        reject(error.message);
       });
     });
   }

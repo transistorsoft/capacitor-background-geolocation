@@ -320,7 +320,8 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     @PluginMethod()
     public void requestPermission(final PluginCall call) {
-        getAdapter().requestPermission(new TSRequestPermissionCallback() {
+        String permission = call.getString("permission");
+        TSRequestPermissionCallback callback = new TSRequestPermissionCallback() {
             @Override public void onSuccess(int status) {
                 JSObject result = new JSObject();
                 result.put("success", true);
@@ -333,7 +334,17 @@ public class BackgroundGeolocationPlugin extends Plugin {
                 result.put("status", status);
                 call.resolve(result);
             }
-        });
+        };
+        // (WO-007) permission ∈ "location" | "motion" | null (null = everything).
+        // Null MUST route to the historical no-argument overload here in the bridge:
+        // the string overload's own null-guard exists only in tslocationmanager >=
+        // the WO-007 release — against an older AAR, handing it null would NPE inside
+        // the adapter and crash every legacy requestPermission() call.
+        if (permission == null) {
+            getAdapter().requestPermission(callback);
+        } else {
+            getAdapter().requestPermission(permission, callback);
+        }
     }
 
     @PluginMethod()

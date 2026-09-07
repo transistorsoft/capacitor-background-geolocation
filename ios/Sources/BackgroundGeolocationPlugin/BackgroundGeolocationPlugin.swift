@@ -779,7 +779,10 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func requestPermission(_ call: CAPPluginCall) {
-        BackgroundGeolocation.sharedInstance().requestPermission({ status in
+        // (WO-007) permission ∈ "location" | "motion" | nil (nil = everything, the
+        // historical behaviour).
+        let permission = call.getString("permission")
+        BackgroundGeolocation.sharedInstance().requestPermission(permission, success: { status in
             call.resolve(["success": true, "status": status])
         }, failure: { status in
             call.resolve(["success": false, "status": status])
