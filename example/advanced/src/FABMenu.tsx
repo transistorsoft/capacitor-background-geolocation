@@ -181,13 +181,34 @@ const FABMenu: React.FC<FABMenuProps> = ({ onMenuItemPress }) => {
     await BackgroundGeolocation.setConfig({
       locationAuthorizationRequest: request,
     });
+
+    // (WO-007) Two-step flow: location first, then motion, each awaited separately —
+    // mirrors the native demo apps.  Compare against the one-shot storm by calling
+    // BackgroundGeolocation.requestPermission() with no argument instead.
+    let locationResult: string;
     try {
-      const status = await BackgroundGeolocation.requestPermission();
-      console.log(`[requestPermission] status: ${status}`);
-      dialog.alert('Request Permission Result', `Authorization status: ${status}`);
-    } catch (error) {
-      console.warn('[FABMenu] requestPermission error:', error);
+      const status = await BackgroundGeolocation.requestPermission(BackgroundGeolocation.Permission.Location);
+      console.log(`[requestPermission] location: ${status}`);
+      locationResult = `${status}`;
+    } catch (status) {
+      console.warn('[FABMenu] requestPermission(location) denied:', status);
+      locationResult = `denied (${status})`;
     }
+
+    let motionResult: string;
+    try {
+      const status = await BackgroundGeolocation.requestPermission(BackgroundGeolocation.Permission.Motion);
+      console.log(`[requestPermission] motion: ${status}`);
+      motionResult = `${status}`;
+    } catch (status) {
+      console.warn('[FABMenu] requestPermission(motion) denied:', status);
+      motionResult =
+        status === BackgroundGeolocation.AuthorizationStatus.DeniedAlways
+          ? `denied always (${status}) — only the Settings app can restore it`
+          : `denied (${status})`;
+    }
+
+    dialog.alert('Request Permission Result', `location: ${locationResult}\nmotion: ${motionResult}`);
   };
 
   // Email log — uses native Dialog.prompt to avoid transparency issues with map overlay
