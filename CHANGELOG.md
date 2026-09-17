@@ -25,6 +25,8 @@
   the configuration briefly applied the empty default `schedule`, which stopped the scheduler and
   could start tracking outside the schedule window until your app called `startSchedule()` again.
   The scheduler now stays on.
+* [Fixed][Android] `reset()` called without a configuration crashed the app with a
+  `NullPointerException`. It now resets to the default configuration, as on iOS.
 
 ### Native SDK versions
 

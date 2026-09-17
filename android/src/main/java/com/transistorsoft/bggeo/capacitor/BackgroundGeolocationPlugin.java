@@ -184,7 +184,8 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     @PluginMethod()
     public void reset(PluginCall call) {
-        JSObject params = call.getObject("options");
+        // reset() without a config sends no options: reset to the defaults (a null here crashed the app).
+        JSObject params = call.getObject("options", new JSObject());
         TSConfig config = TSConfig.getInstance(getContext());
         config.reset(setHeadlessJobService(params));
         try {
