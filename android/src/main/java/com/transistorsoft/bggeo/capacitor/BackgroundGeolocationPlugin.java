@@ -67,6 +67,7 @@ import com.transistorsoft.locationmanager.http.TSAuthorization;
 import com.transistorsoft.locationmanager.http.TransistorAuthorizationToken;
 import com.transistorsoft.locationmanager.location.TSCurrentPositionRequest;
 import com.transistorsoft.locationmanager.location.TSLocation;
+import com.transistorsoft.locationmanager.location.TSLocationManager;
 import com.transistorsoft.locationmanager.location.TSWatchPositionRequest;
 import com.transistorsoft.locationmanager.logger.TSLog;
 import com.transistorsoft.locationmanager.scheduler.ScheduleEvent;
@@ -155,8 +156,9 @@ public class BackgroundGeolocationPlugin extends Plugin {
             config.updateWithJSONObject(setHeadlessJobService(params));
         } else {
             if (reset) {
-                config.reset();
-                config.updateWithJSONObject(setHeadlessJobService(params));
+                // One commit: a separate reset() exposed config listeners to the defaults while the SDK is still
+                // configured (a recreated Activity's reloaded app calls ready() again) — permission dialogs, SLC churn.
+                config.reset(setHeadlessJobService(params));
             } else if (params.has(TSAuthorization.NAME)) {
                 JSONObject options = params.getJSONObject(TSAuthorization.NAME);
                 Editor ed = config.edit();
@@ -182,10 +184,10 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     @PluginMethod()
     public void reset(PluginCall call) {
-        JSObject params = call.getObject("options");
+        // reset() without a config sends no options: reset to the defaults (a null here crashed the app).
+        JSObject params = call.getObject("options", new JSObject());
         TSConfig config = TSConfig.getInstance(getContext());
-        config.reset();
-        config.updateWithJSONObject(setHeadlessJobService(params));
+        config.reset(setHeadlessJobService(params));
         try {
             call.resolve(JSObject.fromJSONObject(config.toJson(false)));
         } catch (JSONException e) {
@@ -1030,6 +1032,18 @@ public class BackgroundGeolocationPlugin extends Plugin {
     }
 
     protected void handleOnDestroy() {
+        Activity activity = getActivity();
+        if (activity != null && activity.isChangingConfigurations()) {
+            // Recreated for a configuration change (e.g. Bold text or font size, which the default Capacitor
+            // android:configChanges omit): the app is NOT terminating.  Running onActivityDestroy() here stopped
+            // tracking (stopOnTerminate) while the app stayed on screen.  The new Bridge reloads the WebView and
+            // creates a new plugin instance, whose load() hands the replacement Activity to the SDK (the native
+            // LifecycleManager also adopts it on start, as a fallback).  Only this dying WebView's watchPosition must
+            // go: its callback is this instance, and nothing else would stop it.  Stop it synchronously, as
+            // onActivityDestroy() does, so it cannot land after the reloaded app starts a new watch.
+            TSLocationManager.getInstance(getContext()).stopWatchPosition();
+            return;
+        }
         BackgroundGeolocation.getInstance(getContext()).onActivityDestroy();
     }
 

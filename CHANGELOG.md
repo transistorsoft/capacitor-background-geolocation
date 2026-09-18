@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## Unreleased
+
+### Android
+
+* [Fixed][Android] Recreating the app's Activity for a configuration change is no longer treated as
+  app termination. The default Capacitor `android:configChanges` omit `fontWeightAdjustment` and
+  `fontScale`, so toggling Bold text or changing the system font size destroys and recreates
+  `MainActivity`. The SDK treated that as termination: with `stopOnTerminate: true` (the default)
+  tracking turned off while the app stayed on screen, the reloaded app's `ready()` reported
+  `enabled: false`, and events went to the headless task until the app next came back to the
+  foreground. A recreation now only stops an active `watchPosition`, whose WebView is gone; a real
+  destroy still terminates as before. Requires `tslocationmanager` 4.6.0, which carries the matching
+  native fixes.
+* [Fixed][Android] Calling `reset(config)` while tracking could open the "Allow all the time"
+  background-location dialog for a `WhenInUse` app, the motion-permission dialog for an app with
+  `disableMotionActivityUpdates: true`, or switch `useSignificantChangesOnly` off and back on —
+  even when the configuration had not changed. The configuration was reset to the defaults and yours
+  re-applied in two steps, and the SDK acted on the defaults in between. `reset(config)` and
+  `ready()` now apply your configuration as one change, so settings whose value has not changed are
+  no longer switched to the default and back. This also keeps the recreation fix above from exposing
+  the reloaded app's `ready()` to the same problem.
+* [Fixed][Android] `ready()` on a later launch no longer switches a running scheduler off. Resetting
+  the configuration briefly applied the empty default `schedule`, which stopped the scheduler and
+  could start tracking outside the schedule window until your app called `startSchedule()` again.
+  The scheduler now stays on.
+* [Fixed][Android] `reset()` called without a configuration crashed the app with a
+  `NullPointerException`. It now resets to the default configuration, as on iOS.
+
+### Native SDK versions
+
+* [Android] Pin `tslocationmanager 4.6.+`
+
 ## 9.5.0 &mdash; 2026-09-07
 
 * [Added] `requestPermission(permission?)` accepts an optional `Permission.Location` /
