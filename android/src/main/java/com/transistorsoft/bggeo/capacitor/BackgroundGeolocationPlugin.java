@@ -128,7 +128,8 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     @PluginMethod()
     public void ready(PluginCall call) throws JSONException {
-        JSObject params = call.getObject("options");
+        // No options at all (a JavaScript caller omitting the config): ready with an empty config rather than crash.
+        JSObject params = call.getObject("options", new JSObject());
 
         final TSConfig config = TSConfig.getInstance(getContext());
 
@@ -198,7 +199,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void setConfig(PluginCall call) throws JSONException {
         TSConfig config = TSConfig.getInstance(getContext());
-        JSObject params = call.getObject("options");
+        JSObject params = call.getObject("options", new JSObject());
         params.put("useCLLocationAccuracy", true);
         config.updateWithJSONObject(params);
         call.resolve(JSObject.fromJSONObject(config.toJson(false)));
@@ -502,6 +503,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void addGeofence(final PluginCall call) {
         JSObject config = call.getObject("options");
+        if (config == null) { call.reject("addGeofence: a geofence object is required"); return; }
         try {
             getAdapter().addGeofence(buildGeofence(config), new TSCallback() {
                 @Override public void onSuccess() { call.resolve(); }
@@ -515,6 +517,7 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void addGeofences(final PluginCall call) {
         JSArray data = call.getArray("options");
+        if (data == null) { call.reject("addGeofences: an array of geofence objects is required"); return; }
         List<TSGeofence> geofences = new ArrayList<>();
         for (int i = 0; i < data.length(); i++) {
             try {

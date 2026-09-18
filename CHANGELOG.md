@@ -25,8 +25,11 @@
   the configuration briefly applied the empty default `schedule`, which stopped the scheduler and
   could start tracking outside the schedule window until your app called `startSchedule()` again.
   The scheduler now stays on.
-* [Fixed][Android] `reset()` called without a configuration crashed the app with a
-  `NullPointerException`. It now resets to the default configuration, as on iOS.
+* [Fixed][Android] Calling `reset()`, `ready()` or `setConfig()` without a configuration, or
+  `addGeofence()` / `addGeofences()` without an argument, crashed the app with a
+  `NullPointerException` instead of rejecting. `reset()` and `ready()` now use the default
+  configuration (as on iOS), `setConfig()` applies nothing, and the geofence methods reject. Only
+  JavaScript callers could reach this: the TypeScript signatures require the argument.
 
 ### Native SDK versions
 
