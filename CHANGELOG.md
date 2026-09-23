@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+* [Changed] `changePace()` now resolves the `State` its TypeScript declaration has always promised
+  (`Promise<State>`). It previously resolved nothing at all on both platforms — the promise settled
+  with `undefined` — so no existing code can be reading a field off it. If you want the flag,
+  `state.isMoving` is it. (WO-033)
+
 ### Android
 
 * [Fixed][Android] Recreating the app's Activity for a configuration change is no longer treated as
