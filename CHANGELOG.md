@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 9.6.0 &mdash; 2026-09-23
 
 * [Changed] `changePace()` now resolves the `State` its TypeScript declaration has always promised
   (`Promise<State>`). It previously resolved nothing at all on both platforms — the promise settled
@@ -36,13 +36,20 @@
   configuration (as on iOS), `setConfig()` applies nothing, and the geofence methods reject. Only
   JavaScript callers could reach this: the TypeScript signatures require the argument.
 
-### Native SDK versions
-
-* [Android] Pin `tslocationmanager 4.6.+`
 * [Fixed] `destroyLocations()`, `destroyLocation()`, `addGeofence()`, `addGeofences()`,
   `removeGeofence()` and `removeGeofences()` resolve `true`, as their TypeScript declarations
   say and as React Native and Flutter always have; they resolved `undefined`. Nothing needs
   changing in your code. (WO-028)
+* [Types] Requires `@transistorsoft/background-geolocation-types` 5.3.3, whose declarations
+  catch up with what every SDK already resolves: `setOdometer()`/`resetOdometer()` are
+  `Promise<Location>`, `startSchedule()`/`stopSchedule()` `Promise<State>`,
+  `destroyLocations()`/`destroyLocation()` `Promise<boolean>`, and `reset()`'s `Config` is
+  optional. (WO-028, WO-035, WO-036)
+
+### Native SDK versions
+
+* [iOS] Pin `TSLocationManager ~> 4.7.0`
+* [Android] Pin `tslocationmanager 4.6.+`
 
 ## 9.5.0 &mdash; 2026-09-07
 
