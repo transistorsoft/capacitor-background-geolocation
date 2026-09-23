@@ -488,8 +488,10 @@ export default class BackgroundGeolocation {
 
   static changePace(isMoving:boolean) {
     return new Promise((resolve:Function, reject:Function) => {
-      NativeModule.changePace({isMoving:isMoving}).then(() => {
-        resolve();
+      // (WO-033) Hand the State back.  This called resolve() with no argument, so even a correct
+      // native half would have been invisible here.
+      NativeModule.changePace({isMoving:isMoving}).then((state:any) => {
+        resolve(state);
       }).catch((error:any) => {
         reject(error.errorMessage);
       })

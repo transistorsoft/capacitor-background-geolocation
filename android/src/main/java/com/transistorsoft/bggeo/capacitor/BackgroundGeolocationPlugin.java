@@ -304,9 +304,16 @@ public class BackgroundGeolocationPlugin extends Plugin {
     @PluginMethod()
     public void changePace(final PluginCall call) {
         boolean isMoving = call.getBoolean("isMoving", false);
+        // (WO-033) The State the types declare, resolved once the adapter reports success — the
+        // same shape start() uses at :219-228.  This resolved an empty payload until now.
+        final TSConfig config = TSConfig.getInstance(getContext());
         getAdapter().changePace(isMoving, new TSCallback() {
             @Override public void onSuccess() {
-                call.resolve();
+                try {
+                    call.resolve(JSObject.fromJSONObject(config.toJson(false)));
+                } catch (JSONException e) {
+                    call.reject(e.getMessage());
+                }
             }
             @Override public void onFailure(String error) { call.reject(error); }
         });

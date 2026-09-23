@@ -340,7 +340,13 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
         let isMoving = call.getBool("isMoving") ?? false
         let locationManager = BackgroundGeolocation.sharedInstance()
         locationManager.changePace(isMoving)
-        call.resolve()
+        // (WO-033) The State the types declare, read after the void core call — the same shape
+        // start() uses at :288-292.  This resolved nothing at all until now.
+        if let state = locationManager.getState() as? [String: Any] {
+            call.resolve(state)
+        } else {
+            call.reject("Failed to get location manager state", nil, nil, [:])
+        }
     }
 
     @objc func startBackgroundTask(_ call: CAPPluginCall) {
