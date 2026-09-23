@@ -39,6 +39,10 @@
 ### Native SDK versions
 
 * [Android] Pin `tslocationmanager 4.6.+`
+* [Fixed] `destroyLocations()`, `destroyLocation()`, `addGeofence()`, `addGeofences()`,
+  `removeGeofence()` and `removeGeofences()` resolve `true`, as their TypeScript declarations
+  say and as React Native and Flutter always have; they resolved `undefined`. Nothing needs
+  changing in your code. (WO-028)
 
 ## 9.5.0 &mdash; 2026-09-07
 

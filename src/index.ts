@@ -630,7 +630,7 @@ export default class BackgroundGeolocation {
   static destroyLocations() {
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.destroyLocations().then(() => {
-        resolve();
+        resolve(true);   // (WO-028) every mutator resolves true, like React Native and Flutter
       }).catch((error:PluginResultError) => {
         reject(error.message);
       });
@@ -640,7 +640,7 @@ export default class BackgroundGeolocation {
   static destroyLocation(uuid:string) {
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.destroyLocation({uuid:uuid}).then(() => {
-        resolve();
+        resolve(true);   // (WO-028)
       }).catch((error:PluginResultError) => {
         reject(error.message);
       });
@@ -672,7 +672,7 @@ export default class BackgroundGeolocation {
   static addGeofence(params:Geofence) {
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.addGeofence({options:params}).then(() => {
-        resolve();
+        resolve(true);   // (WO-028)
       }).catch((error:PluginResultError) => {
         reject(error.message);
       });
@@ -682,7 +682,7 @@ export default class BackgroundGeolocation {
   static addGeofences(params:Geofence[]) {
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.addGeofences({options:params}).then(() => {
-        resolve();
+        resolve(true);   // (WO-028)
       }).catch((error:PluginResultError) => {
         reject(error.message);
       });
@@ -734,7 +734,7 @@ export default class BackgroundGeolocation {
         return;
       }
       NativeModule.removeGeofence({identifier:identifier}).then(() => {
-        resolve();
+        resolve(true);   // (WO-028)
       }).catch((error:PluginResultError) => {
         reject(error.message);
       });
@@ -745,7 +745,7 @@ export default class BackgroundGeolocation {
     identifiers = identifiers || [];
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.removeGeofences({identifiers:identifiers}).then(() => {
-        resolve();
+        resolve(true);   // (WO-028)
       }).catch((error:PluginResultError) => {
         reject(error.message);
       });
