@@ -226,8 +226,9 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
                 config.update(with: params)
             } else {
                 if reset {
-                    config.resetConfig(true)
-                    config.update(with: params)
+                    // (WO-039) ONE commit: resetConfig(true) then update(with:) diffed against the defaults —
+                    // unchanged keys re-fired every launch, omitted keys reverted with no event.
+                    config.reset(with: params)
                 } else if let auth = params["authorization"] as? [String: Any] {
                     config.batchUpdate { cfg in
                         cfg.authorization.update(with: auth)
@@ -248,10 +249,11 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
         let config = TSConfig.sharedInstance()
 
         if !params.isEmpty {
-            config.resetConfig(true)
-            config.update(with: params)
+            config.reset(with: params)   // (WO-039) one commit, as in ready()
         } else {
-            config.resetConfig(false)
+            // (WO-039) resetConfig(false) emitted nothing and persisted nothing: the module defaults are
+            // written straight to the ivars, and its non-silent branch is empty.
+            config.reset()
         }
 
         if let configDict = config.toDictionary() as? [String: Any] {
