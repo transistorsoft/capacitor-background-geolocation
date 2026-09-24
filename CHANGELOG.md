@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+* [Fixed][iOS] `startSchedule()` and `stopSchedule()` now call the SDK on the main thread, as `start()`
+  and `ready()` already do. They ran on Capacitor's plugin queue, so starting inside an open schedule
+  window started tracking off the main thread. From the TSLocationManager release that carries WO-043,
+  the scheduler runs only on the main thread; called from the plugin queue, both methods would resolve a
+  `State` read before the scheduler had started or stopped. (WO-043)
 * [Fixed][iOS] `ready()` and `reset(config)` now apply your configuration as one change. The
   configuration was reset silently and yours re-applied against the defaults. That had two effects.
   Settings you had not changed were reported as changed on every launch, and each launch parsed your

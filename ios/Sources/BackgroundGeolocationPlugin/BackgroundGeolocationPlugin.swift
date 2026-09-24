@@ -306,24 +306,31 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func startSchedule(_ call: CAPPluginCall) {
-        let config = TSConfig.sharedInstance()
-        let locationManager = BackgroundGeolocation.sharedInstance()
-        locationManager.startSchedule()
-        if let configDict = config.toDictionary() as? [String: Any] {
-            call.resolve(configDict)
-        } else {
-            call.reject("Failed to convert config to dictionary", nil, nil, [:])
+        // (WO-043) The SDK runs its scheduler on the main thread: called from the plugin queue, startSchedule() would
+        // be queued there and the State below read before it ran.  Same hop as start() and ready().
+        DispatchQueue.main.async {
+            let config = TSConfig.sharedInstance()
+            let locationManager = BackgroundGeolocation.sharedInstance()
+            locationManager.startSchedule()
+            if let configDict = config.toDictionary() as? [String: Any] {
+                call.resolve(configDict)
+            } else {
+                call.reject("Failed to convert config to dictionary", nil, nil, [:])
+            }
         }
     }
 
     @objc func stopSchedule(_ call: CAPPluginCall) {
-        let config = TSConfig.sharedInstance()
-        let locationManager = BackgroundGeolocation.sharedInstance()
-        locationManager.stopSchedule()
-        if let configDict = config.toDictionary() as? [String: Any] {
-            call.resolve(configDict)
-        } else {
-            call.reject("Failed to convert config to dictionary", nil, nil, [:])
+        // (WO-043) As startSchedule().
+        DispatchQueue.main.async {
+            let config = TSConfig.sharedInstance()
+            let locationManager = BackgroundGeolocation.sharedInstance()
+            locationManager.stopSchedule()
+            if let configDict = config.toDictionary() as? [String: Any] {
+                call.resolve(configDict)
+            } else {
+                call.reject("Failed to convert config to dictionary", nil, nil, [:])
+            }
         }
     }
 
