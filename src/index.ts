@@ -401,7 +401,7 @@ export default class BackgroundGeolocation {
   static get EVENT_CONNECTIVITYCHANGE()    { return Event.ConnectivityChange; }
   static get EVENT_SCHEDULE()              { return Event.Schedule; }
   static get EVENT_POWERSAVECHANGE()       { return Event.PowerSaveChange; }
-  static get EVENT_NOTIFICATIONACTION()    { return "notificationaction"} // <-- TODO : Add to background-geolocation-types
+  static get EVENT_NOTIFICATIONACTION()    { return Event.NotificationAction; }
   static get EVENT_AUTHORIZATION()         { return Event.Authorization; }
 
 	static get LOG_LEVEL_OFF()                        { return LOG_LEVEL_OFF; }
@@ -903,7 +903,7 @@ export default class BackgroundGeolocation {
   }
 
   static onNotificationAction(cb:(buttonId:string) => void) {
-    return BackgroundGeolocation.addListener("notificationaction", cb);
+    return BackgroundGeolocation.addListener(Event.NotificationAction, cb);
   }
 
   static onAuthorization(cb:(event:AuthorizationEvent) => void) {
