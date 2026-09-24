@@ -26,6 +26,7 @@ import {
   ProviderChangeEvent,
   ConnectivityChangeEvent,
   AuthorizationEvent,
+  HeadlessEvent,
   LogLevel,
   DesiredAccuracy,
   PersistMode,
@@ -825,6 +826,16 @@ export default class BackgroundGeolocation {
 
   static getSensors() {
     return NativeModule.getSensors();
+  }
+
+  /// No-op:  Capacitor has no Javascript runtime in the headless state, so the callback is never run.
+  /// Android delivers headless events to a native class instead, found by name (see the plugin's
+  /// getHeadlessJobService); iOS has no headless state -- it relaunches the app.
+  static registerHeadlessTask(_callback:(event:HeadlessEvent) => Promise<void>):void {
+    console.warn('[BackgroundGeolocation registerHeadlessTask] -- Capacitor has no Javascript mechanism for registering Headless-tasks:  your callback will never be called.\n' +
+      '[Android] Implement a native Java or Kotlin class <your applicationId>.BackgroundGeolocationHeadlessTask with a public no-argument constructor and a public method annotated @org.greenrobot.eventbus.Subscribe that receives com.transistorsoft.locationmanager.event.HeadlessEvent (eg: public void onHeadlessTask(HeadlessEvent event)).  Events are delivered only with app.enableHeadless: true and app.stopOnTerminate: false.\n' +
+      '[iOS] There is no headless mode:  iOS relaunches your app in the background, where your Javascript event-listeners run as usual.\n' +
+      'See Wiki https://github.com/transistorsoft/capacitor-background-geolocation/wiki/Android-Headless-Mode');
   }
 
   /// TransistorAuthorizationToken

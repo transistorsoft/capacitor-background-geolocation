@@ -6,6 +6,13 @@
   (`Promise<State>`). It previously resolved nothing at all on both platforms — the promise settled
   with `undefined` — so no existing code can be reading a field off it. If you want the flag,
   `state.isMoving` is it. (WO-033)
+* [Fixed] `registerHeadlessTask()` exists, as a no-op that logs a warning (as on Cordova). The
+  TypeScript types declare it for every SDK, but Capacitor did not implement it, so calling it threw
+  `registerHeadlessTask is not a function`. Capacitor has no JavaScript runtime while the app is
+  terminated, so the callback is never run. On Android, receive headless events in a native
+  `BackgroundGeolocationHeadlessTask` class in your app's package instead — see
+  [Android Headless Mode](https://github.com/transistorsoft/capacitor-background-geolocation/wiki/Android-Headless-Mode).
+  iOS has no headless state: it relaunches your app in the background.
 
 ### Android
 
