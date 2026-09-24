@@ -13,6 +13,9 @@
 * [Fixed][iOS] `reset()` with no configuration now notifies the SDK of the defaults it restores, and
   saves them at once. They were applied silently, so the SDK went on acting on your previous settings,
   and they were saved only when the app next went to the background. (WO-039)
+* [Types] Requires `@transistorsoft/background-geolocation-types` 5.3.4, which adds
+  `Event.NotificationAction`. `EVENT_NOTIFICATIONACTION` and `onNotificationAction()` now take the
+  event name from it instead of a hardcoded string. The name is unchanged: `'notificationaction'`.
 
 ## 9.6.0 &mdash; 2026-09-23
 

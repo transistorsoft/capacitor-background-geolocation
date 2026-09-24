@@ -57,7 +57,7 @@
     "docs:publish": "./scripts/publish-docs.sh"
   },
   "dependencies": {
-    "@transistorsoft/background-geolocation-types": "^5.3.3",
+    "@transistorsoft/background-geolocation-types": "^5.3.4",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
