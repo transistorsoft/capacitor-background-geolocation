@@ -1,11 +1,32 @@
 # CHANGELOG
 
+## Unreleased
+
+* [Fixed][iOS] `ready()` and `reset(config)` now apply your configuration as one change. The
+  configuration was reset silently and yours re-applied against the defaults. That had two effects.
+  Settings you had not changed were reported as changed on every launch, and each launch parsed your
+  `schedule` a second time on another thread. A setting your new configuration left out went back to
+  its default without the SDK being told: remove `schedule` from your config and the scheduler stayed
+  flagged as enabled, then resumed by itself when a later version added a schedule back. The SDK now
+  hears only real changes, including a return to the default. Requires the TSLocationManager release
+  that carries WO-039. (WO-039)
+* [Fixed][iOS] `reset()` with no configuration now notifies the SDK of the defaults it restores, and
+  saves them at once. They were applied silently, so the SDK went on acting on your previous settings,
+  and they were saved only when the app next went to the background. (WO-039)
+
 ## 9.6.0 &mdash; 2026-09-23
 
 * [Changed] `changePace()` now resolves the `State` its TypeScript declaration has always promised
   (`Promise<State>`). It previously resolved nothing at all on both platforms — the promise settled
   with `undefined` — so no existing code can be reading a field off it. If you want the flag,
   `state.isMoving` is it. (WO-033)
+* [Fixed] `registerHeadlessTask()` exists, as a no-op that logs a warning (as on Cordova). The
+  TypeScript types declare it for every SDK, but Capacitor did not implement it, so calling it threw
+  `registerHeadlessTask is not a function`. Capacitor has no JavaScript runtime while the app is
+  terminated, so the callback is never run. On Android, receive headless events in a native
+  `BackgroundGeolocationHeadlessTask` class in your app's package instead — see
+  [Android Headless Mode](https://github.com/transistorsoft/capacitor-background-geolocation/wiki/Android-Headless-Mode).
+  iOS has no headless state: it relaunches your app in the background.
 
 ### Android
 
