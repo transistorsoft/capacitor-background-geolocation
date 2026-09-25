@@ -386,6 +386,12 @@ export default class BackgroundGeolocation {
   static get KalmanProfile() { return KalmanProfile; }
   static get HttpMethod() { return HttpMethod; }
   static get TriggerActivity() { return TriggerActivity; }
+  // (WO-052) The types declare these on the default export too, and CJS reaches enums only through statics
+  // (rollup.config.mjs footer).  Inside this class, `Event` still means the import:  a static does not shadow it.
+  static get ActivityType() { return ActivityType; }
+  static get Event() { return Event; }
+  static get LocationRequest() { return LocationRequest; }
+  static get NotificationPriority() { return NotificationPriority; }
 
   /// Events
   static get EVENT_BOOT()                  { return Event.Boot; }

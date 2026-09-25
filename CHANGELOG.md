@@ -2,6 +2,12 @@
 
 ## 9.6.0 &mdash; 2026-09-25
 
+* [Fixed] `BackgroundGeolocation.ActivityType`, `Event`, `LocationRequest` and `NotificationPriority`
+  now exist at runtime, like the other eleven enum objects. They type-checked but were `undefined`, so
+  `BackgroundGeolocation.NotificationPriority.High` threw a `TypeError`, and with `require()` a
+  destructured `const { Event } = require('@transistorsoft/capacitor-background-geolocation')` was
+  `undefined` too. The `EVENT_*`, `NOTIFICATION_PRIORITY_*`, `ACTIVITY_TYPE_*` and
+  `LOCATION_AUTHORIZATION_*` constants are unchanged. (WO-052)
 * [Fixed] `transistorAuthorizationToken` has done nothing since 9.0.0. `ready()`, `reset(config)` and
   `setConfig()` passed it to the native SDK untouched, and the native SDK does not know the key, so
   `http.url` and `authorization` were never set and no location was uploaded to the demo server. The
