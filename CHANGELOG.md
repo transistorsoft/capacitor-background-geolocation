@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 9.6.0 &mdash; 2026-09-25
 
 * [Fixed] `transistorAuthorizationToken` has done nothing since 9.0.0. `ready()`, `reset(config)` and
   `setConfig()` passed it to the native SDK untouched, and the native SDK does not know the key, so
@@ -22,18 +22,6 @@
 * [Fixed][iOS] `reset()` with no configuration now notifies the SDK of the defaults it restores, and
   saves them at once. They were applied silently, so the SDK went on acting on your previous settings,
   and they were saved only when the app next went to the background. (WO-039)
-* [Types] Requires `@transistorsoft/background-geolocation-types` 5.3.4, which adds
-  `Event.NotificationAction`. `EVENT_NOTIFICATIONACTION` and `onNotificationAction()` now take the
-  event name from it instead of a hardcoded string. The name is unchanged: `'notificationaction'`.
-* [Types] Requires `@transistorsoft/background-geolocation-types` 5.3.5. `GeoConfig` no longer
-  declares `stopOnStationary` or `disableStopDetection`: no SDK ever read them under `geolocation`, so
-  set them under `activity`. `State` no longer declares `reset` or `transistorAuthorizationToken`, which
-  are inputs no SDK reports back, and `Location.geofence` is a `GeofenceTrigger`
-  (`{identifier, action, timestamp, extras?}`), the summary every SDK sends. TypeScript code that set
-  either key under `geolocation`, or read `location.geofence.location`, no longer compiles.
-
-## 9.6.0 &mdash; 2026-09-23
-
 * [Changed] `changePace()` now resolves the `State` its TypeScript declaration has always promised
   (`Promise<State>`). It previously resolved nothing at all on both platforms — the promise settled
   with `undefined` — so no existing code can be reading a field off it. If you want the flag,
@@ -79,11 +67,18 @@
   `removeGeofence()` and `removeGeofences()` resolve `true`, as their TypeScript declarations
   say and as React Native and Flutter always have; they resolved `undefined`. Nothing needs
   changing in your code. (WO-028)
-* [Types] Requires `@transistorsoft/background-geolocation-types` 5.3.3, whose declarations
-  catch up with what every SDK already resolves: `setOdometer()`/`resetOdometer()` are
-  `Promise<Location>`, `startSchedule()`/`stopSchedule()` `Promise<State>`,
-  `destroyLocations()`/`destroyLocation()` `Promise<boolean>`, and `reset()`'s `Config` is
-  optional. (WO-028, WO-035, WO-036)
+* [Types] Requires `@transistorsoft/background-geolocation-types` 5.3.5. Its declarations catch up
+  with what every SDK already resolves: `setOdometer()`/`resetOdometer()` are `Promise<Location>`,
+  `startSchedule()`/`stopSchedule()` `Promise<State>`, `destroyLocations()`/`destroyLocation()`
+  `Promise<boolean>`, and `reset()`'s `Config` is optional. (WO-028, WO-035, WO-036) It adds
+  `Event.NotificationAction`. `EVENT_NOTIFICATIONACTION` and `onNotificationAction()` now take the
+  event name from it instead of a hardcoded string. The name is unchanged: `'notificationaction'`.
+  `GeoConfig` no longer declares `stopOnStationary` or `disableStopDetection`: no SDK ever read them
+  under `geolocation`, so set them under `activity`. `State` no longer declares `reset` or
+  `transistorAuthorizationToken`, which are inputs no SDK reports back, and `Location.geofence` is a
+  `GeofenceTrigger` (`{identifier, action, timestamp, extras?}`), the summary every SDK sends.
+  TypeScript code that set either key under `geolocation`, or read `location.geofence.location`, no
+  longer compiles.
 
 ### Native SDK versions
 
