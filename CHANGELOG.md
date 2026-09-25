@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+* [Fixed] `transistorAuthorizationToken` has done nothing since 9.0.0. `ready()`, `reset(config)` and
+  `setConfig()` passed it to the native SDK untouched, and the native SDK does not know the key, so
+  `http.url` and `authorization` were never set and no location was uploaded to the demo server. The
+  token now sets `http.url` and `authorization` again, as it did in 8.x and as it does on React Native.
+  (WO-048)
 * [Fixed][iOS] `startSchedule()` and `stopSchedule()` now call the SDK on the main thread, as `start()`
   and `ready()` already do. They ran on Capacitor's plugin queue, so starting inside an open schedule
   window started tracking off the main thread. From the TSLocationManager release that carries WO-043,

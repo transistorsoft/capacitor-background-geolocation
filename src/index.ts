@@ -225,8 +225,10 @@ class TransistorAuthorizationToken {
     });
   }
 
-  static applyIf(config:Config) {
-    if (!config.transistorAuthorizationToken) return config;
+  // (WO-048) Neither native core knows transistorAuthorizationToken: forwarded raw, it is dropped,
+  // so the bridge must expand it before the options cross. ready(), reset() and setConfig() call this.
+  static applyIf(config?:Config) {
+    if (!config || !config.transistorAuthorizationToken) return config;
 
     const token = config.transistorAuthorizationToken;
     delete config.transistorAuthorizationToken;
@@ -452,11 +454,11 @@ export default class BackgroundGeolocation {
   static get deviceSettings() { return DeviceSettings; }
 
   static ready(config:Config) {
-    return NativeModule.ready({options:config});
+    return NativeModule.ready({options:TransistorAuthorizationToken.applyIf(config)});  // (WO-048)
   }
 
   static reset(config?:Config) {
-    return NativeModule.reset({options:config});
+    return NativeModule.reset({options:TransistorAuthorizationToken.applyIf(config)});  // (WO-048)
   }
 
   static start() {
@@ -480,7 +482,7 @@ export default class BackgroundGeolocation {
   }
 
   static setConfig(config:Config) {
-    return NativeModule.setConfig({options:config});
+    return NativeModule.setConfig({options:TransistorAuthorizationToken.applyIf(config)});  // (WO-048)
   }
 
   static getState() {
