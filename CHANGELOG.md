@@ -9,8 +9,8 @@
   (WO-048)
 * [Fixed][iOS] `startSchedule()` and `stopSchedule()` now call the SDK on the main thread, as `start()`
   and `ready()` already do. They ran on Capacitor's plugin queue, so starting inside an open schedule
-  window started tracking off the main thread. From the TSLocationManager release that carries WO-043,
-  the scheduler runs only on the main thread; called from the plugin queue, both methods would resolve a
+  window started tracking off the main thread. From TSLocationManager 4.7.1, the
+  scheduler runs only on the main thread; called from the plugin queue, both methods would resolve a
   `State` read before the scheduler had started or stopped. (WO-043)
 * [Fixed][iOS] `ready()` and `reset(config)` now apply your configuration as one change. The
   configuration was reset silently and yours re-applied against the defaults. That had two effects.
@@ -18,8 +18,7 @@
   `schedule` a second time on another thread. A setting your new configuration left out went back to
   its default without the SDK being told: remove `schedule` from your config and the scheduler stayed
   flagged as enabled, then resumed by itself when a later version added a schedule back. The SDK now
-  hears only real changes, including a return to the default. Requires the TSLocationManager release
-  that carries WO-039. (WO-039)
+  hears only real changes, including a return to the default. Requires TSLocationManager 4.7.1. (WO-039)
 * [Fixed][iOS] `reset()` with no configuration now notifies the SDK of the defaults it restores, and
   saves them at once. They were applied silently, so the SDK went on acting on your previous settings,
   and they were saved only when the app next went to the background. (WO-039)
@@ -88,7 +87,7 @@
 
 ### Native SDK versions
 
-* [iOS] Pin `TSLocationManager ~> 4.7.0`
+* [iOS] Pin `TSLocationManager ~> 4.7.1` — `-[TSConfig resetWithDictionary:]` (WO-039) and the scheduler fixes (WO-038, WO-041, WO-043, WO-044)
 * [Android] Pin `tslocationmanager 4.6.+`
 
 ## 9.5.0 &mdash; 2026-09-07
