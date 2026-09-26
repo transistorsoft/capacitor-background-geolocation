@@ -15,8 +15,9 @@ npm run release -- tag 9.7.0       # on master: tag the merge (lightweight, like
 git push origin master 9.7.0       # the tag starts the workflow
 ```
 
-A release branch prepared by hand (the version set, the CHANGELOG's `## Unreleased` already
-dated) skips `prepare`: merge it, then `npm run release -- tag <version>`.
+A release branch prepared by hand before these scripts: merge it into master (its CHANGELOG
+heading back to `## Unreleased`) and delete it; `prepare` keeps the version it set, dates the
+CHANGELOG and refuses a version already on npm.
 
 The workflow checks (the tag equals `package.json`'s version; `scripts/preflight.sh --release`:
 a clean build, the packed tarball's contents and what changed since the version on npm, a
