@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 9.6.0 &mdash; 2026-09-25
+## Unreleased
 
 * [Fixed] `BackgroundGeolocation.ActivityType`, `Event`, `LocationRequest` and `NotificationPriority`
   now exist at runtime, like the other eleven enum objects. They type-checked but were `undefined`, so
