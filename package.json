@@ -50,6 +50,7 @@
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
     "swiftlint": "node-swiftlint",
     "build": "npm run clean && tsc && rollup -c rollup.config.mjs",
+    "test": "npm run build && node test/enums.test.js",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "prepublishOnly": "npm run build",
@@ -59,7 +60,7 @@
     "release": "scripts/release.sh"
   },
   "dependencies": {
-    "@transistorsoft/background-geolocation-types": "^5.3.4",
+    "@transistorsoft/background-geolocation-types": "^5.3.5",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
