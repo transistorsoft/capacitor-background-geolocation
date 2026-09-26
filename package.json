@@ -54,7 +54,9 @@
     "watch": "tsc --watch",
     "prepublishOnly": "npm run build",
     "docs": "node ./scripts/generate-docs.mjs",
-    "docs:publish": "./scripts/publish-docs.sh"
+    "docs:publish": "./scripts/publish-docs.sh",
+    "preflight": "scripts/preflight.sh",
+    "release": "scripts/release.sh"
   },
   "dependencies": {
     "@transistorsoft/background-geolocation-types": "^5.3.4",
