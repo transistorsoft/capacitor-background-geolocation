@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+* [Docs] `getCurrentPosition()`'s `timeout` defaults to `geolocation.locationTimeout`, `60` seconds
+  unless you change it, not `30` as documented. The key is now declared, so
+  `geolocation: {locationTimeout: 30}` compiles (it failed with *TS2353*), and the migration guide's
+  mapping table lists the flat `locationTimeout`, which moves to `geolocation`. (WO-072)
+* [Docs] `Location.age` is in seconds, with millisecond precision (e.g. `1.234`), not milliseconds
+  as documented. Every SDK has reported seconds since this major version; before it, `age` was an
+  integer number of milliseconds. The migration guide now says so under Breaking Changes. (WO-065)
 * [Fixed] `findOrCreateTransistorAuthorizationToken(orgname, username)` and
   `destroyTransistorAuthorizationToken()` without a url now use `https://tracker.transistorsoft.com`,
   as on the other Background Geolocation SDKs. The default was `http://`, which Android 9+ and iOS
