@@ -171,7 +171,8 @@ class Logger {
 /**
  * TransistorAuthorizationToken
  */
-const DEFAULT_URL:string  = 'http://tracker.transistorsoft.com';
+// (WO-063) https, as on every other SDK: Android 9+ and iOS ATS refuse http unless the app opts in.
+const DEFAULT_URL:string  = 'https://tracker.transistorsoft.com';
 
 const DUMMY_TOKEN:string  = 'DUMMY_TOKEN';
 

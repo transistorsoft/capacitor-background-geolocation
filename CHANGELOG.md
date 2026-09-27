@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+* [Fixed] `findOrCreateTransistorAuthorizationToken(orgname, username)` and
+  `destroyTransistorAuthorizationToken()` without a url now use `https://tracker.transistorsoft.com`,
+  as on the other Background Geolocation SDKs. The default was `http://`, which Android 9+ and iOS
+  refuse unless the app allows cleartext traffic or arbitrary loads, so registration failed, the call
+  resolved a `DUMMY_TOKEN`, and locations were never uploaded to the demo server. A token already
+  registered over http is kept, because tokens are cached by host. A url you pass is used as given. (WO-063)
 * [Fixed] `BackgroundGeolocation.ActivityType`, `Event`, `LocationRequest` and `NotificationPriority`
   now exist at runtime, like the other eleven enum objects. They type-checked but were `undefined`, so
   `BackgroundGeolocation.NotificationPriority.High` threw a `TypeError`, and with `require()` a
