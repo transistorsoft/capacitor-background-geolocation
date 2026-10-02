@@ -523,23 +523,30 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     @PluginMethod()
     public void addGeofences(final PluginCall call) {
-        JSArray data = call.getArray("options");
+        final JSArray data = call.getArray("options");
         if (data == null) { call.reject("addGeofences: an array of geofence objects is required"); return; }
-        List<TSGeofence> geofences = new ArrayList<>();
-        for (int i = 0; i < data.length(); i++) {
-            try {
-                geofences.add(buildGeofence(data.getJSONObject(i)));
-            } catch (JSONException | TSGeofence.Exception e) {
-                call.reject(e.getMessage());
-                return;
-            }
-        }
-        getAdapter().addGeofences(geofences, new TSCallback() {
-            @Override public void onSuccess() {
-                call.resolve();
-            }
-            @Override public void onFailure(String error) {
-                call.reject(error);
+        // (WO-107) Capacitor runs every plugin method on one shared thread, and building a polygon geofence computes
+        // its minimum enclosing circle: thousands kept that thread busy, and every plugin call queued behind it.
+        // Build on the SDK's pool.
+        BackgroundGeolocation.getThreadPool().execute(new Runnable() {
+            @Override public void run() {
+                List<TSGeofence> geofences = new ArrayList<>();
+                for (int i = 0; i < data.length(); i++) {
+                    try {
+                        geofences.add(buildGeofence(data.getJSONObject(i)));
+                    } catch (JSONException | TSGeofence.Exception e) {
+                        call.reject(e.getMessage());
+                        return;
+                    }
+                }
+                getAdapter().addGeofences(geofences, new TSCallback() {
+                    @Override public void onSuccess() {
+                        call.resolve();
+                    }
+                    @Override public void onFailure(String error) {
+                        call.reject(error);
+                    }
+                });
             }
         });
     }
