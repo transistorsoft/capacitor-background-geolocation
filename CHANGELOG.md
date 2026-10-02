@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## Unreleased
+
+* [Fixed][Android] `addGeofences()` no longer occupies Capacitor's plugin thread while it builds the
+  geofences. The plugin built every geofence, computing each polygon's enclosing circle, on the one thread
+  Capacitor runs every plugin method on, so adding thousands of polygons in one call held every other
+  plugin call until they were built. They are now built on the SDK's background thread. (WO-107)
+
 ## 9.6.0 &mdash; 2026-09-27
 
 * [Types] Requires `@transistorsoft/background-geolocation-types` 5.3.8. `GeoConfig` declares
