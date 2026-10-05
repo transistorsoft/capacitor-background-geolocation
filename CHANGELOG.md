@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 9.6.1 &mdash; 2026-10-05
 
 * [Fixed][Android] `addGeofences()` no longer occupies Capacitor's plugin thread while it builds the
   geofences. The plugin built every geofence, computing each polygon's enclosing circle, on the one thread
