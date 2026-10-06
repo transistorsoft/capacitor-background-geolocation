@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## Unreleased
+
+* [Fixed][Android] The build no longer fails on Android Gradle Plugin 9 with `Could not get unknown property
+  'applicationVariants'`. `android/app.gradle`, which an app applied from its `android/app/build.gradle` as a
+  setup step before 9.0, used an API that Android Gradle Plugin 9 removed. The script is now empty: it was
+  meant to strip the SDK's debug sound files from release builds, which it no longer did. The
+  `apply from: ".../app.gradle"` line can be removed from the app (#410).
+* [Fixed][Android] The plugin's `android/build.gradle` no longer references `proguard-android.txt`, which
+  Android Gradle Plugin 9 rejects (#410).
+
 ## 9.6.1 &mdash; 2026-10-05
 
 * [Fixed][Android] `addGeofences()` no longer occupies Capacitor's plugin thread while it builds the
