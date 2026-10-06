@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 9.6.2 &mdash; 2026-10-06
 
 * [Fixed][Android] The build no longer fails on Android Gradle Plugin 9 with `Could not get unknown property
   'applicationVariants'`. `android/app.gradle`, which an app applied from its `android/app/build.gradle` as a
