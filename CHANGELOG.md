@@ -1,11 +1,23 @@
 # CHANGELOG
 
-## Unreleased
+## 9.6.1 &mdash; 2026-10-05
 
 * [Fixed][Android] `addGeofences()` no longer occupies Capacitor's plugin thread while it builds the
   geofences. The plugin built every geofence, computing each polygon's enclosing circle, on the one thread
   Capacitor runs every plugin method on, so adding thousands of polygons in one call held every other
   plugin call until they were built. They are now built on the SDK's background thread. (WO-107)
+* [iOS] Minimum `TSLocationManager` is now 4.7.2 (pinned `~> 4.7.2`, CocoaPods and Swift Package Manager).
+  Among its fixes: `stop()` now releases the location monitoring that an earlier run of the app left
+  registered with iOS, which kept waking a stopped app; `preventSuspend` no longer stops a few minutes into
+  the background; and `persistence.maxRecordsToPersist`, `maxDaysToPersist` or `persistMode` set to a string
+  that is not a whole number takes the setting's default, where iOS read it as `0`.
+* [Android] Minimum `tslocationmanager` is now 4.6.2. The plugin pins that version in place of `4.6.+`, and
+  raises an older `ext.tslocationmanagerVersion` to it with a build warning. Among its fixes: a location the
+  SDK has already processed is no longer handed to it again after Android kills the app's process; the SDK's
+  foreground services no longer do work on the main thread for every location, which Android could report as
+  the app not responding; `stop()` no longer blocks the main thread for longer the more geofences are
+  stored; and a stationary-geofence EXIT is accepted whenever its location is provably outside the region,
+  however poor that location's accuracy (#407).
 
 ## 9.6.0 &mdash; 2026-09-27
 
