@@ -5,6 +5,9 @@
 * `null` as `null`; the native plugins send both to the core's remove-all entry.  An empty list crosses as `[]`, which
 * removes none.  Through 9.7.0 an omitted argument was sent as `[]`, and `[]` removed every geofence.
 *
+* Anything else that is not a list rejects before the native call.  The bridge sends JSON to Android, where NaN and
+* Infinity arrive as null and a function's or a Symbol's key is dropped: both would be read as "remove all".
+*
 * Loads the CommonJS bundle (dist/plugin.cjs.js) as test/wo_063_default_token_url.test.js does, with @capacitor/core
 * stubbed so that registerPlugin() returns a native module that records each call.  `npm test` builds, then runs this.
 */
@@ -66,6 +69,20 @@ test('(WO-055) removeGeofences([ids]) sends the list unchanged', async function(
     var plugin = loadPlugin();
     await plugin.BG.removeGeofences(['home', 'work']);
     assert.strictEqual(JSON.stringify(plugin.calls[0]), '{"identifiers":["home","work"]}');
+});
+
+// What the bridge's JSON.stringify would make of each on the way to Android is in the header.
+[
+    ['NaN', NaN], ['Infinity', Infinity], ['a function', function() {}], ['a Symbol', Symbol('home')],
+    ['a string', 'home'], ['an empty string', ''], ['a number', 42], ['false', false], ['an object', {identifier: 'home'}]
+].forEach(function(item) {
+    test('(WO-055) removeGeofences(' + item[0] + ') rejects without calling native', async function() {
+        var plugin = loadPlugin();
+        var rejection = null;
+        try { await plugin.BG.removeGeofences(item[1]); } catch (error) { rejection = error; }
+        assert.strictEqual(plugin.calls.length, 0, 'native was handed ' + JSON.stringify(plugin.calls[0]));
+        assert.strictEqual(typeof rejection, 'string', 'rejects with a message');
+    });
 });
 
 (async function() {
