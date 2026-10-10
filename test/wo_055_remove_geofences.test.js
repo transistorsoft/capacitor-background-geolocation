@@ -1,12 +1,11 @@
 /**
 * What removeGeofences() hands to the native module (WO-055).
 *
-* "Remove all" is the absence of a list: an omitted argument crosses as `undefined` (an absent key on the wire) and
-* `null` as `null`; the native plugins send both to the core's remove-all entry.  An empty list crosses as `[]`, which
-* removes none.  Through 9.7.0 an omitted argument was sent as `[]`, and `[]` removed every geofence.
+* "Remove all" is the absence of a list: an omitted argument or `null`.  It crosses as `[]`, as it does in every
+* release, because both cores read an empty list as "remove all".  So an empty list the caller passed never crosses:
+* it names none, and is answered in JavaScript.  Through 9.7.0 it was sent, and removed every geofence.
 *
-* Anything else that is not a list rejects before the native call.  The bridge sends JSON to Android, where NaN and
-* Infinity arrive as null and a function's or a Symbol's key is dropped: both would be read as "remove all".
+* Anything else that is not a list rejects before the native call, and never becomes "all".
 *
 * Loads the CommonJS bundle (dist/plugin.cjs.js) as test/wo_063_default_token_url.test.js does, with @capacitor/core
 * stubbed so that registerPlugin() returns a native module that records each call.  `npm test` builds, then runs this.
@@ -45,24 +44,24 @@ function loadPlugin() {
 var tests = [];
 function test(name, fn) { tests.push({name: name, fn: fn}); }
 
-test('(WO-055) removeGeofences() sends no list: the key is absent on the wire, which removes all', async function() {
+test('(WO-055) removeGeofences() sends []: remove all, as every release sends it', async function() {
     var plugin = loadPlugin();
     assert.strictEqual(await plugin.BG.removeGeofences(), true);
     assert.strictEqual(plugin.calls.length, 1);
-    assert.strictEqual(plugin.calls[0].identifiers, undefined);
-    assert.strictEqual(JSON.stringify(plugin.calls[0]), '{}');
+    assert.strictEqual(JSON.stringify(plugin.calls[0]), '{"identifiers":[]}');
 });
 
-test('(WO-055) removeGeofences(null) sends null, which removes all', async function() {
+test('(WO-055) removeGeofences(null) sends []: remove all', async function() {
     var plugin = loadPlugin();
     await plugin.BG.removeGeofences(null);
-    assert.strictEqual(plugin.calls[0].identifiers, null);
+    assert.strictEqual(plugin.calls.length, 1);
+    assert.strictEqual(JSON.stringify(plugin.calls[0]), '{"identifiers":[]}');
 });
 
-test('(WO-055) removeGeofences([]) sends the empty list, which removes none', async function() {
+test('(WO-055) removeGeofences([]) resolves without calling native: remove none', async function() {
     var plugin = loadPlugin();
     assert.strictEqual(await plugin.BG.removeGeofences([]), true);
-    assert.strictEqual(JSON.stringify(plugin.calls[0]), '{"identifiers":[]}');
+    assert.strictEqual(plugin.calls.length, 0, 'native was handed ' + JSON.stringify(plugin.calls[0]));
 });
 
 test('(WO-055) removeGeofences([ids]) sends the list unchanged', async function() {
@@ -71,7 +70,6 @@ test('(WO-055) removeGeofences([ids]) sends the list unchanged', async function(
     assert.strictEqual(JSON.stringify(plugin.calls[0]), '{"identifiers":["home","work"]}');
 });
 
-// What the bridge's JSON.stringify would make of each on the way to Android is in the header.
 [
     ['NaN', NaN], ['Infinity', Infinity], ['a function', function() {}], ['a Symbol', Symbol('home')],
     ['a string', 'home'], ['an empty string', ''], ['a number', 42], ['false', false], ['an object', {identifier: 'home'}]
