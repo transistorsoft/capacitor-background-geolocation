@@ -313,6 +313,11 @@ const TAG               = "TSLocationManager";
 /// Container for event-subscriptions.
 let EVENT_SUBSCRIPTIONS:any = [];
 
+/// Counts the calls to removeListeners().  Each on* subscription records it:  a count that has moved on means
+/// removeListeners() ran since, including for one still waiting on NativeModule.addListener, which is not in
+/// EVENT_SUBSCRIPTIONS yet.  (WO-097)
+let REMOVE_LISTENERS_GENERATION = 0;
+
 /// Container for watchPosition subscriptions, keyed by watchId.
 let WATCH_POSITION_SUBSCRIPTIONS: Map<number, PluginListenerHandle> = new Map();
 
@@ -923,7 +928,12 @@ export default class BackgroundGeolocation {
   /// Listen to a plugin event
   ///
   static addListener(event:string, success:Function, failure?:Function) {    
+    const generation = REMOVE_LISTENERS_GENERATION;
+
     const handler = (response:any) => {
+      // (WO-097) Nothing is delivered once removeListeners() has run, whenever the native side gets to removing
+      // this listener:  the app's next call can reach it first.
+      if (generation !== REMOVE_LISTENERS_GENERATION) return;
       if (response.hasOwnProperty("value")) {
         response = response.value;
       }
@@ -971,6 +981,9 @@ export default class BackgroundGeolocation {
       if (isRemoved) {
         // Caught edge-case.  Developer added an event-handler then immediately call subscription.remove().
         subscriptionProxy.remove();
+      } else if (generation !== REMOVE_LISTENERS_GENERATION) {
+        // (WO-097) removeListeners() ran while this subscription was pending, so it could not remove it.
+        subscriptionProxy.remove();
       }
     });
 
@@ -1001,8 +1014,13 @@ export default class BackgroundGeolocation {
 
   static removeListeners() {
     return new Promise(async (resolve:Function) => {
+      // (WO-097) Each on* listener is removed through its own handle.  The native removeAllEventListeners clears
+      // every listener the plugin holds, "watchposition" included:  an active watch delivers through that one, and
+      // Android stops a watch it finds without a listener.
+      REMOVE_LISTENERS_GENERATION++;
+      const subscriptions = EVENT_SUBSCRIPTIONS.slice();
       EVENT_SUBSCRIPTIONS = [];
-      await NativeModule.removeAllEventListeners();
+      await Promise.all(subscriptions.map((sub:Subscription) => sub.subscription.remove()));
       resolve();
     });
   }

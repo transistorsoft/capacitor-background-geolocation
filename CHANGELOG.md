@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## Unreleased
+
+* [Fixed] `removeListeners()` no longer silences an active `watchPosition`. It removed every listener the plugin
+  holds, including the one a watch delivers its locations through, so the watch delivered nothing more, and on
+  Android the plugin then stopped the watch at its next location. It now removes only the subscriptions made with
+  the `on*` methods and leaves a watch running, as React Native, Cordova and Flutter do. If your app relied on
+  `removeListeners()` to end a watch, call `remove()` on the subscription `watchPosition()` returned. (WO-097)
+
 ## 9.7.0 &mdash; 2026-10-09
 
 * [Added] The configuration the SDK stores on the device is now encrypted. `http.headers`, `http.params`,
