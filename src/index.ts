@@ -757,7 +757,7 @@ export default class BackgroundGeolocation {
   }
 
   static removeGeofences(identifiers?:Array<string>) {
-    identifiers = identifiers || [];
+    // (WO-055) Sent as given.  An omitted argument reaches native as an absent key, which removes all; [] removes none.
     return new Promise((resolve:Function, reject:Function) => {
       NativeModule.removeGeofences({identifiers:identifiers}).then(() => {
         resolve(true);   // (WO-028)

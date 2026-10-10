@@ -643,22 +643,33 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
     @PluginMethod()
     public void removeGeofences(final PluginCall call) {
-        final JSArray identifiers = call.getArray("identifiers");
+        TSCallback callback = new TSCallback() {
+            @Override public void onSuccess() {
+                call.resolve();
+            }
+            @Override public void onFailure(String error) {
+                call.reject(error);
+            }
+        };
+        // (WO-055) An absent or null `identifiers` is "remove all" and goes to the core's no-list overload.  A list
+        // removes the ones it names, and an empty list none.  Read with opt(), never getArray(): getArray() answers
+        // its default for a value that is not a list too, and a malformed argument must not remove all.
+        Object identifiers = call.getData().opt("identifiers");
+        if (identifiers == null || identifiers == JSONObject.NULL) {
+            getAdapter().removeGeofences(callback);
+            return;
+        }
+        if (!(identifiers instanceof JSONArray)) {
+            call.reject("removeGeofences: identifiers must be an Array");
+            return;
+        }
         List<String> rs = new ArrayList<String>();
         try {
-            if (identifiers != null) {
-                for (int i = 0; i < identifiers.length(); i++) {
-                    rs.add(identifiers.getString(i));
-                }
+            JSONArray list = (JSONArray) identifiers;
+            for (int i = 0; i < list.length(); i++) {
+                rs.add(list.getString(i));
             }
-            getAdapter().removeGeofences(rs, new TSCallback() {
-                @Override public void onSuccess() {
-                    call.resolve();
-                }
-                @Override public void onFailure(String error) {
-                    call.reject(error);
-                }
-            });
+            getAdapter().removeGeofences(rs, callback);
         } catch (JSONException e) {
             call.reject(e.getMessage());
             e.printStackTrace();

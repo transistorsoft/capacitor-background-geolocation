@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+* [Changed] `removeGeofences([])` now removes no geofence. An empty list used to remove every geofence, as
+  `removeGeofences()` with no argument does, so a call whose list turned out empty, for example one filtered
+  down to nothing, deleted them all. `removeGeofences()` with no argument, with `undefined` or with `null`,
+  still removes every geofence. If your code passes `[]` to remove them all, call `removeGeofences()`
+  instead. The same holds for a command your server returns: `["removeGeofences"]` removes every geofence and
+  `["removeGeofences", []]` removes none. An argument that is not a list now rejects and removes nothing; it
+  used to remove every geofence. This release requires `tslocationmanager` 4.8.0 on Android and
+  `TSLocationManager` 4.9.0 on iOS, where an empty list means none; an older native SDK reads it as all. The
+  native code changed, so rebuild your app after `npx cap sync`; do not ship this JavaScript as a live update
+  onto an older binary. (WO-055)
+* [Changed][Android] `removeGeofence(identifier)` and `removeGeofences(identifiers)` now reject with
+  `deleted X of Y geofences` when an identifier is not found, after removing the ones that were found, as on
+  iOS. Android used to resolve `true`. Code that removes an identifier that may not exist must catch the
+  rejection. (WO-054)
 * [Fixed] `removeListeners()` no longer silences an active `watchPosition`. It removed every listener the plugin
   holds, including the one a watch delivers its locations through, so the watch delivered nothing more, and on
   Android the plugin then stopped the watch at its next location. It now removes only the subscriptions made with
