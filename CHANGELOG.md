@@ -18,6 +18,10 @@
   Android the plugin then stopped the watch at its next location. It now removes only the subscriptions made with
   the `on*` methods and leaves a watch running, as React Native, Cordova and Flutter do. If your app relied on
   `removeListeners()` to end a watch, call `remove()` on the subscription `watchPosition()` returned. (WO-097)
+* [Changed][Android] The plugin takes `tslocationmanager` `4.7.+` by default again, where 9.6.1 through 9.7.0
+  pinned an exact version. An app that sets no `ext.tslocationmanagerVersion` of its own now picks up each native
+  patch release at its next build, as it already does on iOS (`TSLocationManager` `~> 4.8.0`). An app that sets
+  its own version keeps it.
 
 ## 9.7.0 &mdash; 2026-10-09
 
