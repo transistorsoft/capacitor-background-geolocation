@@ -757,12 +757,18 @@ export default class BackgroundGeolocation {
   }
 
   static removeGeofences(identifiers?:Array<string>) {
-    // (WO-055) Sent as given.  An omitted argument reaches native as an absent key, which removes all; [] removes none.
     return new Promise((resolve:Function, reject:Function) => {
-      // (WO-055) Anything else that is not a list rejects here: the bridge sends JSON to Android, where NaN arrives
-      // as null and a function's key is dropped, and both would remove all.
-      if (identifiers !== undefined && identifiers !== null && !Array.isArray(identifiers)) {
+      if (identifiers === undefined || identifiers === null) {
+        // (WO-055) "All" crosses to native as [], as it does in every release: both cores read an empty list as
+        // "remove all".
+        identifiers = [];
+      } else if (!Array.isArray(identifiers)) {
+        // (WO-055) Anything else that is not a list rejects here, and never becomes "all".
         reject('removeGeofences: identifiers must be an Array');
+        return;
+      } else if (!identifiers.length) {
+        // (WO-055) An empty list names none.  It never crosses to native, where it would remove all.
+        resolve(true);
         return;
       }
       NativeModule.removeGeofences({identifiers:identifiers}).then(() => {

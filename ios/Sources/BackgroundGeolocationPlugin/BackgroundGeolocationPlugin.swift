@@ -613,16 +613,7 @@ public class BackgroundGeolocationModule: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func removeGeofences(_ call: CAPPluginCall) {
-        // (WO-055) An absent or null `identifiers` is "remove all": the core is handed nil.  A list removes the
-        // ones it names, and an empty list none.  Anything else rejects: a failed cast must never become nil.
-        var identifiers: [String]? = nil
-        if let value = call.options["identifiers"], !(value is NSNull) {
-            guard let list = value as? [String] else {
-                call.reject("removeGeofences: identifiers must be an Array of Strings")
-                return
-            }
-            identifiers = list
-        }
+        let identifiers = call.options["identifiers"] as? [String] ?? []
         let locationManager = BackgroundGeolocation.sharedInstance()
         locationManager.removeGeofences(identifiers, success: {
             call.resolve()
