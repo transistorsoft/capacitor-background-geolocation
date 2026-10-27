@@ -15,9 +15,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@capacitor/android": "^8.2.0",
+    "@capacitor/android": "^8.5.3",
     "@capacitor/core": "latest",
-    "@capacitor/ios": "^8.2.0",
+    "@capacitor/ios": "^8.5.3",
     "@capacitor/preferences": "^8.0.1",
     "@capacitor/splash-screen": "latest",
     "@transistorsoft/capacitor-background-fetch": "^8.0.0",
