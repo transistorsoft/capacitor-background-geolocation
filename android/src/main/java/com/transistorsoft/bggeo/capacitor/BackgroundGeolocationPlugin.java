@@ -101,18 +101,27 @@ public class BackgroundGeolocationPlugin extends Plugin {
 
         TSLog.logger.debug("");
 
-        TSConfig config = TSConfig.getInstance(getContext());
-        config.setUseCLLocationAccuracy(true);
-        Editor ed = config.edit();
-        ed.app().setHeadlessJobService(getHeadlessJobService());
-        ed.commit();
+        // (WO-190) load() runs on the main thread, inside BridgeActivity.onCreate, and building the SDK here waited for
+        // TSConfig's constructor, even one already running on another thread (BootReceiver's), for as long as it ran:
+        // an ANR where that is seconds.  The SDK is built on Capacitor's plugin thread instead, queued ahead of every
+        // plugin call, so this setup still comes before JavaScript's first one.  Only the Activity goes back to main.
+        final Context context = getContext();
+        getBridge().execute(() -> {
+            TSConfig config = TSConfig.getInstance(context);
+            config.setUseCLLocationAccuracy(true);
+            Editor ed = config.edit();
+            ed.app().setHeadlessJobService(getHeadlessJobService());
+            ed.commit();
 
-        BackgroundGeolocation bgGeo = BackgroundGeolocation.getInstance(getContext());
-        Activity activity = getActivity();
-        if (activity != null) {
-            bgGeo.setActivity(activity);
-        }
-        bgGeo.removeListeners();
+            final BackgroundGeolocation bgGeo = BackgroundGeolocation.getInstance(context);
+            bgGeo.removeListeners();
+            getBridge().executeOnMainThread(() -> {
+                Activity activity = getActivity();
+                if (activity != null) {
+                    bgGeo.setActivity(activity);
+                }
+            });
+        });
     }
 
     private void handlePlayServicesConnectError(Integer errorCode) {
@@ -1036,16 +1045,23 @@ public class BackgroundGeolocationPlugin extends Plugin {
     protected void handleOnPause() {
 
     }
+    // (WO-190) handleOnResume and handleOnStop run on the main thread, and at launch load()'s build may still be running
+    // on the plugin thread: both ask for TSConfig (TSScheduleManager.getInstance does, first).  They wait for the SDK
+    // without blocking main, in order with each other; built, they run at once, as before.
     protected void handleOnStop() {
-        Context context = getContext().getApplicationContext();
-        TSConfig config = TSConfig.getInstance(context);
-        if (config.getEnabled()) {
-            TSScheduleManager.getInstance(context).oneShot(TerminateEvent.ACTION, 10000);
-        }
+        final Context context = getContext().getApplicationContext();
+        BackgroundGeolocation.getInstanceAsync(context, bgGeo -> {
+            TSConfig config = TSConfig.getInstance(context);
+            if (config.getEnabled()) {
+                TSScheduleManager.getInstance(context).oneShot(TerminateEvent.ACTION, 10000);
+            }
+        });
     }
 
     protected void handleOnResume() {
-        TSScheduleManager.getInstance(getContext()).cancelOneShot(TerminateEvent.ACTION);
+        final Context context = getContext().getApplicationContext();
+        BackgroundGeolocation.getInstanceAsync(context,
+                bgGeo -> TSScheduleManager.getInstance(context).cancelOneShot(TerminateEvent.ACTION));
     }
 
     protected void handleOnDestroy() {
