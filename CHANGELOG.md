@@ -5,8 +5,8 @@
 * [Fixed][Android] An ANR at launch ("Input dispatching timed out") on a device where the SDK takes a long time to
   load its stored configuration. The plugin built the SDK on the main thread as the app started, and waited there
   for the configuration to load, for as long as that took. It now builds it on the plugin's own thread, ahead of the
-  app's first call, so nothing the app calls runs before it. Requires tslocationmanager with
-  `BackgroundGeolocation.getInstanceAsync`.
+  app's first call, so nothing the app calls runs before it. Requires tslocationmanager 4.7.8 or later: an older
+  `ext.tslocationmanagerVersion` in your app's root `build.gradle` is raised to 4.7.8, with a warning in the build.
 
 ## 9.7.1 &mdash; 2026-10-26
 
