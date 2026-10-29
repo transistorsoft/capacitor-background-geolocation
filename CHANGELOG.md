@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 9.7.2 &mdash; 2026-10-29
 
 * [Fixed][Android] An ANR at launch ("Input dispatching timed out") on a device where the SDK takes a long time to
   load its stored configuration. The plugin built the SDK on the main thread as the app started, and waited there
