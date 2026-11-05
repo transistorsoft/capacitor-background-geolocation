@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## Unreleased
+
+* [Changed][iOS] The podspec's iOS minimum is 15.0 (was 13.0). Xcode 27 refuses any deployment target below
+  15.0 as an error; Capacitor 8 already lifts every pod to 15.0 in `assertDeploymentTarget`, so an app on
+  Capacitor 8 builds as before.
+
 ## 9.7.2 &mdash; 2026-10-29
 
 * [Fixed][Android] An ANR at launch ("Input dispatching timed out") on a device where the SDK takes a long time to
