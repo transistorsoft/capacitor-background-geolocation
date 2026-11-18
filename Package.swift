@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "TransistorsoftCapacitorBackgroundGeolocation",
-    platforms: [.iOS(.v14)],
+    platforms: [.iOS(.v15)],   // (WO-194) TSLocationManager 4.9.0 and TSBackgroundFetch 4.2 are iOS 15
     products: [
         .library(
             name: "TransistorsoftCapacitorBackgroundGeolocation",
@@ -12,8 +12,10 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
-        .package(url: "https://github.com/transistorsoft/native-background-geolocation.git", .upToNextMinor(from: "4.8.0")),
-        .package(url: "https://github.com/transistorsoft/transistor-background-fetch.git", from: "4.0.5")
+        // (WO-194) TSLocationManager 4.9.0 requires TSBackgroundFetch 4.2.1 or any later 4.x, at iOS 15; this
+        // floor keeps the direct fetch requirement from disagreeing with it.
+        .package(url: "https://github.com/transistorsoft/native-background-geolocation.git", .upToNextMinor(from: "4.9.0")),
+        .package(url: "https://github.com/transistorsoft/transistor-background-fetch.git", from: "4.2.1")
     ],
     targets: [
         .target(
