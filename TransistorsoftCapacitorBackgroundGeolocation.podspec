@@ -13,7 +13,8 @@ Pod::Spec.new do |s|
   s.source_files = 'ios/Sources/BackgroundGeolocationPlugin/**/*.{swift,h,m,c,cc,mm,cpp}'
   s.ios.deployment_target  = '15.0'
   s.dependency 'Capacitor'
-  tslm_version = ENV['TSLOCATIONMANAGER_VERSION'] || '~> 4.8.0'
+  # (WO-194) 4.9.0 is the first TSLocationManager that accepts TSBackgroundFetch 4.2 (4.2.1 or any later 4.x), at iOS 15.
+  tslm_version = ENV['TSLOCATIONMANAGER_VERSION'] || '~> 4.9.0'
   s.dependency 'TSLocationManager', tslm_version
   s.libraries = 'sqlite3', 'z', 'stdc++'
   s.resource_bundles = {
